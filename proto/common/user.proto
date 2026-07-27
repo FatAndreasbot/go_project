@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package common.v1;
+
+import "enums.proto";
+
+message UserGroupPermissions {
+  repeated UserPermission user_permissions = 1;
+}
+
