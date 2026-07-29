@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package user_service;
+
+import "common/v1/user.proto";
+import "common/v1/uuid.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "proto/user_service";
+
+message LogInRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LogInResponse {
+  bool success = 1;
+}
+
+message CreateUserRequest{
+  string username = 1;
+  string password = 2;
+  common.v1.UUID group_id = 3;
+}
+
+message CreateUserResponse {
+  common.v1.User user = 1;
+}
+
+message GetGroupsRequest {
+}
+
+message GetGroupsResponse {
+  repeated common.v1.UserGroup groups = 1;
+}

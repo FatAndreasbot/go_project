@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package user_service;
+
+import "user_service/messages.proto";
+
+option go_package = "proto/user_service";
+
+service UserService {
+  rpc LogIn(LogInRequest) returns (LogInResponse);
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
+}
+
