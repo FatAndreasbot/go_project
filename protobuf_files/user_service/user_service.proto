@@ -2,11 +2,9 @@ syntax = "proto3";
 
 package user_service;
 
-import "enums.proto";
-import "google/protobuf/empty.proto";
-import "messages.proto";
+import "user_service/messages.proto";
 
-option go_package = "github.com/FatAndreasbot/go_project/proto/user_service";
+option go_package = "proto/user_service";
 
 service UserService {
   rpc LogIn(LogInRequest) returns (LogInResponse);
