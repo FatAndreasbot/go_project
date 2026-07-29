@@ -1,0 +1,57 @@
+package grpcadapter
+
+import (
+	"context"
+	"log"
+	proto "proto/user_service"
+
+	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
+)
+
+type Server struct {
+	proto.UnimplementedUserServiceServer
+	handler incoming.IncomingRequestHandler
+}
+
+func NewServer(handler incoming.IncomingRequestHandler) *Server {
+	return &Server{
+		handler: handler,
+	}
+}
+
+// LogIn(context.Context, *LogInRequest) (*LogInResponse, error)
+// CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
+// GetGroups(context.Context, *GetGroupsRequest) (*GetGroupsResponse, error)
+
+func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
+	username, password := req.GetUsername(), req.GetPassword()
+
+	user, err := s.handler.GetUserByUsername(username)
+	if err != nil {
+		log.Default().Println(err, "Server.Login()")
+		return nil, status.Error(codes.NotFound, "user not found")
+	}
+
+	err = user.CheckPassword(password)
+	if err != nil {
+		log.Default().Println(err, "Server.Login()")
+		return nil, status.Error(codes.PermissionDenied, "wrong password")
+	}
+
+	jwt, err := s.handler.GetJWT(user)
+	if err != nil {
+		log.Default().Println(err, "Server.Login()")
+		return nil, status.Error(codes.Internal, "could not generate token")
+	}
+
+	metadata.AppendToOutgoingContext(
+		ctx,
+		"authorization",
+		"Bearer "+jwt,
+	)
+
+	return nil, status.Error(codes.Unimplemented, "method LogIn not implemented")
+}
