@@ -5,7 +5,10 @@ import (
 	"log"
 	proto "proto/user_service"
 
+	"github.com/FatAndreasbot/go_project/user_service/domain/controllers"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
+	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -31,19 +34,19 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 
 	user, err := s.handler.GetUserByUsername(username)
 	if err != nil {
-		log.Default().Println(err, "Server.Login()")
+		log.Default().Println(err)
 		return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
 	}
 
 	err = user.CheckPassword(password)
 	if err != nil {
-		log.Default().Println(err, "Server.Login()")
+		log.Default().Println(err)
 		return &proto.LogInResponse{Success: false}, status.Error(codes.PermissionDenied, "wrong password")
 	}
 
 	jwt, err := s.handler.GetJWT(user)
 	if err != nil {
-		log.Default().Println(err, "Server.Login()")
+		log.Default().Println(err)
 		return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not generate token")
 	}
 
@@ -57,7 +60,18 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
-	// user :=
+	groupUUID, err := uuid.Parse(req.GetGroupId().GetId())
+	if err != nil {
+		log.Default().Println(err)
+		return nil, status.Error(codes.InvalidArgument, "could not parse groupID")
+	}
+
+	user, err := controllers.GetUserController().CreateUser(
+		req.GetUsername(),
+		req.GetPassword(),
+		groupUUID,
+	)
+	if 
 
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

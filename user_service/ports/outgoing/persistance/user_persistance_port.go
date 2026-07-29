@@ -15,3 +15,13 @@ type UserPersistancePort interface {
 	CreateUser(*models.User) (uuid.UUID, error)
 	DeleteUser(uuid.UUID) error
 }
+
+type GroupPersistancePort interface {
+	GetGroupByID(uuid.UUID) (*models.Group, error)
+
+	GetGroupList(int, int) ([]*models.Group, error)
+
+	UpdateGroup(uuid.UUID, *models.Group) error
+	CreateGroup(*models.Group) (uuid.UUID, error)
+	DeleteGroup(uuid.UUID) error
+}
