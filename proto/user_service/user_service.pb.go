@@ -24,30 +24,35 @@ var File_user_service_user_service_proto protoreflect.FileDescriptor
 
 const file_user_service_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1fuser_service/user_service.proto\x12\fuser_service\x1a\x1buser_service/messages.proto2\xee\x01\n" +
+	"\x1fuser_service/user_service.proto\x12\fuser_service\x1a\x1buser_service/messages.proto2\xb6\x02\n" +
 	"\vUserService\x12@\n" +
 	"\x05LogIn\x12\x1a.user_service.LogInRequest\x1a\x1b.user_service.LogInResponse\x12O\n" +
 	"\n" +
 	"CreateUser\x12\x1f.user_service.CreateUserRequest\x1a .user_service.CreateUserResponse\x12L\n" +
-	"\tGetGroups\x12\x1e.user_service.GetGroupsRequest\x1a\x1f.user_service.GetGroupsResponseB\x14Z\x12proto/user_serviceb\x06proto3"
+	"\tGetGroups\x12\x1e.user_service.GetGroupsRequest\x1a\x1f.user_service.GetGroupsResponse\x12F\n" +
+	"\aGetUser\x12\x1c.user_service.GetUserRequest\x1a\x1d.user_service.GetUserResponseB\x14Z\x12proto/user_serviceb\x06proto3"
 
 var file_user_service_user_service_proto_goTypes = []any{
 	(*LogInRequest)(nil),       // 0: user_service.LogInRequest
 	(*CreateUserRequest)(nil),  // 1: user_service.CreateUserRequest
 	(*GetGroupsRequest)(nil),   // 2: user_service.GetGroupsRequest
-	(*LogInResponse)(nil),      // 3: user_service.LogInResponse
-	(*CreateUserResponse)(nil), // 4: user_service.CreateUserResponse
-	(*GetGroupsResponse)(nil),  // 5: user_service.GetGroupsResponse
+	(*GetUserRequest)(nil),     // 3: user_service.GetUserRequest
+	(*LogInResponse)(nil),      // 4: user_service.LogInResponse
+	(*CreateUserResponse)(nil), // 5: user_service.CreateUserResponse
+	(*GetGroupsResponse)(nil),  // 6: user_service.GetGroupsResponse
+	(*GetUserResponse)(nil),    // 7: user_service.GetUserResponse
 }
 var file_user_service_user_service_proto_depIdxs = []int32{
 	0, // 0: user_service.UserService.LogIn:input_type -> user_service.LogInRequest
 	1, // 1: user_service.UserService.CreateUser:input_type -> user_service.CreateUserRequest
 	2, // 2: user_service.UserService.GetGroups:input_type -> user_service.GetGroupsRequest
-	3, // 3: user_service.UserService.LogIn:output_type -> user_service.LogInResponse
-	4, // 4: user_service.UserService.CreateUser:output_type -> user_service.CreateUserResponse
-	5, // 5: user_service.UserService.GetGroups:output_type -> user_service.GetGroupsResponse
-	3, // [3:6] is the sub-list for method output_type
-	0, // [0:3] is the sub-list for method input_type
+	3, // 3: user_service.UserService.GetUser:input_type -> user_service.GetUserRequest
+	4, // 4: user_service.UserService.LogIn:output_type -> user_service.LogInResponse
+	5, // 5: user_service.UserService.CreateUser:output_type -> user_service.CreateUserResponse
+	6, // 6: user_service.UserService.GetGroups:output_type -> user_service.GetGroupsResponse
+	7, // 7: user_service.UserService.GetUser:output_type -> user_service.GetUserResponse
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

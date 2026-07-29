@@ -9,7 +9,6 @@ package user_service
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/emptypb"
 	v1 "proto/common/v1"
 	reflect "reflect"
 	sync "sync"
@@ -303,11 +302,99 @@ func (x *GetGroupsResponse) GetGroups() []*v1.UserGroup {
 	return nil
 }
 
+type GetUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        *v1.UUID               `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserRequest) Reset() {
+	*x = GetUserRequest{}
+	mi := &file_user_service_messages_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserRequest) ProtoMessage() {}
+
+func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_messages_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
+func (*GetUserRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_messages_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetUserRequest) GetUserId() *v1.UUID {
+	if x != nil {
+		return x.UserId
+	}
+	return nil
+}
+
+type GetUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *v1.User               `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserResponse) Reset() {
+	*x = GetUserResponse{}
+	mi := &file_user_service_messages_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserResponse) ProtoMessage() {}
+
+func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_messages_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
+func (*GetUserResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_messages_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *GetUserResponse) GetUser() *v1.User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 var File_user_service_messages_proto protoreflect.FileDescriptor
 
 const file_user_service_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x1buser_service/messages.proto\x12\fuser_service\x1a\x14common/v1/user.proto\x1a\x14common/v1/uuid.proto\x1a\x1bgoogle/protobuf/empty.proto\"F\n" +
+	"\x1buser_service/messages.proto\x12\fuser_service\x1a\x14common/v1/user.proto\x1a\x14common/v1/uuid.proto\"F\n" +
 	"\fLogInRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\")\n" +
@@ -321,7 +408,11 @@ const file_user_service_messages_proto_rawDesc = "" +
 	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"\x12\n" +
 	"\x10GetGroupsRequest\"A\n" +
 	"\x11GetGroupsResponse\x12,\n" +
-	"\x06groups\x18\x01 \x03(\v2\x14.common.v1.UserGroupR\x06groupsB\x14Z\x12proto/user_serviceb\x06proto3"
+	"\x06groups\x18\x01 \x03(\v2\x14.common.v1.UserGroupR\x06groups\":\n" +
+	"\x0eGetUserRequest\x12(\n" +
+	"\auser_id\x18\x01 \x01(\v2\x0f.common.v1.UUIDR\x06userId\"6\n" +
+	"\x0fGetUserResponse\x12#\n" +
+	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04userB\x14Z\x12proto/user_serviceb\x06proto3"
 
 var (
 	file_user_service_messages_proto_rawDescOnce sync.Once
@@ -335,7 +426,7 @@ func file_user_service_messages_proto_rawDescGZIP() []byte {
 	return file_user_service_messages_proto_rawDescData
 }
 
-var file_user_service_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_user_service_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_user_service_messages_proto_goTypes = []any{
 	(*LogInRequest)(nil),       // 0: user_service.LogInRequest
 	(*LogInResponse)(nil),      // 1: user_service.LogInResponse
@@ -343,19 +434,23 @@ var file_user_service_messages_proto_goTypes = []any{
 	(*CreateUserResponse)(nil), // 3: user_service.CreateUserResponse
 	(*GetGroupsRequest)(nil),   // 4: user_service.GetGroupsRequest
 	(*GetGroupsResponse)(nil),  // 5: user_service.GetGroupsResponse
-	(*v1.UUID)(nil),            // 6: common.v1.UUID
-	(*v1.User)(nil),            // 7: common.v1.User
-	(*v1.UserGroup)(nil),       // 8: common.v1.UserGroup
+	(*GetUserRequest)(nil),     // 6: user_service.GetUserRequest
+	(*GetUserResponse)(nil),    // 7: user_service.GetUserResponse
+	(*v1.UUID)(nil),            // 8: common.v1.UUID
+	(*v1.User)(nil),            // 9: common.v1.User
+	(*v1.UserGroup)(nil),       // 10: common.v1.UserGroup
 }
 var file_user_service_messages_proto_depIdxs = []int32{
-	6, // 0: user_service.CreateUserRequest.group_id:type_name -> common.v1.UUID
-	7, // 1: user_service.CreateUserResponse.user:type_name -> common.v1.User
-	8, // 2: user_service.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	8,  // 0: user_service.CreateUserRequest.group_id:type_name -> common.v1.UUID
+	9,  // 1: user_service.CreateUserResponse.user:type_name -> common.v1.User
+	10, // 2: user_service.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
+	8,  // 3: user_service.GetUserRequest.user_id:type_name -> common.v1.UUID
+	9,  // 4: user_service.GetUserResponse.user:type_name -> common.v1.User
+	5,  // [5:5] is the sub-list for method output_type
+	5,  // [5:5] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_user_service_messages_proto_init() }
@@ -369,7 +464,7 @@ func file_user_service_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_messages_proto_rawDesc), len(file_user_service_messages_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
