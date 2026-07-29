@@ -32,19 +32,19 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 	user, err := s.handler.GetUserByUsername(username)
 	if err != nil {
 		log.Default().Println(err, "Server.Login()")
-		return nil, status.Error(codes.NotFound, "user not found")
+		return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
 	}
 
 	err = user.CheckPassword(password)
 	if err != nil {
 		log.Default().Println(err, "Server.Login()")
-		return nil, status.Error(codes.PermissionDenied, "wrong password")
+		return &proto.LogInResponse{Success: false}, status.Error(codes.PermissionDenied, "wrong password")
 	}
 
 	jwt, err := s.handler.GetJWT(user)
 	if err != nil {
 		log.Default().Println(err, "Server.Login()")
-		return nil, status.Error(codes.Internal, "could not generate token")
+		return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not generate token")
 	}
 
 	metadata.AppendToOutgoingContext(
@@ -53,5 +53,11 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 		"Bearer "+jwt,
 	)
 
-	return nil, status.Error(codes.Unimplemented, "method LogIn not implemented")
+	return &proto.LogInResponse{Success: true}, nil
+}
+
+func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+	// user :=
+
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }
