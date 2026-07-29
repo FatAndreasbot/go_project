@@ -10,5 +10,6 @@ service UserService {
   rpc LogIn(LogInRequest) returns (LogInResponse);
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
+  rpc GetUser(GetUserRequest) returns (GetUserResponse);
 }
 
