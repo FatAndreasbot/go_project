@@ -10,7 +10,7 @@ option go_package = "github.com/FatAndreasbot/go_project/proto/user_service";
 
 service UserService {
   rpc LogIn(LogInRequest) returns (LogInResponse);
-  // TODO replace this with some actual messages
-  rpc CreateUser(google.protobuf.Empty) returns (google.protobuf.Empty); 
+  rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
 }
 

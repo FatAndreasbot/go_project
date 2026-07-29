@@ -3,17 +3,25 @@ syntax = "proto3";
 package common.v1;
 
 import "enums.proto";
+import "uuid.proto";
 
-message UserGroupPermissions {
-  string group_name = 1;
-  repeated UserPermission user_permissions = 2;
+message UserGroup {
+  common.uuid.UUID group_id = 1;
+  string group_name = 2;
+  repeated UserPermission user_permissions = 3;
 }
 
 message User{
-  string name = 1;
-  UserGroupPermissions group = 2;
+  common.uuid.UUID user_id = 1;
+  string name = 2;
+  UserGroup group = 3;
 }
 
 message UsersInGroup{
   repeated User users = 1;
+}
+
+message UserPermission{
+  common.uuid.UUID permission_id = 1;
+  string name = 2;
 }
