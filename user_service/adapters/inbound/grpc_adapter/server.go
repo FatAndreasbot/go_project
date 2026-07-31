@@ -3,10 +3,10 @@ package grpcadapter
 import (
 	"context"
 	"log"
+	v1 "proto/common/v1"
 	proto "proto/user_service"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/controllers"
-	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -71,7 +71,31 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		req.GetPassword(),
 		groupUUID,
 	)
-	if 
+	permissions := make([]*v1.UserPermission, 0, len(user.Group.Permissions))
+
+	for _, permission := range user.Group.Permissions {
+		permissions = append(permissions, &v1.UserPermission{
+			PermissionId: &v1.UUID{Id: permission.ID.String()},
+			Name:         permission.Name,
+		})
+	}
+
+	return &proto.CreateUserResponse{
+		User: &v1.User{
+			UserId: &v1.UUID{Id: user.ID.String()},
+			Name:   user.Name,
+			Group: &v1.UserGroup{
+				GroupId:         &v1.UUID{Id: user.Group.ID.String()},
+				GroupName:       user.Group.Name,
+				UserPermissions: permissions,
+			},
+		},
+	}, nil
+}
+
+func (s *Server) GetGroups(context.Context, *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
+	// gc := controllers.GetGroupController()
+	// groups := gc.
 
 	return nil, status.Error(codes.Unimplemented, "not implemented")
 }

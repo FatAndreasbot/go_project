@@ -5,6 +5,6 @@ import "github.com/google/uuid"
 type Group struct {
 	ID          uuid.UUID
 	Name        string
-	Permossions []Permission
+	Permissions []Permission
 	Users       []User
 }

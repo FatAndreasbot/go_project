@@ -30,5 +30,10 @@ func GetGroupController() *GroupController {
 }
 
 func (gc *GroupController) GetGroupByUUID(id uuid.UUID) (*models.Group, error) {
-	return gc.GetGroupByUUID(id)
+	return gc.groupPersistanceAdapter.GetGroupByID(id)
+}
+
+func (gc *GroupController) GetAllGroups() ([]*models.Group, error) {
+	// TODO set actual limits
+	return gc.groupPersistanceAdapter.GetGroupList(0, 1000)
 }
