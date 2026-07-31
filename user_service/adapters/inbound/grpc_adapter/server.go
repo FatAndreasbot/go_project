@@ -6,7 +6,7 @@ import (
 	v1 "proto/common/v1"
 	proto "proto/user_service"
 
-	"github.com/FatAndreasbot/go_project/user_service/domain/controllers"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -28,6 +28,8 @@ func NewServer(handler incoming.IncomingRequestHandler) *Server {
 // LogIn(context.Context, *LogInRequest) (*LogInResponse, error)
 // CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 // GetGroups(context.Context, *GetGroupsRequest) (*GetGroupsResponse, error)
+
+func convertPermissions([]*models.Permission)
 
 func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
 	username, password := req.GetUsername(), req.GetPassword()
@@ -66,7 +68,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		return nil, status.Error(codes.InvalidArgument, "could not parse groupID")
 	}
 
-	user, err := controllers.GetUserController().CreateUser(
+	user, err := s.handler.StoreNewUser(
 		req.GetUsername(),
 		req.GetPassword(),
 		groupUUID,
@@ -93,9 +95,23 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 	}, nil
 }
 
-func (s *Server) GetGroups(context.Context, *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
-	// gc := controllers.GetGroupController()
-	// groups := gc.
+func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
+	groups, err := s.handler.GetGroupList(int(req.GetPagesize()), int(req.GetPagenumber()))
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 
-	return nil, status.Error(codes.Unimplemented, "not implemented")
+	convertedGroups := make([]*v1.UserGroup, 0, int(req.GetPagesize()))
+
+	for _, group := range groups {
+		convertedGroups = append(convertedGroups, &v1.UserGroup{
+			GroupId:   &v1.UUID{Id: group.ID.String()},
+			GroupName: group.Name,
+			// UserPermissions: ,
+		})
+	}
+
+	return &proto.GetGroupsResponse{
+		Groups: convertedGroups,
+	}, nil
 }
