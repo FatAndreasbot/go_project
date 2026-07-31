@@ -224,6 +224,8 @@ func (x *CreateUserResponse) GetUser() *v1.User {
 
 type GetGroupsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pagesize      int32                  `protobuf:"varint,1,opt,name=pagesize,proto3" json:"pagesize,omitempty"`
+	Pagenumber    int32                  `protobuf:"varint,2,opt,name=pagenumber,proto3" json:"pagenumber,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -256,6 +258,20 @@ func (x *GetGroupsRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use GetGroupsRequest.ProtoReflect.Descriptor instead.
 func (*GetGroupsRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_messages_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetGroupsRequest) GetPagesize() int32 {
+	if x != nil {
+		return x.Pagesize
+	}
+	return 0
+}
+
+func (x *GetGroupsRequest) GetPagenumber() int32 {
+	if x != nil {
+		return x.Pagenumber
+	}
+	return 0
 }
 
 type GetGroupsResponse struct {
@@ -405,8 +421,12 @@ const file_user_service_messages_proto_rawDesc = "" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12*\n" +
 	"\bgroup_id\x18\x03 \x01(\v2\x0f.common.v1.UUIDR\agroupId\"9\n" +
 	"\x12CreateUserResponse\x12#\n" +
-	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"\x12\n" +
-	"\x10GetGroupsRequest\"A\n" +
+	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"N\n" +
+	"\x10GetGroupsRequest\x12\x1a\n" +
+	"\bpagesize\x18\x01 \x01(\x05R\bpagesize\x12\x1e\n" +
+	"\n" +
+	"pagenumber\x18\x02 \x01(\x05R\n" +
+	"pagenumber\"A\n" +
 	"\x11GetGroupsResponse\x12,\n" +
 	"\x06groups\x18\x01 \x03(\v2\x14.common.v1.UserGroupR\x06groups\":\n" +
 	"\x0eGetUserRequest\x12(\n" +
