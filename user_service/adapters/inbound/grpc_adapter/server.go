@@ -2,11 +2,13 @@ package grpcadapter
 
 import (
 	"context"
+	"errors"
 	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models/dominaerrors"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -29,24 +31,33 @@ func NewServer(handler incoming.IncomingRequestHandler) *Server {
 // CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 // GetGroups(context.Context, *GetGroupsRequest) (*GetGroupsResponse, error)
 
-func convertPermissions([]*models.Permission)
+func convertPermissions(domainPermissions *[]*models.Permission) []*v1.UserPermission {
+	rpcPermissions := make([]*v1.UserPermission, 0, len(*domainPermissions))
+
+	for _, permission := range *domainPermissions {
+		rpcPermissions = append(rpcPermissions, &v1.UserPermission{
+			PermissionId: &v1.UUID{Id: permission.ID.String()},
+			Name:         permission.Name,
+		})
+	}
+	return rpcPermissions
+}
 
 func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
 	username, password := req.GetUsername(), req.GetPassword()
 
-	user, err := s.handler.GetUserByUsername(username)
+	user, err := s.handler.GetAndCheckUserByUsername(username, password)
 	if err != nil {
-		log.Default().Println(err)
-		return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
+		if errors.Is(err, dominaerrors.UserNotFoundError) {
+			return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
+		} else if errors.Is(err, dominaerrors.UserWrongPassword) {
+			return &proto.LogInResponse{Success: false}, status.Error(codes.PermissionDenied, "wrong password")
+		} else {
+			return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not fetch userdata")
+		}
 	}
 
-	err = user.CheckPassword(password)
-	if err != nil {
-		log.Default().Println(err)
-		return &proto.LogInResponse{Success: false}, status.Error(codes.PermissionDenied, "wrong password")
-	}
-
-	jwt, err := s.handler.GetJWT(user)
+	jwt, err := EncodeJWT(user.ID)
 	if err != nil {
 		log.Default().Println(err)
 		return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not generate token")
@@ -73,14 +84,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		req.GetPassword(),
 		groupUUID,
 	)
-	permissions := make([]*v1.UserPermission, 0, len(user.Group.Permissions))
-
-	for _, permission := range user.Group.Permissions {
-		permissions = append(permissions, &v1.UserPermission{
-			PermissionId: &v1.UUID{Id: permission.ID.String()},
-			Name:         permission.Name,
-		})
-	}
+	permissions := convertPermissions(&user.Group.Permissions)
 
 	return &proto.CreateUserResponse{
 		User: &v1.User{
@@ -105,9 +109,9 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 
 	for _, group := range groups {
 		convertedGroups = append(convertedGroups, &v1.UserGroup{
-			GroupId:   &v1.UUID{Id: group.ID.String()},
-			GroupName: group.Name,
-			// UserPermissions: ,
+			GroupId:         &v1.UUID{Id: group.ID.String()},
+			GroupName:       group.Name,
+			UserPermissions: convertPermissions(&group.Permissions),
 		})
 	}
 

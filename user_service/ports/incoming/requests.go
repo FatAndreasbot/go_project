@@ -6,8 +6,7 @@ import (
 )
 
 type IncomingRequestHandler interface {
-	GetUserByUsername(string) (*models.User, error)
-	GetJWT(*models.User) (string, error)
-	StoreNewUser(string, string, uuid.UUID) (*models.User, error)
+	GetAndCheckUserByUsername(username, password string) (*models.User, error)
+	StoreNewUser(username, password string, groupID uuid.UUID) (*models.User, error)
 	GetGroupList(pagesize, pagenumber int) ([]*models.Group, error)
 }

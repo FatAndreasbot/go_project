@@ -19,7 +19,7 @@ type UserPersistancePort interface {
 type GroupPersistancePort interface {
 	GetGroupByID(uuid.UUID) (*models.Group, error)
 
-	GetGroupList(int, int) ([]*models.Group, error)
+	GetGroupList(start, end int) ([]*models.Group, error)
 
 	UpdateGroup(uuid.UUID, *models.Group) error
 	CreateGroup(*models.Group) (uuid.UUID, error)
