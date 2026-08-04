@@ -53,9 +53,10 @@ select
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
-    )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
+    ) as permissions
 from 
     groups g
     join group_permissions gp on g.id = gp.group_id
@@ -66,15 +67,15 @@ group by g.name, g.uuid
 `
 
 type GetGroupByIDRow struct {
-	Name    string
-	ID      uuid.UUID
-	JsonAgg json.RawMessage
+	Name        string
+	ID          uuid.UUID
+	Permissions json.RawMessage
 }
 
 func (q *Queries) GetGroupByID(ctx context.Context, argUuid uuid.UUID) (GetGroupByIDRow, error) {
 	row := q.db.QueryRowContext(ctx, getGroupByID, argUuid)
 	var i GetGroupByIDRow
-	err := row.Scan(&i.Name, &i.ID, &i.JsonAgg)
+	err := row.Scan(&i.Name, &i.ID, &i.Permissions)
 	return i, err
 }
 
@@ -84,26 +85,31 @@ select
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
-    )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
+    ) as permissions
 from 
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
-where 
-    g.uuid = $1
 group by g.name, g.uuid
+limit $1 offset $2
 `
 
-type GetGroupListRow struct {
-	Name    string
-	ID      uuid.UUID
-	JsonAgg json.RawMessage
+type GetGroupListParams struct {
+	Limit  int32
+	Offset int32
 }
 
-func (q *Queries) GetGroupList(ctx context.Context, argUuid uuid.UUID) ([]GetGroupListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGroupList, argUuid)
+type GetGroupListRow struct {
+	Name        string
+	ID          uuid.UUID
+	Permissions json.RawMessage
+}
+
+func (q *Queries) GetGroupList(ctx context.Context, arg GetGroupListParams) ([]GetGroupListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getGroupList, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +117,7 @@ func (q *Queries) GetGroupList(ctx context.Context, argUuid uuid.UUID) ([]GetGro
 	var items []GetGroupListRow
 	for rows.Next() {
 		var i GetGroupListRow
-		if err := rows.Scan(&i.Name, &i.ID, &i.JsonAgg); err != nil {
+		if err := rows.Scan(&i.Name, &i.ID, &i.Permissions); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

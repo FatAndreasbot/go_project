@@ -50,7 +50,7 @@ select
         JSON_BUILD_OBJECT(
             'ID', p.uuid, 
             'Name', p.name
-        )
+        ) order by p.uuid
     ) as permissions
 from
     users u
@@ -101,7 +101,7 @@ select
         JSON_BUILD_OBJECT(
             'ID', p.uuid, 
             'Name', p.name
-        )
+        ) order by p.uuid
     ) as permissions
 from
     users u
@@ -152,7 +152,7 @@ select
         JSON_BUILD_OBJECT(
             'ID', p.uuid, 
             'Name', p.name
-        )
+        ) order by p.uuid
     ) as permissions
 from
     users u

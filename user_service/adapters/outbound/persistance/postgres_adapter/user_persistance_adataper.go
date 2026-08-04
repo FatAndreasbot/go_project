@@ -2,6 +2,7 @@ package postgresadapter
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -9,37 +10,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func permissionDifference(old, new []*models.Permission) (toAdd, toRemove []*models.Permission) {
-	toSet := func(list []*models.Permission) map[uuid.UUID]*models.Permission {
-		set := make(map[uuid.UUID]*models.Permission, len(list))
-		for _, permission := range list {
-			set[permission.ID] = permission
-		}
-		return set
-	}
-
-	oldSet := toSet(old)
-	newSet := toSet(new)
-
-	for id, permission := range oldSet {
-		_, ok := newSet[id]
-		if !ok {
-			toRemove = append(toRemove, permission)
-		}
-	}
-
-	for id, permission := range newSet {
-		_, ok := oldSet[id]
-		if !ok {
-			toAdd = append(toRemove, permission)
-		}
-	}
-	return
-}
-
 // implements UserPersistancePort
 type UserPersistanceAdapter struct {
-	q *sqlc_gen.Queries
+	conn *sql.DB
+	q    *sqlc_gen.Queries
 }
 
 // UserPersistancePort
@@ -52,8 +26,8 @@ type UserPersistanceAdapter struct {
 // CreateUser(context.Context, *models.User) (uuid.UUID, error)
 // DeleteUser(context.Context, uuid.UUID) error
 
-func (adapter *UserPersistanceAdapter) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
-	row, err := adapter.q.GetUserByUsername(ctx, username)
+func (adp *UserPersistanceAdapter) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
+	row, err := adp.q.GetUserByUsername(ctx, username)
 	if err != nil {
 		return nil, err
 	}
@@ -79,8 +53,8 @@ func (adapter *UserPersistanceAdapter) GetUserByUsername(ctx context.Context, us
 	return &user, nil
 }
 
-func (adapter *UserPersistanceAdapter) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
-	row, err := adapter.q.GetUserByID(ctx, id)
+func (adp *UserPersistanceAdapter) GetUserByID(ctx context.Context, id uuid.UUID) (*models.User, error) {
+	row, err := adp.q.GetUserByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -105,8 +79,8 @@ func (adapter *UserPersistanceAdapter) GetUserByID(ctx context.Context, id uuid.
 	return &user, nil
 }
 
-func (adapter *UserPersistanceAdapter) GetUserList(ctx context.Context, limit, offset int) ([]*models.User, error) {
-	rows, err := adapter.q.GetUserList(ctx, sqlc_gen.GetUserListParams{
+func (adp *UserPersistanceAdapter) GetUserList(ctx context.Context, limit, offset int) ([]*models.User, error) {
+	rows, err := adp.q.GetUserList(ctx, sqlc_gen.GetUserListParams{
 		Limit:  int32(limit),
 		Offset: int32(offset),
 	})
@@ -139,16 +113,16 @@ func (adapter *UserPersistanceAdapter) GetUserList(ctx context.Context, limit, o
 	return users, nil
 }
 
-func (adapter *UserPersistanceAdapter) UpdateUser(ctx context.Context, userID uuid.UUID, newUserData *models.User) error {
-	return adapter.q.UpdateUser(ctx, sqlc_gen.UpdateUserParams{
+func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userID uuid.UUID, newUserData *models.User) error {
+	return adp.q.UpdateUser(ctx, sqlc_gen.UpdateUserParams{
 		Username:     newUserData.Name,
 		PasswordHash: newUserData.PasswordHash,
 		GroupID:      newUserData.Group.ID,
 	})
 }
 
-func (adapter *UserPersistanceAdapter) CreateUser(ctx context.Context, user *models.User) error {
-	userID, err := adapter.q.CreateUser(ctx, sqlc_gen.CreateUserParams{
+func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, user *models.User) error {
+	userID, err := adp.q.CreateUser(ctx, sqlc_gen.CreateUserParams{
 		Username:     user.Name,
 		PasswordHash: user.PasswordHash,
 		GroupID:      user.Group.ID,
@@ -161,6 +135,6 @@ func (adapter *UserPersistanceAdapter) CreateUser(ctx context.Context, user *mod
 	return nil
 }
 
-func (adapter *UserPersistanceAdapter) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	return adapter.q.DeleteUser(ctx, id)
+func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	return adp.q.DeleteUser(ctx, id)
 }

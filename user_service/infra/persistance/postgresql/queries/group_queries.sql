@@ -5,9 +5,10 @@ select
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
-    )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
+    ) as permissions
 from 
     groups g
     join group_permissions gp on g.id = gp.group_id
@@ -22,16 +23,17 @@ select
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
-    )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
+    ) as permissions
 from 
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
-where 
-    g.uuid = $1
-group by g.name, g.uuid;
+group by g.name, g.uuid
+limit $1 offset $2;
+
 
 -- name: UpdateGroup :exec
 update groups g set 
