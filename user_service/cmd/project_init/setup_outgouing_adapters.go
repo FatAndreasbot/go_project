@@ -3,6 +3,8 @@ package project_init
 import (
 	"database/sql"
 
+	_ "github.com/jackc/pgx/v5/stdlib"
+
 	postgresadapter "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/persistance/postgres_adapter"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 )
