@@ -3,18 +3,19 @@ select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
+    g."name" as group_name,
     g."uuid" as group_uuid,
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
     ) as permissions
 from
     users u
     join "groups" g on g.uuid = u.group_id
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
 where
 	u.username = $1
 group by 
@@ -29,33 +30,55 @@ select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
+    g."name" as group_name,
     g."uuid" as group_uuid,
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
-        )
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
     ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id 
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    join "groups" g on g.uuid = u.group_id 
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
 where
-	u."uuid" = $1;
+	u."uuid" = $1
+group by 
+    u.username,
+    u.password_hash,
+    u."uuid",
+    g."name",
+    g."uuid";
 
 -- name: GetUserList :many
 select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
-    g."uuid" as group_uuid
+    g."name" as group_name,
+    g."uuid" as group_uuid,
+	JSON_AGG(
+        JSON_BUILD_OBJECT(
+            'ID', p.uuid, 
+            'Name', p.name
+        ) order by p.uuid
+    ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id  
-limit
-    $1 offset $2;
+    join "groups" g on g.uuid = u.group_id
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
+group by 
+	u.id,
+    u.username,
+    u.password_hash,
+    u."uuid",
+    g."name",
+    g."uuid"
+order by u.id 
+limit $1 offset $2;
 
 -- name: UpdateUser :exec
 update Users u set

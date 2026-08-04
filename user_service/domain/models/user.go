@@ -8,12 +8,12 @@ import (
 type User struct {
 	ID           uuid.UUID
 	Name         string
-	passwordHash string
+	PasswordHash string
 	Group        *Group
 }
 
 func (u *User) CheckPassword(password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(u.passwordHash), []byte(password))
+	return bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 }
 
 func (u *User) SetPassword(password string) error {
@@ -22,6 +22,6 @@ func (u *User) SetPassword(password string) error {
 		return err
 	}
 
-	u.passwordHash = string(newPasswordHash)
+	u.PasswordHash = string(newPasswordHash)
 	return nil
 }

@@ -6,5 +6,4 @@ type Group struct {
 	ID          uuid.UUID
 	Name        string
 	Permissions []*Permission
-	Users       []*User
 }

@@ -46,7 +46,7 @@ func convertPermissions(domainPermissions *[]*models.Permission) []*v1.UserPermi
 func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
 	username, password := req.GetUsername(), req.GetPassword()
 
-	user, err := s.handler.GetAndCheckUserByUsername(username, password)
+	user, err := s.handler.GetAndCheckUserByUsername(ctx, username, password)
 	if err != nil {
 		if errors.Is(err, dominaerrors.UserNotFoundError) {
 			return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
@@ -80,6 +80,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 	}
 
 	user, err := s.handler.StoreNewUser(
+		ctx,
 		req.GetUsername(),
 		req.GetPassword(),
 		groupUUID,
@@ -100,7 +101,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 }
 
 func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
-	groups, err := s.handler.GetGroupList(int(req.GetPagesize()), int(req.GetPagenumber()))
+	groups, err := s.handler.GetGroupList(ctx, int(req.GetPagesize()), int(req.GetPagenumber()))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

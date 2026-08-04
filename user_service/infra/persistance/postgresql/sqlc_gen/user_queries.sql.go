@@ -44,27 +44,34 @@ select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
+    g."name" as group_name,
     g."uuid" as group_uuid,
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
+            'ID', p.uuid, 
+            'Name', p.name
         )
     ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id 
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    join "groups" g on g.uuid = u.group_id 
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
 where
 	u."uuid" = $1
+group by 
+    u.username,
+    u.password_hash,
+    u."uuid",
+    g."name",
+    g."uuid"
 `
 
 type GetUserByIDRow struct {
 	Username     string
 	PasswordHash string
 	Uuid         uuid.UUID
-	Name         string
+	GroupName    string
 	GroupUuid    uuid.UUID
 	Permissions  json.RawMessage
 }
@@ -76,7 +83,7 @@ func (q *Queries) GetUserByID(ctx context.Context, argUuid uuid.UUID) (GetUserBy
 		&i.Username,
 		&i.PasswordHash,
 		&i.Uuid,
-		&i.Name,
+		&i.GroupName,
 		&i.GroupUuid,
 		&i.Permissions,
 	)
@@ -88,18 +95,19 @@ select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
+    g."name" as group_name,
     g."uuid" as group_uuid,
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            p.uuid, p.name
+            'ID', p.uuid, 
+            'Name', p.name
         )
     ) as permissions
 from
     users u
     join "groups" g on g.uuid = u.group_id
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
 where
 	u.username = $1
 group by 
@@ -114,7 +122,7 @@ type GetUserByUsernameRow struct {
 	Username     string
 	PasswordHash string
 	Uuid         uuid.UUID
-	Name         string
+	GroupName    string
 	GroupUuid    uuid.UUID
 	Permissions  json.RawMessage
 }
@@ -126,7 +134,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUs
 		&i.Username,
 		&i.PasswordHash,
 		&i.Uuid,
-		&i.Name,
+		&i.GroupName,
 		&i.GroupUuid,
 		&i.Permissions,
 	)
@@ -138,13 +146,28 @@ select
     u.username,
     u.password_hash,
     u."uuid",
-    g."name",
-    g."uuid" as group_uuid
+    g."name" as group_name,
+    g."uuid" as group_uuid,
+	JSON_AGG(
+        JSON_BUILD_OBJECT(
+            'ID', p.uuid, 
+            'Name', p.name
+        )
+    ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id  
-limit
-    $1 offset $2
+    join "groups" g on g.uuid = u.group_id
+    join group_permissions gp on g.uuid = gp.group_id
+    join permissions p on p.uuid = gp.permission_id
+group by 
+	u.id,
+    u.username,
+    u.password_hash,
+    u."uuid",
+    g."name",
+    g."uuid"
+order by u.id 
+limit $1 offset $2
 `
 
 type GetUserListParams struct {
@@ -156,8 +179,9 @@ type GetUserListRow struct {
 	Username     string
 	PasswordHash string
 	Uuid         uuid.UUID
-	Name         string
+	GroupName    string
 	GroupUuid    uuid.UUID
+	Permissions  json.RawMessage
 }
 
 func (q *Queries) GetUserList(ctx context.Context, arg GetUserListParams) ([]GetUserListRow, error) {
@@ -173,8 +197,9 @@ func (q *Queries) GetUserList(ctx context.Context, arg GetUserListParams) ([]Get
 			&i.Username,
 			&i.PasswordHash,
 			&i.Uuid,
-			&i.Name,
+			&i.GroupName,
 			&i.GroupUuid,
+			&i.Permissions,
 		); err != nil {
 			return nil, err
 		}
