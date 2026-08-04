@@ -1,0 +1,11 @@
+version: "2"
+
+sql:
+  - engine: "postgresql"
+    schema: "infra/persistance/postgresql/migrations"
+    queries: "infra/persistance/postgresql/queries"
+    gen:
+      go:
+        package: "sqlc_gen"
+        out: "infra/persistance/postgresql/sqlc_gen"
+        emit_exact_table_names: true
