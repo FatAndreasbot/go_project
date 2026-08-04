@@ -17,6 +17,13 @@ type UserDataHandler struct {
 	groupPersistanceAdapter persistance.GroupPersistancePort
 }
 
+func NewUserDataHandler(userAdp persistance.UserPersistancePort, groupAdp persistance.GroupPersistancePort) *UserDataHandler {
+	return &UserDataHandler{
+		userPersistanceAdapter:  userAdp,
+		groupPersistanceAdapter: groupAdp,
+	}
+}
+
 // implementing incoming.IncomingRequestHandler
 func (h *UserDataHandler) GetAndCheckUserByUsername(ctx context.Context, username, password string) (*models.User, error) {
 	user, err := h.userPersistanceAdapter.GetUserByUsername(ctx, username)

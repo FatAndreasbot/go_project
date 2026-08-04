@@ -43,6 +43,13 @@ type GroupPersistanceAdapter struct {
 	conn *sql.DB
 }
 
+func NewGroupPersistanceAdapter(conn *sql.DB) *GroupPersistanceAdapter {
+	return &GroupPersistanceAdapter{
+		conn: conn,
+		q:    sqlc_gen.New(conn),
+	}
+}
+
 // GroupPersistancePort interface
 // GetGroupByID(context.Context, uuid.UUID) (*models.Group, error)
 

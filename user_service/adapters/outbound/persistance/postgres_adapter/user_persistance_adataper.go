@@ -16,6 +16,13 @@ type UserPersistanceAdapter struct {
 	q    *sqlc_gen.Queries
 }
 
+func NewUserPersistanceAdapter(conn *sql.DB) *UserPersistanceAdapter {
+	return &UserPersistanceAdapter{
+		conn: conn,
+		q:    sqlc_gen.New(conn),
+	}
+}
+
 // UserPersistancePort
 // GetUserByUsername(context.Context, string) (*models.User, error)
 // GetUserByID(context.Context, uuid.UUID) (*models.User, error)
@@ -121,18 +128,18 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userID uuid.U
 	})
 }
 
-func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, user *models.User) error {
+func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, user *models.User) (uuid.UUID, error) {
 	userID, err := adp.q.CreateUser(ctx, sqlc_gen.CreateUserParams{
 		Username:     user.Name,
 		PasswordHash: user.PasswordHash,
 		GroupID:      user.Group.ID,
 	})
 	if err != nil {
-		return err
+		return uuid.Nil, err
 	}
 
 	user.ID = userID
-	return nil
+	return userID, nil
 }
 
 func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, id uuid.UUID) error {
