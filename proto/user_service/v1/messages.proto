@@ -13,7 +13,7 @@ message LogInRequest {
 }
 
 message LogInResponse {
-  bool success = 1;
+  string token = 1;
 }
 
 message CreateUserRequest{
@@ -27,12 +27,13 @@ message CreateUserResponse {
 }
 
 message GetGroupsRequest {
-  int32 pagesize = 1;
-  int32 pagenumber = 2;
+  int32 cursor = 1;
+  int32 limit = 2;
 }
 
 message GetGroupsResponse {
   repeated common.v1.UserGroup groups = 1;
+  int32 next = 2;
 }
 
 message GetUserRequest {
