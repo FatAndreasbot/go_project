@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package user_service;
+package user_service.v1;
 
 import "common/v1/user.proto";
 import "common/v1/uuid.proto";

@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package user_service;
+package user_service.v1;
 
-import "user_service/messages.proto";
+import "user_service/v1/messages.proto";
 
 option go_package = "proto/user_service";
 
