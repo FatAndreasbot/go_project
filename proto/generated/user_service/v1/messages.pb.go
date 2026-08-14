@@ -274,20 +274,6 @@ func (x *GetGroupsRequest) GetLimit() int32 {
 	return 0
 }
 
-func (x *GetGroupsRequest) GetPagesize() int32 {
-	if x != nil {
-		return x.Pagesize
-	}
-	return 0
-}
-
-func (x *GetGroupsRequest) GetPagenumber() int32 {
-	if x != nil {
-		return x.Pagenumber
-	}
-	return 0
-}
-
 type GetGroupsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Groups        []*v1.UserGroup        `protobuf:"bytes,1,rep,name=groups,proto3" json:"groups,omitempty"`
