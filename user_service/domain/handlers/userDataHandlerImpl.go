@@ -28,14 +28,14 @@ func NewUserDataHandler(userAdp persistance.UserPersistancePort, groupAdp persis
 func (h *UserDataHandler) GetAndCheckUserByUsername(ctx context.Context, username, password string) (*models.User, error) {
 	user, err := h.userPersistanceAdapter.GetUserByUsername(ctx, username)
 	if err != nil {
-		log.Default().Println(errors.Join(err, dominaerrors.UserNotFoundError))
-		return nil, dominaerrors.UserNotFoundError
+		log.Default().Println(errors.Join(err, dominaerrors.WrongPasswdOrNoUserFound))
+		return nil, dominaerrors.WrongPasswdOrNoUserFound
 	}
 
 	err = user.CheckPassword(password)
 	if err != nil {
 		log.Default().Println(err)
-		return nil, dominaerrors.UserWrongPassword
+		return nil, dominaerrors.WrongPasswdOrNoUserFound
 	}
 
 	return user, nil

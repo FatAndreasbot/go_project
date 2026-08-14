@@ -48,20 +48,20 @@ func (q *Queries) DeleteGroup(ctx context.Context, argUuid uuid.UUID) error {
 }
 
 const getGroupByID = `-- name: GetGroupByID :one
-select 
+select
     g.name,
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            'ID', p.uuid, 
+            'ID', p.uuid,
             'Name', p.name
         ) order by p.uuid
     ) as permissions
-from 
+from
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
-where 
+where
     g.uuid = $1
 group by g.name, g.uuid
 `
@@ -80,36 +80,39 @@ func (q *Queries) GetGroupByID(ctx context.Context, argUuid uuid.UUID) (GetGroup
 }
 
 const getGroupList = `-- name: GetGroupList :many
-select 
+select
     g.name,
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            'ID', p.uuid, 
+            'ID', p.uuid,
             'Name', p.name
         ) order by p.uuid
-    ) as permissions
-from 
+    ) as permissions,
+    g.id as created
+from
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
+where g.id >= $1
 group by g.name, g.uuid
-limit $1 offset $2
+limit $2
 `
 
 type GetGroupListParams struct {
-	Limit  int32
-	Offset int32
+	ID    int32
+	Limit int32
 }
 
 type GetGroupListRow struct {
 	Name        string
 	ID          uuid.UUID
 	Permissions json.RawMessage
+	Created     int32
 }
 
 func (q *Queries) GetGroupList(ctx context.Context, arg GetGroupListParams) ([]GetGroupListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGroupList, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getGroupList, arg.ID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +120,12 @@ func (q *Queries) GetGroupList(ctx context.Context, arg GetGroupListParams) ([]G
 	var items []GetGroupListRow
 	for rows.Next() {
 		var i GetGroupListRow
-		if err := rows.Scan(&i.Name, &i.ID, &i.Permissions); err != nil {
+		if err := rows.Scan(
+			&i.Name,
+			&i.ID,
+			&i.Permissions,
+			&i.Created,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -135,7 +143,7 @@ const getGroupPermissions = `-- name: GetGroupPermissions :many
 select
     p.name,
     p.uuid
-from 
+from
     permissions p
     join group_permissions gp on gp.permission_id = p.id
 where gp.group_id = $1
@@ -184,11 +192,17 @@ func (q *Queries) RemovePermissionsFromGroup(ctx context.Context, arg RemovePerm
 }
 
 const updateGroup = `-- name: UpdateGroup :exec
-update groups g set 
+update groups g set
     "name" = $1
+where g.uuid = $2
 `
 
-func (q *Queries) UpdateGroup(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, updateGroup, name)
+type UpdateGroupParams struct {
+	Name string
+	Uuid uuid.UUID
+}
+
+func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) error {
+	_, err := q.db.ExecContext(ctx, updateGroup, arg.Name, arg.Uuid)
 	return err
 }

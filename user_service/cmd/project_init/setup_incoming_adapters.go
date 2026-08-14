@@ -3,7 +3,7 @@ package project_init
 import (
 	"fmt"
 	"net"
-	proto "proto/user_service"
+	proto "proto/user_service/v1"
 
 	grpcadapter "github.com/FatAndreasbot/go_project/user_service/adapters/inbound/grpc_adapter"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"

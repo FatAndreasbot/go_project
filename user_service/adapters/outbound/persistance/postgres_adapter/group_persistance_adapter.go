@@ -79,10 +79,10 @@ func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UU
 	}, nil
 }
 
-func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit, offset int) ([]*models.Group, error) {
+func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, cursor, limit int) ([]*models.Group, error) {
 	rows, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
 		Limit:  int32(limit),
-		Offset: int32(offset),
+		ID: int32(cursor),
 	})
 	if err != nil {
 		return nil, err
@@ -119,7 +119,10 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 		}
 	}()
 
-	err = adp.q.UpdateGroup(ctx, newGroupData.Name)
+	err = adp.q.UpdateGroup(ctx, sqlc_gen.UpdateGroupParams{
+		Name: newGroupData.Name,
+		Uuid: oldGroupID,
+	})
 	if err != nil {
 		return
 	}

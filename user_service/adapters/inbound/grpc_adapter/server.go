@@ -5,14 +5,13 @@ import (
 	"errors"
 	"log"
 	v1 "proto/common/v1"
-	proto "proto/user_service"
+	proto "proto/user_service/v1"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models/dominaerrors"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -48,28 +47,20 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 
 	user, err := s.handler.GetAndCheckUserByUsername(ctx, username, password)
 	if err != nil {
-		if errors.Is(err, dominaerrors.UserNotFoundError) {
-			return &proto.LogInResponse{Success: false}, status.Error(codes.NotFound, "user not found")
-		} else if errors.Is(err, dominaerrors.UserWrongPassword) {
-			return &proto.LogInResponse{Success: false}, status.Error(codes.PermissionDenied, "wrong password")
+		if errors.Is(err, dominaerrors.WrongPasswdOrNoUserFound) {
+			return nil, status.Error(codes.NotFound, "wrong password user not found")
 		} else {
-			return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not fetch userdata")
+			return nil, status.Error(codes.Internal, "could not fetch userdata")
 		}
 	}
 
 	jwt, err := EncodeJWT(user.ID)
 	if err != nil {
 		log.Default().Println(err)
-		return &proto.LogInResponse{Success: false}, status.Error(codes.Internal, "could not generate token")
+		return nil, status.Error(codes.Internal, "could not generate token")
 	}
 
-	metadata.AppendToOutgoingContext(
-		ctx,
-		"authorization",
-		"Bearer "+jwt,
-	)
-
-	return &proto.LogInResponse{Success: true}, nil
+	return &proto.LogInResponse{Token: jwt}, nil
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
@@ -101,12 +92,12 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 }
 
 func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
-	groups, err := s.handler.GetGroupList(ctx, int(req.GetPagesize()), int(req.GetPagenumber()))
+	groups, err := s.handler.GetGroupList(ctx, int(req.GetCursor()), int(req.GetLimit()))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	convertedGroups := make([]*v1.UserGroup, 0, int(req.GetPagesize()))
+	convertedGroups := make([]*v1.UserGroup, 0, int(req.GetLimit()))
 
 	for _, group := range groups {
 		convertedGroups = append(convertedGroups, &v1.UserGroup{

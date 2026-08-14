@@ -1,43 +1,46 @@
 
 -- name: GetGroupByID :one
-select 
+select
     g.name,
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            'ID', p.uuid, 
+            'ID', p.uuid,
             'Name', p.name
         ) order by p.uuid
     ) as permissions
-from 
+from
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
-where 
+where
     g.uuid = $1
 group by g.name, g.uuid;
 
 -- name: GetGroupList :many
-select 
+select
     g.name,
     g.uuid as "id",
     JSON_AGG(
         JSON_BUILD_OBJECT(
-            'ID', p.uuid, 
+            'ID', p.uuid,
             'Name', p.name
         ) order by p.uuid
-    ) as permissions
-from 
+    ) as permissions,
+    g.id as created
+from
     groups g
     join group_permissions gp on g.id = gp.group_id
     join permissions p on p.id = gp.permission_id
+where g.id >= $1
 group by g.name, g.uuid
-limit $1 offset $2;
+limit $2;
 
 
 -- name: UpdateGroup :exec
-update groups g set 
-    "name" = $1;
+update groups g set
+    "name" = $1
+where g.uuid = $2;
 
 -- name: AddPermissionsToGroup :exec
 insert into group_permissions (group_id, permission_id) values ($1, $2);
@@ -49,7 +52,7 @@ delete from group_permissions gp where gp.group_id = $1 and gp.permission_id = $
 select
     p.name,
     p.uuid
-from 
+from
     permissions p
     join group_permissions gp on gp.permission_id = p.id
 where gp.group_id = $1;
