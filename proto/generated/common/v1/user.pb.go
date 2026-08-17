@@ -7,6 +7,7 @@
 package v1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -23,7 +24,7 @@ const (
 
 type UserGroup struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	GroupId         *UUID                  `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId         string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	GroupName       string                 `protobuf:"bytes,2,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
 	UserPermissions []*UserPermission      `protobuf:"bytes,3,rep,name=user_permissions,json=userPermissions,proto3" json:"user_permissions,omitempty"`
 	unknownFields   protoimpl.UnknownFields
@@ -60,11 +61,11 @@ func (*UserGroup) Descriptor() ([]byte, []int) {
 	return file_common_v1_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserGroup) GetGroupId() *UUID {
+func (x *UserGroup) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
-	return nil
+	return ""
 }
 
 func (x *UserGroup) GetGroupName() string {
@@ -83,9 +84,9 @@ func (x *UserGroup) GetUserPermissions() []*UserPermission {
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        *UUID                  `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Group         *UserGroup             `protobuf:"bytes,3,opt,name=group,proto3" json:"group,omitempty"`
+	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,11 +121,11 @@ func (*User) Descriptor() ([]byte, []int) {
 	return file_common_v1_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *User) GetUserId() *UUID {
+func (x *User) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
-	return nil
+	return ""
 }
 
 func (x *User) GetName() string {
@@ -134,11 +135,11 @@ func (x *User) GetName() string {
 	return ""
 }
 
-func (x *User) GetGroup() *UserGroup {
+func (x *User) GetGroupId() string {
 	if x != nil {
-		return x.Group
+		return x.GroupId
 	}
-	return nil
+	return ""
 }
 
 type UsersInGroup struct {
@@ -187,7 +188,7 @@ func (x *UsersInGroup) GetUsers() []*User {
 
 type UserPermission struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PermissionId  *UUID                  `protobuf:"bytes,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
+	PermissionId  string                 `protobuf:"bytes,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -223,11 +224,11 @@ func (*UserPermission) Descriptor() ([]byte, []int) {
 	return file_common_v1_user_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *UserPermission) GetPermissionId() *UUID {
+func (x *UserPermission) GetPermissionId() string {
 	if x != nil {
 		return x.PermissionId
 	}
-	return nil
+	return ""
 }
 
 func (x *UserPermission) GetName() string {
@@ -241,20 +242,20 @@ var File_common_v1_user_proto protoreflect.FileDescriptor
 
 const file_common_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x14common/v1/user.proto\x12\tcommon.v1\x1a\x14common/v1/uuid.proto\"\x9c\x01\n" +
-	"\tUserGroup\x12*\n" +
-	"\bgroup_id\x18\x01 \x01(\v2\x0f.common.v1.UUIDR\agroupId\x12\x1d\n" +
+	"\x14common/v1/user.proto\x12\tcommon.v1\x1a\x1ccommon/vendor/validate.proto\"\x95\x01\n" +
+	"\tUserGroup\x12#\n" +
+	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12\x1d\n" +
 	"\n" +
 	"group_name\x18\x02 \x01(\tR\tgroupName\x12D\n" +
-	"\x10user_permissions\x18\x03 \x03(\v2\x19.common.v1.UserPermissionR\x0fuserPermissions\"p\n" +
-	"\x04User\x12(\n" +
-	"\auser_id\x18\x01 \x01(\v2\x0f.common.v1.UUIDR\x06userId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12*\n" +
-	"\x05group\x18\x03 \x01(\v2\x14.common.v1.UserGroupR\x05group\"5\n" +
+	"\x10user_permissions\x18\x03 \x03(\v2\x19.common.v1.UserPermissionR\x0fuserPermissions\"b\n" +
+	"\x04User\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\bgroup_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"5\n" +
 	"\fUsersInGroup\x12%\n" +
-	"\x05users\x18\x01 \x03(\v2\x0f.common.v1.UserR\x05users\"Z\n" +
-	"\x0eUserPermission\x124\n" +
-	"\rpermission_id\x18\x01 \x01(\v2\x0f.common.v1.UUIDR\fpermissionId\x12\x12\n" +
+	"\x05users\x18\x01 \x03(\v2\x0f.common.v1.UserR\x05users\"S\n" +
+	"\x0eUserPermission\x12-\n" +
+	"\rpermission_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fpermissionId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04nameB\x11Z\x0fproto/common/v1b\x06proto3"
 
 var (
@@ -275,20 +276,15 @@ var file_common_v1_user_proto_goTypes = []any{
 	(*User)(nil),           // 1: common.v1.User
 	(*UsersInGroup)(nil),   // 2: common.v1.UsersInGroup
 	(*UserPermission)(nil), // 3: common.v1.UserPermission
-	(*UUID)(nil),           // 4: common.v1.UUID
 }
 var file_common_v1_user_proto_depIdxs = []int32{
-	4, // 0: common.v1.UserGroup.group_id:type_name -> common.v1.UUID
-	3, // 1: common.v1.UserGroup.user_permissions:type_name -> common.v1.UserPermission
-	4, // 2: common.v1.User.user_id:type_name -> common.v1.UUID
-	0, // 3: common.v1.User.group:type_name -> common.v1.UserGroup
-	1, // 4: common.v1.UsersInGroup.users:type_name -> common.v1.User
-	4, // 5: common.v1.UserPermission.permission_id:type_name -> common.v1.UUID
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	3, // 0: common.v1.UserGroup.user_permissions:type_name -> common.v1.UserPermission
+	1, // 1: common.v1.UsersInGroup.users:type_name -> common.v1.User
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_common_v1_user_proto_init() }
@@ -296,7 +292,6 @@ func file_common_v1_user_proto_init() {
 	if File_common_v1_user_proto != nil {
 		return
 	}
-	file_common_v1_uuid_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

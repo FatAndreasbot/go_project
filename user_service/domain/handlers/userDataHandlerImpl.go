@@ -78,3 +78,7 @@ func (h *UserDataHandler) GetGroupList(ctx context.Context, pagesize, pagenumber
 
 	return h.groupPersistanceAdapter.GetGroupList(ctx, pagesize, offset)
 }
+
+func (h *UserDataHandler) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+	return h.userPersistanceAdapter.GetUserByID(ctx, userID)
+}

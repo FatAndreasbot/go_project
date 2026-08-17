@@ -415,6 +415,94 @@ func (x *GetUserResponse) GetUser() *v1.User {
 	return nil
 }
 
+type GetPermissionsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPermissionsRequest) Reset() {
+	*x = GetPermissionsRequest{}
+	mi := &file_user_service_v1_messages_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPermissionsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPermissionsRequest) ProtoMessage() {}
+
+func (x *GetPermissionsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_messages_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPermissionsRequest.ProtoReflect.Descriptor instead.
+func (*GetPermissionsRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_messages_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetPermissionsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetPermissionsResponse struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	UserPermissions []*v1.UserPermission   `protobuf:"bytes,1,rep,name=user_permissions,json=userPermissions,proto3" json:"user_permissions,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *GetPermissionsResponse) Reset() {
+	*x = GetPermissionsResponse{}
+	mi := &file_user_service_v1_messages_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPermissionsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPermissionsResponse) ProtoMessage() {}
+
+func (x *GetPermissionsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_v1_messages_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPermissionsResponse.ProtoReflect.Descriptor instead.
+func (*GetPermissionsResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_v1_messages_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetPermissionsResponse) GetUserPermissions() []*v1.UserPermission {
+	if x != nil {
+		return x.UserPermissions
+	}
+	return nil
+}
+
 var File_user_service_v1_messages_proto protoreflect.FileDescriptor
 
 const file_user_service_v1_messages_proto_rawDesc = "" +
@@ -440,7 +528,11 @@ const file_user_service_v1_messages_proto_rawDesc = "" +
 	"\x0eGetUserRequest\x12!\n" +
 	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\"6\n" +
 	"\x0fGetUserResponse\x12#\n" +
-	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04userB\x14Z\x12proto/user_serviceb\x06proto3"
+	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\":\n" +
+	"\x15GetPermissionsRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\"^\n" +
+	"\x16GetPermissionsResponse\x12D\n" +
+	"\x10user_permissions\x18\x01 \x03(\v2\x19.common.v1.UserPermissionR\x0fuserPermissionsB\x14Z\x12proto/user_serviceb\x06proto3"
 
 var (
 	file_user_service_v1_messages_proto_rawDescOnce sync.Once
@@ -454,28 +546,32 @@ func file_user_service_v1_messages_proto_rawDescGZIP() []byte {
 	return file_user_service_v1_messages_proto_rawDescData
 }
 
-var file_user_service_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_user_service_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_user_service_v1_messages_proto_goTypes = []any{
-	(*LogInRequest)(nil),       // 0: user_service.v1.LogInRequest
-	(*LogInResponse)(nil),      // 1: user_service.v1.LogInResponse
-	(*CreateUserRequest)(nil),  // 2: user_service.v1.CreateUserRequest
-	(*CreateUserResponse)(nil), // 3: user_service.v1.CreateUserResponse
-	(*GetGroupsRequest)(nil),   // 4: user_service.v1.GetGroupsRequest
-	(*GetGroupsResponse)(nil),  // 5: user_service.v1.GetGroupsResponse
-	(*GetUserRequest)(nil),     // 6: user_service.v1.GetUserRequest
-	(*GetUserResponse)(nil),    // 7: user_service.v1.GetUserResponse
-	(*v1.User)(nil),            // 8: common.v1.User
-	(*v1.UserGroup)(nil),       // 9: common.v1.UserGroup
+	(*LogInRequest)(nil),           // 0: user_service.v1.LogInRequest
+	(*LogInResponse)(nil),          // 1: user_service.v1.LogInResponse
+	(*CreateUserRequest)(nil),      // 2: user_service.v1.CreateUserRequest
+	(*CreateUserResponse)(nil),     // 3: user_service.v1.CreateUserResponse
+	(*GetGroupsRequest)(nil),       // 4: user_service.v1.GetGroupsRequest
+	(*GetGroupsResponse)(nil),      // 5: user_service.v1.GetGroupsResponse
+	(*GetUserRequest)(nil),         // 6: user_service.v1.GetUserRequest
+	(*GetUserResponse)(nil),        // 7: user_service.v1.GetUserResponse
+	(*GetPermissionsRequest)(nil),  // 8: user_service.v1.GetPermissionsRequest
+	(*GetPermissionsResponse)(nil), // 9: user_service.v1.GetPermissionsResponse
+	(*v1.User)(nil),                // 10: common.v1.User
+	(*v1.UserGroup)(nil),           // 11: common.v1.UserGroup
+	(*v1.UserPermission)(nil),      // 12: common.v1.UserPermission
 }
 var file_user_service_v1_messages_proto_depIdxs = []int32{
-	8, // 0: user_service.v1.CreateUserResponse.user:type_name -> common.v1.User
-	9, // 1: user_service.v1.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
-	8, // 2: user_service.v1.GetUserResponse.user:type_name -> common.v1.User
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	10, // 0: user_service.v1.CreateUserResponse.user:type_name -> common.v1.User
+	11, // 1: user_service.v1.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
+	10, // 2: user_service.v1.GetUserResponse.user:type_name -> common.v1.User
+	12, // 3: user_service.v1.GetPermissionsResponse.user_permissions:type_name -> common.v1.UserPermission
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_user_service_v1_messages_proto_init() }
@@ -489,7 +585,7 @@ func file_user_service_v1_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_v1_messages_proto_rawDesc), len(file_user_service_v1_messages_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

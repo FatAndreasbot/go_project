@@ -35,7 +35,7 @@ func convertPermissions(domainPermissions *[]*models.Permission) []*v1.UserPermi
 
 	for _, permission := range *domainPermissions {
 		rpcPermissions = append(rpcPermissions, &v1.UserPermission{
-			PermissionId: &v1.UUID{Id: permission.ID.String()},
+			PermissionId: permission.ID.String(),
 			Name:         permission.Name,
 		})
 	}
@@ -64,7 +64,7 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
-	groupUUID, err := uuid.Parse(req.GetGroupId().GetId())
+	groupUUID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err)
 		return nil, status.Error(codes.InvalidArgument, "could not parse groupID")
@@ -76,17 +76,12 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		req.GetPassword(),
 		groupUUID,
 	)
-	permissions := convertPermissions(&user.Group.Permissions)
 
 	return &proto.CreateUserResponse{
 		User: &v1.User{
-			UserId: &v1.UUID{Id: user.ID.String()},
-			Name:   user.Name,
-			Group: &v1.UserGroup{
-				GroupId:         &v1.UUID{Id: user.Group.ID.String()},
-				GroupName:       user.Group.Name,
-				UserPermissions: permissions,
-			},
+			UserId:  user.ID.String(),
+			Name:    user.Name,
+			GroupId: user.Group.ID.String(),
 		},
 	}, nil
 }
@@ -101,7 +96,7 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 
 	for _, group := range groups {
 		convertedGroups = append(convertedGroups, &v1.UserGroup{
-			GroupId:         &v1.UUID{Id: group.ID.String()},
+			GroupId:         group.ID.String(),
 			GroupName:       group.Name,
 			UserPermissions: convertPermissions(&group.Permissions),
 		})
@@ -109,5 +104,22 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 
 	return &proto.GetGroupsResponse{
 		Groups: convertedGroups,
+	}, nil
+}
+
+func (s *Server) GetPermissions(ctx context.Context, req *proto.GetPermissionsRequest) (*proto.GetPermissionsResponse, error) {
+	userID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "could not parse user id")
+	}
+	user, err := s.handler.GetUserByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	permissions := convertPermissions(&user.Group.Permissions)
+
+	return &proto.GetPermissionsResponse{
+		UserPermissions: permissions,
 	}, nil
 }
