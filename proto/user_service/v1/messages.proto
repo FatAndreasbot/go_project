@@ -3,7 +3,7 @@ syntax = "proto3";
 package user_service.v1;
 
 import "common/v1/user.proto";
-import "common/v1/uuid.proto";
+import "common/vendor/validate.proto";
 
 option go_package = "proto/user_service";
 
@@ -19,7 +19,11 @@ message LogInResponse {
 message CreateUserRequest{
   string username = 1;
   string password = 2;
-  common.v1.UUID group_id = 3;
+  string group_id = 3[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
 }
 
 message CreateUserResponse {
@@ -28,16 +32,20 @@ message CreateUserResponse {
 
 message GetGroupsRequest {
   int32 cursor = 1;
-  int32 limit = 2;
+  int32 limit  = 2;
 }
 
 message GetGroupsResponse {
   repeated common.v1.UserGroup groups = 1;
-  int32 next = 2;
+  int32                        next   = 2;
 }
 
 message GetUserRequest {
-  common.v1.UUID user_id = 1;
+  string user_id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
 }
 
 message GetUserResponse {

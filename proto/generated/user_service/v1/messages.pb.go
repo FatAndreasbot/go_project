@@ -7,6 +7,7 @@
 package user_service
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	v1 "proto/common/v1"
@@ -122,7 +123,7 @@ type CreateUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
-	GroupId       *v1.UUID               `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -171,11 +172,11 @@ func (x *CreateUserRequest) GetPassword() string {
 	return ""
 }
 
-func (x *CreateUserRequest) GetGroupId() *v1.UUID {
+func (x *CreateUserRequest) GetGroupId() string {
 	if x != nil {
 		return x.GroupId
 	}
-	return nil
+	return ""
 }
 
 type CreateUserResponse struct {
@@ -328,7 +329,7 @@ func (x *GetGroupsResponse) GetNext() int32 {
 
 type GetUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        *v1.UUID               `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -363,11 +364,11 @@ func (*GetUserRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_v1_messages_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GetUserRequest) GetUserId() *v1.UUID {
+func (x *GetUserRequest) GetUserId() string {
 	if x != nil {
 		return x.UserId
 	}
-	return nil
+	return ""
 }
 
 type GetUserResponse struct {
@@ -418,16 +419,16 @@ var File_user_service_v1_messages_proto protoreflect.FileDescriptor
 
 const file_user_service_v1_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x1euser_service/v1/messages.proto\x12\x0fuser_service.v1\x1a\x14common/v1/user.proto\x1a\x14common/v1/uuid.proto\"F\n" +
+	"\x1euser_service/v1/messages.proto\x12\x0fuser_service.v1\x1a\x14common/v1/user.proto\x1a\x1ccommon/vendor/validate.proto\"F\n" +
 	"\fLogInRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"%\n" +
 	"\rLogInResponse\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"w\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"p\n" +
 	"\x11CreateUserRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\x12*\n" +
-	"\bgroup_id\x18\x03 \x01(\v2\x0f.common.v1.UUIDR\agroupId\"9\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12#\n" +
+	"\bgroup_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"9\n" +
 	"\x12CreateUserResponse\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"@\n" +
 	"\x10GetGroupsRequest\x12\x16\n" +
@@ -435,9 +436,9 @@ const file_user_service_v1_messages_proto_rawDesc = "" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\"U\n" +
 	"\x11GetGroupsResponse\x12,\n" +
 	"\x06groups\x18\x01 \x03(\v2\x14.common.v1.UserGroupR\x06groups\x12\x12\n" +
-	"\x04next\x18\x02 \x01(\x05R\x04next\":\n" +
-	"\x0eGetUserRequest\x12(\n" +
-	"\auser_id\x18\x01 \x01(\v2\x0f.common.v1.UUIDR\x06userId\"6\n" +
+	"\x04next\x18\x02 \x01(\x05R\x04next\"3\n" +
+	"\x0eGetUserRequest\x12!\n" +
+	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\"6\n" +
 	"\x0fGetUserResponse\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04userB\x14Z\x12proto/user_serviceb\x06proto3"
 
@@ -463,21 +464,18 @@ var file_user_service_v1_messages_proto_goTypes = []any{
 	(*GetGroupsResponse)(nil),  // 5: user_service.v1.GetGroupsResponse
 	(*GetUserRequest)(nil),     // 6: user_service.v1.GetUserRequest
 	(*GetUserResponse)(nil),    // 7: user_service.v1.GetUserResponse
-	(*v1.UUID)(nil),            // 8: common.v1.UUID
-	(*v1.User)(nil),            // 9: common.v1.User
-	(*v1.UserGroup)(nil),       // 10: common.v1.UserGroup
+	(*v1.User)(nil),            // 8: common.v1.User
+	(*v1.UserGroup)(nil),       // 9: common.v1.UserGroup
 }
 var file_user_service_v1_messages_proto_depIdxs = []int32{
-	8,  // 0: user_service.v1.CreateUserRequest.group_id:type_name -> common.v1.UUID
-	9,  // 1: user_service.v1.CreateUserResponse.user:type_name -> common.v1.User
-	10, // 2: user_service.v1.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
-	8,  // 3: user_service.v1.GetUserRequest.user_id:type_name -> common.v1.UUID
-	9,  // 4: user_service.v1.GetUserResponse.user:type_name -> common.v1.User
-	5,  // [5:5] is the sub-list for method output_type
-	5,  // [5:5] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	8, // 0: user_service.v1.CreateUserResponse.user:type_name -> common.v1.User
+	9, // 1: user_service.v1.GetGroupsResponse.groups:type_name -> common.v1.UserGroup
+	8, // 2: user_service.v1.GetUserResponse.user:type_name -> common.v1.User
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_user_service_v1_messages_proto_init() }

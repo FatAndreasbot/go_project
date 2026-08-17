@@ -2,20 +2,32 @@ syntax = "proto3";
 
 package common.v1;
 
-import "common/v1/uuid.proto";
+import "common/vendor/validate.proto";
 
 option go_package = "proto/common/v1";
 
 message UserGroup {
-  UUID group_id = 1;
-  string group_name = 2;
+  string group_id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  string                  group_name       = 2;
   repeated UserPermission user_permissions = 3;
 }
 
 message User{
-  UUID user_id = 1;
-  string name = 2;
-  UserGroup group = 3;
+  string user_id = 1 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  string name    = 2;
+  string group_id = 3 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
 }
 
 message UsersInGroup{
@@ -23,6 +35,10 @@ message UsersInGroup{
 }
 
 message UserPermission{
-  UUID permission_id = 1;
+  string permission_id = 1 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
   string name = 2;
 }
