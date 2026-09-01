@@ -34,10 +34,6 @@ message User{
   ];
 }
 
-message UsersInGroup{
-  repeated User users = 1;
-}
-
 message UserPermission{
   string permission_id = 1 [
     (buf.validate.field).string = {
