@@ -17,7 +17,7 @@ func (u *User) CheckPassword(password string) error {
 }
 
 func (u *User) SetPassword(password string) error {
-	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
+	newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(password), 12) // bcrypt.DefaultCost = 10
 	if err != nil {
 		return err
 	}
