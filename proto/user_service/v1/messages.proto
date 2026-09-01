@@ -32,6 +32,11 @@ message CreateUserRequest{
     uuid: true
     }
   ];
+  string idempot_key = 4[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
 }
 
 message CreateUserResponse {
