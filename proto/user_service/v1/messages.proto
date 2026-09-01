@@ -17,7 +17,17 @@ message LogInRequest {
 }
 
 message LogInResponse {
-  string token = 1;
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message RefreshResponse {
+  string new_access_token = 1;
+  string new_refresh_token = 2;
 }
 
 message CreateUserRequest{
