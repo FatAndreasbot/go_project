@@ -24,8 +24,8 @@ const (
 
 type UserGroup struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	GroupId         string                 `protobuf:"bytes,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-	GroupName       string                 `protobuf:"bytes,2,opt,name=group_name,json=groupName,proto3" json:"group_name,omitempty"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	UserPermissions []*UserPermission      `protobuf:"bytes,3,rep,name=user_permissions,json=userPermissions,proto3" json:"user_permissions,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -61,16 +61,16 @@ func (*UserGroup) Descriptor() ([]byte, []int) {
 	return file_common_v1_user_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *UserGroup) GetGroupId() string {
+func (x *UserGroup) GetId() string {
 	if x != nil {
-		return x.GroupId
+		return x.Id
 	}
 	return ""
 }
 
-func (x *UserGroup) GetGroupName() string {
+func (x *UserGroup) GetName() string {
 	if x != nil {
-		return x.GroupName
+		return x.Name
 	}
 	return ""
 }
@@ -84,7 +84,7 @@ func (x *UserGroup) GetUserPermissions() []*UserPermission {
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	GroupId       string                 `protobuf:"bytes,3,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -121,9 +121,9 @@ func (*User) Descriptor() ([]byte, []int) {
 	return file_common_v1_user_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *User) GetUserId() string {
+func (x *User) GetId() string {
 	if x != nil {
-		return x.UserId
+		return x.Id
 	}
 	return ""
 }
@@ -142,50 +142,6 @@ func (x *User) GetGroupId() string {
 	return ""
 }
 
-type UsersInGroup struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*User                `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UsersInGroup) Reset() {
-	*x = UsersInGroup{}
-	mi := &file_common_v1_user_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UsersInGroup) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UsersInGroup) ProtoMessage() {}
-
-func (x *UsersInGroup) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_user_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UsersInGroup.ProtoReflect.Descriptor instead.
-func (*UsersInGroup) Descriptor() ([]byte, []int) {
-	return file_common_v1_user_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *UsersInGroup) GetUsers() []*User {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
 type UserPermission struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	PermissionId  string                 `protobuf:"bytes,1,opt,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
@@ -196,7 +152,7 @@ type UserPermission struct {
 
 func (x *UserPermission) Reset() {
 	*x = UserPermission{}
-	mi := &file_common_v1_user_proto_msgTypes[3]
+	mi := &file_common_v1_user_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -208,7 +164,7 @@ func (x *UserPermission) String() string {
 func (*UserPermission) ProtoMessage() {}
 
 func (x *UserPermission) ProtoReflect() protoreflect.Message {
-	mi := &file_common_v1_user_proto_msgTypes[3]
+	mi := &file_common_v1_user_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -221,7 +177,7 @@ func (x *UserPermission) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserPermission.ProtoReflect.Descriptor instead.
 func (*UserPermission) Descriptor() ([]byte, []int) {
-	return file_common_v1_user_proto_rawDescGZIP(), []int{3}
+	return file_common_v1_user_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UserPermission) GetPermissionId() string {
@@ -242,21 +198,18 @@ var File_common_v1_user_proto protoreflect.FileDescriptor
 
 const file_common_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x14common/v1/user.proto\x12\tcommon.v1\x1a\x1ccommon/vendor/validate.proto\"\x95\x01\n" +
-	"\tUserGroup\x12#\n" +
-	"\bgroup_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\x12\x1d\n" +
-	"\n" +
-	"group_name\x18\x02 \x01(\tR\tgroupName\x12D\n" +
+	"\x14common/v1/user.proto\x12\tcommon.v1\x1a\x1ccommon/vendor/validate.proto\"\x88\x01\n" +
+	"\tUserGroup\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12D\n" +
 	"\x10user_permissions\x18\x03 \x03(\v2\x19.common.v1.UserPermissionR\x0fuserPermissions\"b\n" +
-	"\x04User\x12!\n" +
-	"\auser_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x06userId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
-	"\bgroup_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"5\n" +
-	"\fUsersInGroup\x12%\n" +
-	"\x05users\x18\x01 \x03(\v2\x0f.common.v1.UserR\x05users\"S\n" +
+	"\x04User\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04name\x12#\n" +
+	"\bgroup_id\x18\x03 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\agroupId\"\\\n" +
 	"\x0eUserPermission\x12-\n" +
-	"\rpermission_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fpermissionId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04nameB\x11Z\x0fproto/common/v1b\x06proto3"
+	"\rpermission_id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\fpermissionId\x12\x1b\n" +
+	"\x04name\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\x01R\x04nameB\x11Z\x0fproto/common/v1b\x06proto3"
 
 var (
 	file_common_v1_user_proto_rawDescOnce sync.Once
@@ -270,21 +223,19 @@ func file_common_v1_user_proto_rawDescGZIP() []byte {
 	return file_common_v1_user_proto_rawDescData
 }
 
-var file_common_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_common_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_common_v1_user_proto_goTypes = []any{
 	(*UserGroup)(nil),      // 0: common.v1.UserGroup
 	(*User)(nil),           // 1: common.v1.User
-	(*UsersInGroup)(nil),   // 2: common.v1.UsersInGroup
-	(*UserPermission)(nil), // 3: common.v1.UserPermission
+	(*UserPermission)(nil), // 2: common.v1.UserPermission
 }
 var file_common_v1_user_proto_depIdxs = []int32{
-	3, // 0: common.v1.UserGroup.user_permissions:type_name -> common.v1.UserPermission
-	1, // 1: common.v1.UsersInGroup.users:type_name -> common.v1.User
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 0: common.v1.UserGroup.user_permissions:type_name -> common.v1.UserPermission
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_common_v1_user_proto_init() }
@@ -298,7 +249,7 @@ func file_common_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_user_proto_rawDesc), len(file_common_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

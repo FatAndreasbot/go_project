@@ -9,6 +9,7 @@ package user_service
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	unsafe "unsafe"
 )
@@ -24,9 +25,11 @@ var File_user_service_v1_user_service_proto protoreflect.FileDescriptor
 
 const file_user_service_v1_user_service_proto_rawDesc = "" +
 	"\n" +
-	"\"user_service/v1/user_service.proto\x12\x0fuser_service.v1\x1a\x1euser_service/v1/messages.proto2\xb1\x03\n" +
+	"\"user_service/v1/user_service.proto\x12\x0fuser_service.v1\x1a\x1euser_service/v1/messages.proto\x1a\x1bgoogle/protobuf/empty.proto2\xb9\x04\n" +
 	"\vUserService\x12F\n" +
-	"\x05LogIn\x12\x1d.user_service.v1.LogInRequest\x1a\x1e.user_service.v1.LogInResponse\x12U\n" +
+	"\x05LogIn\x12\x1d.user_service.v1.LogInRequest\x1a\x1e.user_service.v1.LogInResponse\x128\n" +
+	"\x06LogOut\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\x12L\n" +
+	"\aRefresh\x12\x1f.user_service.v1.RefreshRequest\x1a .user_service.v1.RefreshResponse\x12U\n" +
 	"\n" +
 	"CreateUser\x12\".user_service.v1.CreateUserRequest\x1a#.user_service.v1.CreateUserResponse\x12R\n" +
 	"\tGetGroups\x12!.user_service.v1.GetGroupsRequest\x1a\".user_service.v1.GetGroupsResponse\x12L\n" +
@@ -35,32 +38,39 @@ const file_user_service_v1_user_service_proto_rawDesc = "" +
 
 var file_user_service_v1_user_service_proto_goTypes = []any{
 	(*LogInRequest)(nil),           // 0: user_service.v1.LogInRequest
-	(*CreateUserRequest)(nil),      // 1: user_service.v1.CreateUserRequest
-	(*GetGroupsRequest)(nil),       // 2: user_service.v1.GetGroupsRequest
-	(*GetUserRequest)(nil),         // 3: user_service.v1.GetUserRequest
-	(*GetPermissionsRequest)(nil),  // 4: user_service.v1.GetPermissionsRequest
-	(*LogInResponse)(nil),          // 5: user_service.v1.LogInResponse
-	(*CreateUserResponse)(nil),     // 6: user_service.v1.CreateUserResponse
-	(*GetGroupsResponse)(nil),      // 7: user_service.v1.GetGroupsResponse
-	(*GetUserResponse)(nil),        // 8: user_service.v1.GetUserResponse
-	(*GetPermissionsResponse)(nil), // 9: user_service.v1.GetPermissionsResponse
+	(*emptypb.Empty)(nil),          // 1: google.protobuf.Empty
+	(*RefreshRequest)(nil),         // 2: user_service.v1.RefreshRequest
+	(*CreateUserRequest)(nil),      // 3: user_service.v1.CreateUserRequest
+	(*GetGroupsRequest)(nil),       // 4: user_service.v1.GetGroupsRequest
+	(*GetUserRequest)(nil),         // 5: user_service.v1.GetUserRequest
+	(*GetPermissionsRequest)(nil),  // 6: user_service.v1.GetPermissionsRequest
+	(*LogInResponse)(nil),          // 7: user_service.v1.LogInResponse
+	(*RefreshResponse)(nil),        // 8: user_service.v1.RefreshResponse
+	(*CreateUserResponse)(nil),     // 9: user_service.v1.CreateUserResponse
+	(*GetGroupsResponse)(nil),      // 10: user_service.v1.GetGroupsResponse
+	(*GetUserResponse)(nil),        // 11: user_service.v1.GetUserResponse
+	(*GetPermissionsResponse)(nil), // 12: user_service.v1.GetPermissionsResponse
 }
 var file_user_service_v1_user_service_proto_depIdxs = []int32{
-	0, // 0: user_service.v1.UserService.LogIn:input_type -> user_service.v1.LogInRequest
-	1, // 1: user_service.v1.UserService.CreateUser:input_type -> user_service.v1.CreateUserRequest
-	2, // 2: user_service.v1.UserService.GetGroups:input_type -> user_service.v1.GetGroupsRequest
-	3, // 3: user_service.v1.UserService.GetUser:input_type -> user_service.v1.GetUserRequest
-	4, // 4: user_service.v1.UserService.GetPermissions:input_type -> user_service.v1.GetPermissionsRequest
-	5, // 5: user_service.v1.UserService.LogIn:output_type -> user_service.v1.LogInResponse
-	6, // 6: user_service.v1.UserService.CreateUser:output_type -> user_service.v1.CreateUserResponse
-	7, // 7: user_service.v1.UserService.GetGroups:output_type -> user_service.v1.GetGroupsResponse
-	8, // 8: user_service.v1.UserService.GetUser:output_type -> user_service.v1.GetUserResponse
-	9, // 9: user_service.v1.UserService.GetPermissions:output_type -> user_service.v1.GetPermissionsResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: user_service.v1.UserService.LogIn:input_type -> user_service.v1.LogInRequest
+	1,  // 1: user_service.v1.UserService.LogOut:input_type -> google.protobuf.Empty
+	2,  // 2: user_service.v1.UserService.Refresh:input_type -> user_service.v1.RefreshRequest
+	3,  // 3: user_service.v1.UserService.CreateUser:input_type -> user_service.v1.CreateUserRequest
+	4,  // 4: user_service.v1.UserService.GetGroups:input_type -> user_service.v1.GetGroupsRequest
+	5,  // 5: user_service.v1.UserService.GetUser:input_type -> user_service.v1.GetUserRequest
+	6,  // 6: user_service.v1.UserService.GetPermissions:input_type -> user_service.v1.GetPermissionsRequest
+	7,  // 7: user_service.v1.UserService.LogIn:output_type -> user_service.v1.LogInResponse
+	1,  // 8: user_service.v1.UserService.LogOut:output_type -> google.protobuf.Empty
+	8,  // 9: user_service.v1.UserService.Refresh:output_type -> user_service.v1.RefreshResponse
+	9,  // 10: user_service.v1.UserService.CreateUser:output_type -> user_service.v1.CreateUserResponse
+	10, // 11: user_service.v1.UserService.GetGroups:output_type -> user_service.v1.GetGroupsResponse
+	11, // 12: user_service.v1.UserService.GetUser:output_type -> user_service.v1.GetUserResponse
+	12, // 13: user_service.v1.UserService.GetPermissions:output_type -> user_service.v1.GetPermissionsResponse
+	7,  // [7:14] is the sub-list for method output_type
+	0,  // [0:7] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_user_service_v1_user_service_proto_init() }
