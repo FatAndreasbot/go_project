@@ -52,7 +52,24 @@ func NewGroupPersistanceAdapter(conn *sql.DB) *GroupPersistanceAdapter {
 
 // GroupPersistancePort interface
 
-func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UUID) (*models.Group, error) {
+const transactionKey = "sql_tx-3abaaa8c-ac90-46ed-8d9e-2e750c95b4cd"
+
+func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UUID) (group *models.Group, err error) {
+	ctxTx := ctx.Value(transactionKey)
+	var tx *sql.Tx
+	if ctxTx == nil {
+		tx, err = adp.conn.Begin()
+		if err != nil {
+			return
+		}
+		ctx = context.WithValue(ctx, transactionKey, tx)
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+		}()
+	}
+
 	row, err := adp.q.GetGroupByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -72,7 +89,22 @@ func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UU
 	}, nil
 }
 
-func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int, name_cursor string) ([]*models.Group, error) {
+func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int, name_cursor string) (groups []*models.Group, err error) {
+	ctxTx := ctx.Value(transactionKey)
+	var tx *sql.Tx
+	if ctxTx == nil {
+		tx, err = adp.conn.Begin()
+		if err != nil {
+			return
+		}
+		ctx = context.WithValue(ctx, transactionKey, tx)
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+		}()
+	}
+
 	rows, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
 		Limit: int32(limit),
 		Name:  name_cursor,
@@ -81,7 +113,7 @@ func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int,
 		return nil, err
 	}
 
-	groups := make([]*models.Group, 0, len(rows))
+	groups = make([]*models.Group, 0, len(rows))
 
 	for _, row := range rows {
 		var permissions []*models.Permission
@@ -102,15 +134,20 @@ func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int,
 }
 
 func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID uuid.UUID, newGroupData *models.Group) (err error) {
-	tx, err := adp.conn.Begin()
-	if err != nil {
-		return err
-	}
-	defer func() {
+	ctxTx := ctx.Value(transactionKey)
+	var tx *sql.Tx
+	if ctxTx == nil {
+		tx, err = adp.conn.Begin()
 		if err != nil {
-			tx.Rollback()
+			return
 		}
-	}()
+		ctx = context.WithValue(ctx, transactionKey, tx)
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+		}()
+	}
 
 	err = adp.q.UpdateGroup(ctx, sqlc_gen.UpdateGroupParams{
 		Name: newGroupData.Name,
@@ -152,15 +189,20 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 }
 
 func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupData *models.Group) (newGroupID uuid.UUID, err error) {
-	tx, err := adp.conn.Begin()
-	if err != nil {
-		return
-	}
-	defer func() {
+	ctxTx := ctx.Value(transactionKey)
+	var tx *sql.Tx
+	if ctxTx == nil {
+		tx, err = adp.conn.Begin()
 		if err != nil {
-			tx.Rollback()
+			return
 		}
-	}()
+		ctx = context.WithValue(ctx, transactionKey, tx)
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+		}()
+	}
 
 	newGroupID, err = adp.q.CreateGroup(ctx, groupData.Name)
 
@@ -179,6 +221,21 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupData *
 	return
 }
 
-func (adp *GroupPersistanceAdapter) DeleteGroup(ctx context.Context, groupID uuid.UUID) error {
+func (adp *GroupPersistanceAdapter) DeleteGroup(ctx context.Context, groupID uuid.UUID) (err error) {
+	ctxTx := ctx.Value(transactionKey)
+	var tx *sql.Tx
+	if ctxTx == nil {
+		tx, err = adp.conn.Begin()
+		if err != nil {
+			return
+		}
+		ctx = context.WithValue(ctx, transactionKey, tx)
+		defer func() {
+			if err != nil {
+				tx.Rollback()
+			}
+		}()
+	}
+
 	return adp.q.DeleteGroup(ctx, groupID)
 }
