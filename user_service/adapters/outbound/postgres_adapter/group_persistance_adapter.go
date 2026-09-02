@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
-	"github.com/FatAndreasbot/go_project/user_service/infra/persistance/postgresql/sqlc_gen"
+	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
 	"github.com/google/uuid"
 )
 
