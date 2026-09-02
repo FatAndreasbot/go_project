@@ -13,7 +13,7 @@ import (
 
 func EncodeAccessJWT(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
+		"sub": user.ID.String(),
 		"exp": config.GetConfig().AccessJWTExpiration,
 		"iat": time.Now(),
 	})
@@ -27,7 +27,7 @@ func EncodeAccessJWT(user *models.User) (string, error) {
 
 func EncodeRefreshJWT(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID,
+		"sub": user.ID.String(),
 
 		"exp": config.GetConfig().RefreshJWTExpiration,
 		"iat": time.Now(),
@@ -39,7 +39,6 @@ func EncodeRefreshJWT(user *models.User) (string, error) {
 	}
 	return signedToken, nil
 }
-
 
 func DecodeAccessJWT(signedToken string) (uuid.UUID, error) {
 	decoded, err := jwt.Parse(

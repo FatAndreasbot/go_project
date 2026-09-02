@@ -6,6 +6,7 @@ import (
 
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	jwt "github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
 )
@@ -27,8 +28,7 @@ func Authenticate(ctx context.Context) (context.Context, error) {
 		return ctx, errors.Join(err, errors.New("could not find jwt"))
 	}
 
-	// TODO
-	userID, err := jwt.Parse(
+	tokenData, err := jwt.Parse(
 		token,
 		func(token *jwt.Token) (any, error) {
 			return config.GetConfig().HS256_SECRET, nil
@@ -37,6 +37,15 @@ func Authenticate(ctx context.Context) (context.Context, error) {
 	)
 	if err != nil {
 		return ctx, errors.Join(err, errors.New("could not decode token"))
+	}
+
+	userIDString, ok := tokenData.Claims.(jwt.MapClaims)["sub"].(string)
+	if !ok {
+		return ctx, errors.New("error when reading jwt claims")
+	}
+	userID, err := uuid.Parse(userIDString)
+	if !ok {
+		return ctx, errors.New("error when reading parsing userID")
 	}
 
 	ctx = context.WithValue(ctx, userdataKey, userID)
