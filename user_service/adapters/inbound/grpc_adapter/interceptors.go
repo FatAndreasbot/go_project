@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
@@ -27,10 +28,13 @@ func Authenticate(ctx context.Context) (context.Context, error) {
 	}
 
 	// TODO
-	userID, err := jwt.Parse(token, func(token *jwt.Token) (any, error) {
-		return nil, errors.New("not implemented")
-
-	})
+	userID, err := jwt.Parse(
+		token,
+		func(token *jwt.Token) (any, error) {
+			return config.GetConfig().HS256_SECRET, nil
+		},
+		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
+	)
 	if err != nil {
 		return ctx, errors.Join(err, errors.New("could not decode token"))
 	}
