@@ -13,7 +13,7 @@ import (
 )
 
 func setupIncomingAdapters(handler incoming.IncomingRequestHandler) error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", config.GetNetworkPort()))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", config.GetConfig().NetworkPort))
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func SetupApplication() error {
-	err := config.InitEnvVars()
+	err := config.LoadConfig()
 	if err != nil {
 		return err
 	}

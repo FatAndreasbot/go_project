@@ -10,7 +10,7 @@ import (
 )
 
 func setupOutgoingAdapters() (*postgresadapter.UserPersistanceAdapter, *postgresadapter.GroupPersistanceAdapter, error) {
-	connString := config.GetDBConnString()
+	connString := config.GetConfig().DBConnString
 	conn, err := sql.Open("pgx", connString)
 	if err != nil {
 		return nil, nil, err

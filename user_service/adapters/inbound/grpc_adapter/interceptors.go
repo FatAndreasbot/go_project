@@ -13,6 +13,8 @@ var publicMethods map[string]struct{} = map[string]struct{}{
 	"/proto.user_service.UserService/LogIn": {},
 }
 
+const userdataKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
+
 func Authenticate(ctx context.Context) (context.Context, error) {
 	method, _ := grpc.Method(ctx)
 	if _, ok := publicMethods[method]; ok {
