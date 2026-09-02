@@ -13,9 +13,9 @@ select
     ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    left join "groups" g on g.id = u.group_id
+    left join group_permissions gp on g.id = gp.group_id
+    left join permissions p on p.id = gp.permission_id
 where
 	u.username = $1
 group by
@@ -40,9 +40,9 @@ select
     ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    left join "groups" g on g.id = u.group_id
+    left join group_permissions gp on g.id = gp.group_id
+    left join permissions p on p.id = gp.permission_id
 where
 	u."id" = $1
 group by
@@ -67,9 +67,9 @@ select
     ) as permissions
 from
     users u
-    join "groups" g on g.id = u.group_id
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    left join "groups" g on g.id = u.group_id
+    left join group_permissions gp on g.id = gp.group_id
+    left join permissions p on p.id = gp.permission_id
 group by
 	u.id,
     u.username,

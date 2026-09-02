@@ -11,8 +11,8 @@ select
     ) as permissions
 from
     groups g
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    left join group_permissions gp on g.id = gp.group_id
+    left join permissions p on p.id = gp.permission_id
 where
     g.id = $1
 group by g.name, g.id;
@@ -30,8 +30,8 @@ select
     g.id as created
 from
     groups g
-    join group_permissions gp on g.id = gp.group_id
-    join permissions p on p.id = gp.permission_id
+    left join group_permissions gp on g.id = gp.group_id
+    left join permissions p on p.id = gp.permission_id
 where g.id >= $1
 group by g.name, g.id
 limit $2;
