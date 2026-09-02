@@ -135,6 +135,7 @@ func (adp *UserPersistanceAdapter) GetUserList(ctx context.Context, limit, offse
 
 func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userID uuid.UUID, newUserData *models.User) error {
 	return adp.q.UpdateUser(ctx, sqlc_gen.UpdateUserParams{
+		ID:           userID,
 		Username:     newUserData.Name,
 		PasswordHash: newUserData.PasswordHash,
 		GroupID:      newUserData.Group.ID,
