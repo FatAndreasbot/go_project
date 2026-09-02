@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
@@ -23,6 +24,11 @@ func setupOutgoingAdapters() (*postgresadapter.UserPersistanceAdapter, *postgres
 		log.Default().Println(err)
 		return nil, nil, errors.New("could not establish connection to database")
 	}
+
+	conn.SetMaxOpenConns(20)
+	conn.SetMaxIdleConns(10)
+	conn.SetConnMaxLifetime(30 * time.Minute)
+	conn.SetConnMaxIdleTime(5 * time.Minute)
 
 	userAdapter := postgresadapter.NewUserPersistanceAdapter(conn)
 	groupAdapter := postgresadapter.NewGroupPersistanceAdapter(conn)
