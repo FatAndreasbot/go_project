@@ -2,6 +2,8 @@ package project_init
 
 import (
 	"database/sql"
+	"errors"
+	"log"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
@@ -14,6 +16,12 @@ func setupOutgoingAdapters() (*postgresadapter.UserPersistanceAdapter, *postgres
 	conn, err := sql.Open("pgx", connString)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	err = conn.Ping()
+	if err != nil {
+		log.Default().Println(err)
+		return nil, nil, errors.New("could not establish connection to database")
 	}
 
 	userAdapter := postgresadapter.NewUserPersistanceAdapter(conn)
