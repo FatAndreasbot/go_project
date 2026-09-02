@@ -5,30 +5,47 @@ import (
 	"log"
 	"time"
 
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-func EncodeJWT(userID uuid.UUID) (string, error) {
+func EncodeAccessJWT(user *models.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"userID": userID,
-		"exp":    config.GetJWTExpiration(),
-		"iat":    time.Now(),
+		"sub": user.ID,
+		"exp": config.GetConfig().AccessJWTExpiration,
+		"iat": time.Now(),
 	})
 
-	signedToken, err := token.SignedString(config.GetHS256Secret())
+	signedToken, err := token.SignedString(config.GetConfig().HS256_SECRET)
 	if err != nil {
 		return "", err
 	}
 	return signedToken, nil
 }
 
-func DecodeJWT(signedToken string) (uuid.UUID, error) {
+func EncodeRefreshJWT(user *models.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"sub": user.ID,
+
+		"exp": config.GetConfig().RefreshJWTExpiration,
+		"iat": time.Now(),
+	})
+
+	signedToken, err := token.SignedString(config.GetConfig().HS256_SECRET)
+	if err != nil {
+		return "", err
+	}
+	return signedToken, nil
+}
+
+
+func DecodeAccessJWT(signedToken string) (uuid.UUID, error) {
 	decoded, err := jwt.Parse(
 		signedToken,
 		func(token *jwt.Token) (any, error) {
-			return config.GetHS256Secret(), nil
+			return config.GetConfig().HS256_SECRET, nil
 		},
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)

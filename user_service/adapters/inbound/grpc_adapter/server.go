@@ -54,13 +54,21 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 		}
 	}
 
-	jwt, err := EncodeJWT(user.ID)
+	accessJWT, err := EncodeAccessJWT(user)
+	if err != nil {
+		log.Default().Println(err)
+		return nil, status.Error(codes.Internal, "could not generate token")
+	}
+	refreshJWT, err := EncodeRefreshJWT(user)
 	if err != nil {
 		log.Default().Println(err)
 		return nil, status.Error(codes.Internal, "could not generate token")
 	}
 
-	return &proto.LogInResponse{Token: jwt}, nil
+	return &proto.LogInResponse{
+		AccessToken: accessJWT,
+		RefreshToken: refreshJWT,
+	}, nil
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
@@ -79,7 +87,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 
 	return &proto.CreateUserResponse{
 		User: &v1.User{
-			UserId:  user.ID.String(),
+			Id:  user.ID.String(),
 			Name:    user.Name,
 			GroupId: user.Group.ID.String(),
 		},
@@ -96,8 +104,8 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 
 	for _, group := range groups {
 		convertedGroups = append(convertedGroups, &v1.UserGroup{
-			GroupId:         group.ID.String(),
-			GroupName:       group.Name,
+			Id:         group.ID.String(),
+			Name:       group.Name,
 			UserPermissions: convertPermissions(&group.Permissions),
 		})
 	}
