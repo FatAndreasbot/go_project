@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func permissionDifference(old, new []*models.Permission) (toAdd, toRemove []*models.Permission) {
+func PermissionDifference(old, new []*models.Permission) (toAdd, toRemove []*models.Permission) {
 	toSet := func(list []*models.Permission) map[uuid.UUID]*models.Permission {
 		set := make(map[uuid.UUID]*models.Permission, len(list))
 		for _, permission := range list {
@@ -32,7 +32,7 @@ func permissionDifference(old, new []*models.Permission) (toAdd, toRemove []*mod
 	for id, permission := range newSet {
 		_, ok := oldSet[id]
 		if !ok {
-			toAdd = append(toRemove, permission)
+			toAdd = append(toAdd, permission)
 		}
 	}
 	return
@@ -162,7 +162,7 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 		return
 	}
 
-	permissionsToAdd, peroissionsToRemove := permissionDifference(oldGroupData.Permissions, newGroupData.Permissions)
+	permissionsToAdd, peroissionsToRemove := PermissionDifference(oldGroupData.Permissions, newGroupData.Permissions)
 
 	for _, permission := range permissionsToAdd {
 		err = adp.q.AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
