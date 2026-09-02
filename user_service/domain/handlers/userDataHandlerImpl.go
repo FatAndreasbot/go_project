@@ -37,7 +37,7 @@ func (h *UserDataHandler) GetUserByUsername(ctx context.Context, username string
 }
 
 // implementing incoming.IncomingRequestHandler
-func (h *UserDataHandler) StoreNewUser(ctx context.Context, username, password string, groupID uuid.UUID) (*models.User, error) {
+func (h *UserDataHandler) StoreNewUser(ctx context.Context, username, password string, groupID, userID uuid.UUID) (*models.User, error) {
 	group, err := h.groupPersistanceAdapter.GetGroupByID(ctx, groupID)
 
 	if err != nil {
@@ -48,6 +48,7 @@ func (h *UserDataHandler) StoreNewUser(ctx context.Context, username, password s
 	}
 
 	user := models.User{
+		ID:    userID,
 		Name:  username,
 		Group: group,
 	}

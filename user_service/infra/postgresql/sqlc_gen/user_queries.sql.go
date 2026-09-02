@@ -14,18 +14,24 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-insert into Users (username, password_hash, group_id) values ($1, $2, $3)
+insert into Users (id, username, password_hash, group_id) values ($1, $2, $3, $4)
 returning id
 `
 
 type CreateUserParams struct {
+	ID           uuid.UUID
 	Username     string
 	PasswordHash string
 	GroupID      uuid.UUID
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (uuid.UUID, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.PasswordHash, arg.GroupID)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.ID,
+		arg.Username,
+		arg.PasswordHash,
+		arg.GroupID,
+	)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err

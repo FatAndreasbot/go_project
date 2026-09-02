@@ -146,6 +146,7 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, user *models.
 		Username:     user.Name,
 		PasswordHash: user.PasswordHash,
 		GroupID:      user.Group.ID,
+		ID:           user.ID,
 	})
 	if err != nil {
 		return uuid.Nil, err

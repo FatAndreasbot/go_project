@@ -86,12 +86,18 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		log.Default().Println(err)
 		return nil, status.Error(codes.InvalidArgument, "could not parse groupID")
 	}
+	userID, err := uuid.Parse(req.GetIdempotKey())
+	if err != nil {
+		log.Default().Println(err)
+		return nil, status.Error(codes.InvalidArgument, "could not parse idempot key into uuid")
+	}
 
 	user, err := s.handler.StoreNewUser(
 		ctx,
 		req.GetUsername(),
 		req.GetPassword(),
 		groupUUID,
+		userID,
 	)
 
 	return &proto.CreateUserResponse{

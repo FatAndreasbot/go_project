@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
@@ -68,9 +69,15 @@ func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UU
 				tx.Rollback()
 			}
 		}()
+	} else {
+		var ok bool
+		tx, ok = ctxTx.(*sql.Tx)
+		if !ok {
+			err = errors.New("could not cast into *sql.Tx")
+		}
 	}
 
-	row, err := adp.q.GetGroupByID(ctx, id)
+	row, err := adp.q.WithTx(tx).GetGroupByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -103,9 +110,15 @@ func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int,
 				tx.Rollback()
 			}
 		}()
+	} else {
+		var ok bool
+		tx, ok = ctxTx.(*sql.Tx)
+		if !ok {
+			err = errors.New("could not cast into *sql.Tx")
+		}
 	}
 
-	rows, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
+	rows, err := adp.q.WithTx(tx).GetGroupList(ctx, sqlc_gen.GetGroupListParams{
 		Limit: int32(limit),
 		Name:  name_cursor,
 	})
@@ -147,9 +160,15 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 				tx.Rollback()
 			}
 		}()
+	} else {
+		var ok bool
+		tx, ok = ctxTx.(*sql.Tx)
+		if !ok {
+			err = errors.New("could not cast into *sql.Tx")
+		}
 	}
 
-	err = adp.q.UpdateGroup(ctx, sqlc_gen.UpdateGroupParams{
+	err = adp.q.WithTx(tx).UpdateGroup(ctx, sqlc_gen.UpdateGroupParams{
 		Name: newGroupData.Name,
 		ID:   oldGroupID,
 	})
@@ -165,7 +184,7 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 	permissionsToAdd, peroissionsToRemove := PermissionDifference(oldGroupData.Permissions, newGroupData.Permissions)
 
 	for _, permission := range permissionsToAdd {
-		err = adp.q.AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
+		err = adp.q.WithTx(tx).AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
 			GroupID:      oldGroupID,
 			PermissionID: permission.ID,
 		})
@@ -175,7 +194,7 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 	}
 
 	for _, permission := range peroissionsToRemove {
-		adp.q.RemovePermissionsFromGroup(ctx, sqlc_gen.RemovePermissionsFromGroupParams{
+		adp.q.WithTx(tx).RemovePermissionsFromGroup(ctx, sqlc_gen.RemovePermissionsFromGroupParams{
 			GroupID:      oldGroupID,
 			PermissionID: permission.ID,
 		})
@@ -202,12 +221,18 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupData *
 				tx.Rollback()
 			}
 		}()
+	} else {
+		var ok bool
+		tx, ok = ctxTx.(*sql.Tx)
+		if !ok {
+			err = errors.New("could not cast into *sql.Tx")
+		}
 	}
 
-	newGroupID, err = adp.q.CreateGroup(ctx, groupData.Name)
+	newGroupID, err = adp.q.WithTx(tx).CreateGroup(ctx, groupData.Name)
 
 	for _, permission := range groupData.Permissions {
-		err = adp.q.AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
+		err = adp.q.WithTx(tx).AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
 			GroupID:      newGroupID,
 			PermissionID: permission.ID,
 		})
@@ -235,7 +260,13 @@ func (adp *GroupPersistanceAdapter) DeleteGroup(ctx context.Context, groupID uui
 				tx.Rollback()
 			}
 		}()
+	} else {
+		var ok bool
+		tx, ok = ctxTx.(*sql.Tx)
+		if !ok {
+			err = errors.New("could not cast into *sql.Tx")
+		}
 	}
 
-	return adp.q.DeleteGroup(ctx, groupID)
+	return adp.q.WithTx(tx).DeleteGroup(ctx, groupID)
 }

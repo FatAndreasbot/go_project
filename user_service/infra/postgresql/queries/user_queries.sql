@@ -89,7 +89,7 @@ where
     u.id = $4;
 
 -- name: CreateUser :one
-insert into Users (username, password_hash, group_id) values ($1, $2, $3)
+insert into Users (id, username, password_hash, group_id) values ($1, $2, $3, $4)
 returning id;
 
 -- name: DeleteUser :exec
