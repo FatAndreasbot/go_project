@@ -14,20 +14,17 @@ type GroupPermissions struct {
 }
 
 type Groups struct {
-	ID   int32
 	Name string
-	Uuid uuid.UUID
+	ID   uuid.UUID
 }
 
 type Permissions struct {
-	ID   int32
 	Name string
-	Uuid uuid.UUID
+	ID   uuid.UUID
 }
 
 type Users struct {
-	ID           int32
-	Uuid         uuid.UUID
+	ID           uuid.UUID
 	Username     string
 	PasswordHash string
 	GroupID      uuid.UUID
