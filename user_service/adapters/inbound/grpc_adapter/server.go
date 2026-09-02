@@ -2,13 +2,11 @@ package grpcadapter
 
 import (
 	"context"
-	"errors"
 	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service/v1"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
-	"github.com/FatAndreasbot/go_project/user_service/domain/models/dominaerrors"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -47,13 +45,12 @@ func convertPermissions(domainPermissions *[]*models.Permission) []*v1.UserPermi
 func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
 	username, password := req.GetUsername(), req.GetPassword()
 
-	user, err := s.handler.GetAndCheckUserByUsername(ctx, username, password)
+	user, err := s.handler.GetUserByUsername(ctx, username)
 	if err != nil {
-		if errors.Is(err, dominaerrors.WrongPasswdOrNoUserFound) {
-			return nil, status.Error(codes.NotFound, "wrong password user not found")
-		} else {
-			return nil, status.Error(codes.Internal, "could not fetch userdata")
-		}
+		return nil, status.Error(codes.NotFound, "wrong password or user not found")
+	}
+	if err := user.CheckPassword(password); err != nil {
+		return nil, status.Error(codes.NotFound, "wrong password or user not found")
 	}
 
 	accessJWT, err := EncodeAccessJWT(user)
