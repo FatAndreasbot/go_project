@@ -10,6 +10,6 @@ import (
 type IncomingRequestHandler interface {
 	GetAndCheckUserByUsername(ctx context.Context, username, password string) (*models.User, error)
 	StoreNewUser(ctx context.Context, username, password string, groupID uuid.UUID) (*models.User, error)
-	GetGroupList(ctx context.Context, cursor, limit int) ([]*models.Group, error)
+	GetGroupList(ctx context.Context, limit int, lastGroupName string) ([]*models.Group, error)
 	GetUserByID(ctx context.Context, userid uuid.UUID) (*models.User, error)
 }

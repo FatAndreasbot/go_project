@@ -11,8 +11,6 @@ type UserPersistancePort interface {
 	GetUserByUsername(context.Context, string) (*models.User, error)
 	GetUserByID(context.Context, uuid.UUID) (*models.User, error)
 
-	GetUserList(ctx context.Context, limit, offset int) ([]*models.User, error)
-
 	UpdateUser(context.Context, uuid.UUID, *models.User) error
 	CreateUser(context.Context, *models.User) (uuid.UUID, error)
 	DeleteUser(context.Context, uuid.UUID) error
@@ -21,7 +19,7 @@ type UserPersistancePort interface {
 type GroupPersistancePort interface {
 	GetGroupByID(context.Context, uuid.UUID) (*models.Group, error)
 
-	GetGroupList(ctx context.Context, limit, offset int) ([]*models.Group, error)
+	GetGroupList(ctx context.Context, limit int, name string) ([]*models.Group, error)
 
 	UpdateGroup(context.Context, uuid.UUID, *models.Group) error
 	CreateGroup(context.Context, *models.Group) (uuid.UUID, error)

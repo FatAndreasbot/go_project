@@ -35,7 +35,7 @@ func Authenticate(ctx context.Context) (context.Context, error) {
 		return ctx, errors.Join(err, errors.New("could not decode token"))
 	}
 
-	ctx = context.WithValue(ctx, "userdata", userID)
+	ctx = context.WithValue(ctx, userdataKey, userID)
 
 	return ctx, nil
 }

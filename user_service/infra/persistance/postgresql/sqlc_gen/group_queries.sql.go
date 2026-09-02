@@ -94,13 +94,14 @@ from
     groups g
     left join group_permissions gp on g.id = gp.group_id
     left join permissions p on p.id = gp.permission_id
-where g.id >= $1
+where g.name >= $1
 group by g.name, g.id
+order by g.name
 limit $2
 `
 
 type GetGroupListParams struct {
-	ID    uuid.UUID
+	Name  string
 	Limit int32
 }
 
@@ -112,7 +113,7 @@ type GetGroupListRow struct {
 }
 
 func (q *Queries) GetGroupList(ctx context.Context, arg GetGroupListParams) ([]GetGroupListRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGroupList, arg.ID, arg.Limit)
+	rows, err := q.db.QueryContext(ctx, getGroupList, arg.Name, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

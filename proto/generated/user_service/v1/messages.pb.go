@@ -337,7 +337,7 @@ func (x *CreateUserResponse) GetUser() *v1.User {
 
 type GetGroupsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cursor        int32                  `protobuf:"varint,1,opt,name=cursor,proto3" json:"cursor,omitempty"`
+	Lastgroupname string                 `protobuf:"bytes,1,opt,name=lastgroupname,proto3" json:"lastgroupname,omitempty"`
 	Limit         int32                  `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -373,11 +373,11 @@ func (*GetGroupsRequest) Descriptor() ([]byte, []int) {
 	return file_user_service_v1_messages_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GetGroupsRequest) GetCursor() int32 {
+func (x *GetGroupsRequest) GetLastgroupname() string {
 	if x != nil {
-		return x.Cursor
+		return x.Lastgroupname
 	}
-	return 0
+	return ""
 }
 
 func (x *GetGroupsRequest) GetLimit() int32 {
@@ -638,9 +638,9 @@ const file_user_service_v1_messages_proto_rawDesc = "" +
 	"\vidempot_key\x18\x04 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\n" +
 	"idempotKey\"9\n" +
 	"\x12CreateUserResponse\x12#\n" +
-	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"@\n" +
-	"\x10GetGroupsRequest\x12\x16\n" +
-	"\x06cursor\x18\x01 \x01(\x05R\x06cursor\x12\x14\n" +
+	"\x04user\x18\x01 \x01(\v2\x0f.common.v1.UserR\x04user\"N\n" +
+	"\x10GetGroupsRequest\x12$\n" +
+	"\rlastgroupname\x18\x01 \x01(\tR\rlastgroupname\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x05R\x05limit\"U\n" +
 	"\x11GetGroupsResponse\x12,\n" +
 	"\x06groups\x18\x01 \x03(\v2\x14.common.v1.UserGroupR\x06groups\x12\x12\n" +

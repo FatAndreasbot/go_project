@@ -54,7 +54,7 @@ message CreateUserResponse {
 }
 
 message GetGroupsRequest {
-  int32 cursor = 1;
+  string lastgroupname = 1;
   int32 limit  = 2;
 }
 

@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	postgresadapter "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/persistance/postgres_adapter"
+	postgresadapter "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/postgres_adapter"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 )
 

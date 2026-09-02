@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/persistance/postgresql/sqlc_gen"
@@ -46,13 +47,17 @@ func (adp *UserPersistanceAdapter) GetUserByUsername(ctx context.Context, userna
 		return nil, err
 	}
 
+	if !row.GroupUuid.Valid {
+		return nil, errors.New("user has no group")
+	}
+
 	user := models.User{
-		ID:           row.Uuid,
+		ID:           row.ID,
 		Name:         row.Username,
 		PasswordHash: row.PasswordHash,
 		Group: &models.Group{
-			ID:          row.GroupUuid,
-			Name:        row.GroupName,
+			ID:          row.GroupUuid.UUID,
+			Name:        row.GroupName.String,
 			Permissions: permissions,
 		},
 	}
@@ -72,13 +77,17 @@ func (adp *UserPersistanceAdapter) GetUserByID(ctx context.Context, id uuid.UUID
 		return nil, err
 	}
 
+	if !row.GroupUuid.Valid {
+		return nil, errors.New("user has no group")
+	}
+
 	user := models.User{
-		ID:           row.Uuid,
+		ID:           row.ID,
 		Name:         row.Username,
 		PasswordHash: row.PasswordHash,
 		Group: &models.Group{
-			ID:          row.GroupUuid,
-			Name:        row.GroupName,
+			ID:          row.GroupUuid.UUID,
+			Name:        row.GroupName.String,
 			Permissions: permissions,
 		},
 	}
@@ -105,13 +114,17 @@ func (adp *UserPersistanceAdapter) GetUserList(ctx context.Context, limit, offse
 			return nil, err
 		}
 
+		if !row.GroupUuid.Valid {
+			return nil, errors.New("user has no group")
+		}
+
 		users = append(users, &models.User{
-			ID:           row.Uuid,
+			ID:           row.ID,
 			Name:         row.Username,
 			PasswordHash: row.PasswordHash,
 			Group: &models.Group{
-				ID:          row.GroupUuid,
-				Name:        row.GroupName,
+				ID:          row.GroupUuid.UUID,
+				Name:        row.GroupName.String,
 				Permissions: permissions,
 			},
 		})

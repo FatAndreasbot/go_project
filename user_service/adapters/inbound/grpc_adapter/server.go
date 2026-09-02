@@ -13,6 +13,8 @@ import (
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Server struct {
@@ -66,9 +68,19 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 	}
 
 	return &proto.LogInResponse{
-		AccessToken: accessJWT,
+		AccessToken:  accessJWT,
 		RefreshToken: refreshJWT,
 	}, nil
+}
+
+func (s *Server) LogOut(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Server) Refresh(ctx context.Context, req *proto.RefreshRequest) (*proto.RefreshResponse, error) {
+	// TODO
+
+	return nil, status.Error(codes.Unimplemented, "not implemented")
 }
 
 func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
@@ -87,7 +99,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 
 	return &proto.CreateUserResponse{
 		User: &v1.User{
-			Id:  user.ID.String(),
+			Id:      user.ID.String(),
 			Name:    user.Name,
 			GroupId: user.Group.ID.String(),
 		},
@@ -95,7 +107,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 }
 
 func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
-	groups, err := s.handler.GetGroupList(ctx, int(req.GetCursor()), int(req.GetLimit()))
+	groups, err := s.handler.GetGroupList(ctx, int(req.GetLimit()), req.GetLastgroupname())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -104,8 +116,8 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 
 	for _, group := range groups {
 		convertedGroups = append(convertedGroups, &v1.UserGroup{
-			Id:         group.ID.String(),
-			Name:       group.Name,
+			Id:              group.ID.String(),
+			Name:            group.Name,
 			UserPermissions: convertPermissions(&group.Permissions),
 		})
 	}

@@ -51,13 +51,6 @@ func NewGroupPersistanceAdapter(conn *sql.DB) *GroupPersistanceAdapter {
 }
 
 // GroupPersistancePort interface
-// GetGroupByID(context.Context, uuid.UUID) (*models.Group, error)
-
-// GetGroupList(ctx context.Context, limit, offset int) ([]*models.Group, error)
-
-// UpdateGroup(context.Context, uuid.UUID, *models.Group) error
-// CreateGroup(context.Context, *models.Group) (uuid.UUID, error)
-// DeleteGroup(context.Context, uuid.UUID) error
 
 func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UUID) (*models.Group, error) {
 	row, err := adp.q.GetGroupByID(ctx, id)
@@ -79,10 +72,10 @@ func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, id uuid.UU
 	}, nil
 }
 
-func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, cursor, limit int) ([]*models.Group, error) {
+func (adp *GroupPersistanceAdapter) GetGroupList(ctx context.Context, limit int, name_cursor string) ([]*models.Group, error) {
 	rows, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
-		Limit:  int32(limit),
-		ID: int32(cursor),
+		Limit: int32(limit),
+		Name:  name_cursor,
 	})
 	if err != nil {
 		return nil, err
@@ -121,7 +114,7 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, oldGroupID 
 
 	err = adp.q.UpdateGroup(ctx, sqlc_gen.UpdateGroupParams{
 		Name: newGroupData.Name,
-		Uuid: oldGroupID,
+		ID:   oldGroupID,
 	})
 	if err != nil {
 		return

@@ -73,10 +73,8 @@ func (h *UserDataHandler) StoreNewUser(ctx context.Context, username, password s
 	return &user, nil
 }
 
-func (h *UserDataHandler) GetGroupList(ctx context.Context, pagesize, pagenumber int) ([]*models.Group, error) {
-	offset := (pagenumber - 1) * pagesize
-
-	return h.groupPersistanceAdapter.GetGroupList(ctx, pagesize, offset)
+func (h *UserDataHandler) GetGroupList(ctx context.Context, pagesize int, lastGroupName string) ([]*models.Group, error) {
+	return h.groupPersistanceAdapter.GetGroupList(ctx, pagesize, lastGroupName)
 }
 
 func (h *UserDataHandler) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
