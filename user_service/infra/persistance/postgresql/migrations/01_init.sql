@@ -33,7 +33,7 @@ ALTER TABLE ONLY public.group_permissions
     ADD CONSTRAINT group_permissions_permissions_fk FOREIGN KEY (permission_id) REFERENCES public.permissions(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id);
+    ADD CONSTRAINT users_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE RESTRICT;
 
 -- +goose Down
 SELECT 'down SQL query';
