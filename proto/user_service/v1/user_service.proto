@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package user_service.v1;
 
-import "user_service/v1/messages.proto";
+import "common/v1/user.proto";
+import "common/vendor/validate.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "proto/user_service";
@@ -17,3 +18,82 @@ service UserService {
   rpc GetPermissions(GetPermissionsRequest) returns (GetPermissionsResponse);
 }
 
+message LogInRequest {
+  string username = 1[
+    (buf.validate.field).string.min_len = 1
+  ];
+  string password = 2[
+    (buf.validate.field).string.min_len = 8
+  ];
+}
+
+message LogInResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message RefreshResponse {
+  string new_access_token = 1;
+  string new_refresh_token = 2;
+}
+
+message CreateUserRequest{
+  string username = 1[
+    (buf.validate.field).string.min_len = 1
+  ];
+  string password = 2[
+    (buf.validate.field).string.min_len = 8
+  ];
+  string group_id = 3[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  string idempot_key = 4[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+}
+
+message CreateUserResponse {
+  common.v1.User user = 1;
+}
+
+message GetGroupsRequest {
+  string lastgroupname = 1;
+  int32 limit  = 2;
+}
+
+message GetGroupsResponse {
+  repeated common.v1.UserGroup groups = 1;
+  int32                        next   = 2;
+}
+
+message GetUserRequest {
+  string user_id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+}
+
+message GetUserResponse {
+  common.v1.User user = 1;
+}
+
+message GetPermissionsRequest {
+  string user_id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+}
+
+message GetPermissionsResponse {
+  repeated common.v1.UserPermission user_permissions = 1;
+}
