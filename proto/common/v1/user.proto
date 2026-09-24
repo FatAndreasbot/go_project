@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common.v1;
 
-import "common/vendor/validate.proto";
+import "validate.proto";
 
 option go_package = "proto/common/v1";
 
