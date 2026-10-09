@@ -1,4 +1,4 @@
-PROTO_FILES := $(shell find . shared-proto -name '*.proto')
+PROTO_FILES := $(shell find . -name '*.proto')
 
 .PHONY: proto clean
 
