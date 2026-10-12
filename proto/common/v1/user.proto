@@ -18,20 +18,28 @@ message UserGroup {
   repeated UserPermission user_permissions = 3;
 }
 
-message User{
-  string id = 1 [
+message PublicUserData{
+  string email    = 2 [
     (buf.validate.field).string = {
-    uuid: true
+      email: true,
+      max_len: 128,
+      min_len: 1
     }
-  ];
-  string name    = 2 [
-    (buf.validate.field).string.min_len = 1
   ];
   string group_id = 3 [
     (buf.validate.field).string = {
     uuid: true
     }
   ];
+}
+
+message PrivateUserData{
+  string id = 1 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  PublicUserData public_data = 2;
 }
 
 message UserPermission{

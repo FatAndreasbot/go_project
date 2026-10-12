@@ -14,6 +14,7 @@ proto:
 	
 	cd generated && \
 		go mod init proto && \
+		go mod edit -go=1.26.8 && \
 		go mod tidy
 
 clean:
