@@ -58,11 +58,15 @@ func DecodeAccessJWT(signedToken string) (uuid.UUID, error) {
 		return uuid.Nil, errors.New("could not parse token")
 	}
 
-	userIDValue, ok := claims["userID"]
+	userIDValue, ok := claims["sub"]
 	if !ok {
 		return uuid.Nil, errors.New("userID not found in token payload")
 	}
-	userID := userIDValue.(uuid.UUID)
+	userID, err := uuid.Parse(userIDValue.(string))
+
+	if err != nil {
+		return uuid.Nil, errors.New("could not parse ID")
+	}
 
 	return userID, errors.New("not implemented")
 }
