@@ -26,10 +26,12 @@ service UserService {
   rpc GetGroup(GetGroupRequest) returns (GetGroupResponse);
   rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
   rpc UpdateGroup(UpdateGroupRequest) returns (google.protobuf.Empty);
+  rpc AddPermissionToGroup(AddPermissionToGroupRequest) returns (google.protobuf.Empty);
+  rpc RemovePermissionFromGroup(RemovePermissionFromGroupRequest) returns (google.protobuf.Empty);
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty);
 
   // Permissions
-  rpc GetPermissions(google.protobuf.Empty) returns (GetPermissionsResponse);
+  rpc GetAllPermissions(google.protobuf.Empty) returns (GetPermissionsResponse);
 }
 
 // ----------------- Login logout --------------------------------------
@@ -138,13 +140,13 @@ message GetUserResponse {
 }
 
 message GetUsersRequest{
-  google.protobuf.Timestamp cursor = 1;
+  optional google.protobuf.Timestamp cursor = 1;
   int32                     limit  = 2;
 }
 
 message GetUsersResponse{
   repeated common.v1.UserData users  = 1;
-  google.protobuf.Timestamp         cursor = 2;
+  google.protobuf.Timestamp   cursor = 2;
 }
 
 message UpdateUserDataRequest{
@@ -202,8 +204,8 @@ message GetGroupsRequest {
 }
 
 message GetGroupsResponse {
-  repeated common.v1.UserGroup groups = 1;
-  google.protobuf.Timestamp    cursor = 2;
+  repeated common.v1.UserGroupMainData groups = 1;
+  optional google.protobuf.Timestamp cursor = 2;
 }
 
 message UpdateGroupRequest {
@@ -213,7 +215,20 @@ message UpdateGroupRequest {
   string new_name = 2[
     (buf.validate.field).string.min_len = 1
   ];
-  repeated common.v1.UserPermission user_permissions = 3;
+}
+
+message AddPermissionToGroupRequest{
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  common.v1.UserPermission permission = 2;
+}
+
+message RemovePermissionFromGroupRequest{
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  common.v1.UserPermission permission = 2;
 }
 
 message DeleteGroupRequest {
