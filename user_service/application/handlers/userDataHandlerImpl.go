@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log"
 
+	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
-	"github.com/FatAndreasbot/go_project/user_service/domain/models/dominaerrors"
-	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing/persistance"
+	persistance "github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 	"github.com/google/uuid"
 )
 

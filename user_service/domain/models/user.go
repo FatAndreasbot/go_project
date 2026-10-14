@@ -7,7 +7,7 @@ import (
 
 type User struct {
 	ID           uuid.UUID
-	Name         string
+	Email        string
 	PasswordHash string
 	Group        *Group
 }

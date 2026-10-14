@@ -23,7 +23,7 @@ CREATE TABLE public.users (
     email character varying NOT NULL UNIQUE,
     password_hash character varying(128) NOT NULL,
     created_at timestamp DEFAULT now(),
-    idempotency_key uuid NOT NULL,
+    idempotency_key uuid NOT NULL UNIQUE,
     group_id uuid NOT NULL
 );
 
@@ -38,6 +38,31 @@ ALTER TABLE ONLY public.group_permissions
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_group_id_fkey FOREIGN KEY (group_id) REFERENCES public.groups(id) ON DELETE RESTRICT;
+
+INSERT INTO public."permissions" ("name")
+VALUES 
+    ('user_create'),
+    ('user_read'),
+    ('user_update'),
+    ('user_delete'),
+    ('group_create'),
+    ('group_read'),
+    ('group_update'),
+    ('group_delete');
+
+INSERT INTO public."groups" ("name", "idempotency_key")
+	VALUES ('admin', gen_random_uuid());
+
+INSERT INTO public.group_permissions (group_id, permission_id)
+SELECT 
+    g.id, p.id
+FROM
+    public.groups g
+    CROSS JOIN public.permissions p
+WHERE g.name = 'admin'
+
+;
+
 
 -- +goose Down
 SELECT 'down SQL query';

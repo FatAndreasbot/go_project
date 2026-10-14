@@ -3,6 +3,7 @@ package grpcadapter
 import (
 	"errors"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -12,13 +13,31 @@ import (
 )
 
 func EncodeAccessJWT(user *models.User) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID.String(),
-		"exp": config.GetConfig().AccessJWTExpiration,
-		"iat": time.Now(),
+	tokenIssuedAt := time.Now()
+
+	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
+	if err != nil {
+		return "", err
+	}
+
+	expTimeSeconds, err := strconv.Atoi(expTimeString)
+	if err != nil {
+		return "", err
+	}
+	expTime := time.Second * time.Duration(expTimeSeconds)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Subject:   user.ID.String(),
+		ExpiresAt: jwt.NewNumericDate(tokenIssuedAt.Add(expTime)),
+		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})
 
-	signedToken, err := token.SignedString(config.GetConfig().HS256_SECRET)
+	secret, err := config.GetConfig(config.HS256_SECRET)
+	if err != nil {
+		return "", err
+	}
+
+	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
@@ -26,25 +45,47 @@ func EncodeAccessJWT(user *models.User) (string, error) {
 }
 
 func EncodeRefreshJWT(user *models.User) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": user.ID.String(),
+	tokenIssuedAt := time.Now()
 
-		"exp": config.GetConfig().RefreshJWTExpiration,
-		"iat": time.Now(),
+	expTimeString, err := config.GetConfig(config.RefreshJWTExpiration)
+	if err != nil {
+		return "", err
+	}
+
+	expTimeSeconds, err := strconv.Atoi(expTimeString)
+	if err != nil {
+		return "", err
+	}
+	expTime := time.Second * time.Duration(expTimeSeconds)
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
+		Subject:   user.ID.String(),
+		ExpiresAt: jwt.NewNumericDate(tokenIssuedAt.Add(expTime)),
+		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})
 
-	signedToken, err := token.SignedString(config.GetConfig().HS256_SECRET)
+	secret, err := config.GetConfig(config.HS256_SECRET)
+	if err != nil {
+		return "", err
+	}
+
+	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", err
 	}
 	return signedToken, nil
 }
 
-func DecodeAccessJWT(signedToken string) (uuid.UUID, error) {
+func DecodeJWT(signedToken string) (uuid.UUID, error) {
+	secret, err := config.GetConfig(config.HS256_SECRET)
+	if err != nil {
+		return uuid.Nil, err
+	}
+
 	decoded, err := jwt.Parse(
 		signedToken,
 		func(token *jwt.Token) (any, error) {
-			return config.GetConfig().HS256_SECRET, nil
+			return []byte(secret), nil
 		},
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)
@@ -62,11 +103,17 @@ func DecodeAccessJWT(signedToken string) (uuid.UUID, error) {
 	if !ok {
 		return uuid.Nil, errors.New("userID not found in token payload")
 	}
-	userID, err := uuid.Parse(userIDValue.(string))
+	userIDString, ok := userIDValue.(string)
+
+	if !ok {
+		return uuid.Nil, errors.New("could not parse ID")
+	}
+
+	userID, err := uuid.Parse(userIDString)
 
 	if err != nil {
 		return uuid.Nil, errors.New("could not parse ID")
 	}
 
-	return userID, errors.New("not implemented")
+	return userID, nil
 }
