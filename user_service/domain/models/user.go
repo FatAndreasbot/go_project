@@ -9,7 +9,7 @@ type User struct {
 	ID           uuid.UUID
 	Email        string
 	PasswordHash string
-	Group        *Group
+	GroupID      uuid.UUID
 }
 
 func (u *User) CheckPassword(password string) error {

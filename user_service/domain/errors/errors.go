@@ -2,4 +2,9 @@ package dominaerrors
 
 import "errors"
 
-var WrongPasswdOrNoUserFound error = errors.New("wrong password or user not found")
+var (
+	InvalidCredentials = errors.New("invalid credentials")
+	ExpiredCredentials = errors.Join(InvalidCredentials, errors.New("expired credentials"))
+
+	NotEnoughPermission = errors.New("lacking permissions")
+)

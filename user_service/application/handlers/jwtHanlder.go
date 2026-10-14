@@ -1,6 +1,7 @@
-package grpcadapter
+package handlers
 
 import (
+	"context"
 	"errors"
 	"log"
 	"strconv"
@@ -12,7 +13,13 @@ import (
 	"github.com/google/uuid"
 )
 
-func EncodeAccessJWT(user *models.User) (string, error) {
+type JWTHandler struct{}
+
+func NewJWTHandler() *JWTHandler {
+	return &JWTHandler{}
+}
+
+func (JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
@@ -44,7 +51,7 @@ func EncodeAccessJWT(user *models.User) (string, error) {
 	return signedToken, nil
 }
 
-func EncodeRefreshJWT(user *models.User) (string, error) {
+func (JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.RefreshJWTExpiration)
@@ -76,7 +83,7 @@ func EncodeRefreshJWT(user *models.User) (string, error) {
 	return signedToken, nil
 }
 
-func DecodeJWT(signedToken string) (uuid.UUID, error) {
+func (JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error) {
 	secret, err := config.GetConfig(config.HS256_SECRET)
 	if err != nil {
 		return uuid.Nil, err

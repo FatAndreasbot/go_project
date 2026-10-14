@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/FatAndreasbot/go_project/user_service/application/handlers"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
 )
@@ -16,6 +17,8 @@ var publicMethods map[string]struct{} = map[string]struct{}{
 const userdataKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
 
 func Authenticate(ctx context.Context) (context.Context, error) {
+	jwtHandler := handlers.NewJWTHandler()
+
 	method, _ := grpc.Method(ctx)
 	if _, ok := publicMethods[method]; ok {
 		return ctx, nil
@@ -26,7 +29,7 @@ func Authenticate(ctx context.Context) (context.Context, error) {
 		return ctx, errors.Join(err, errors.New("could not find jwt"))
 	}
 
-	userID, err := DecodeJWT(token)
+	userID, err := jwtHandler.DecodeJWT(ctx, token)
 	if err != nil {
 		return ctx, errors.New("error when reading parsing userID")
 	}

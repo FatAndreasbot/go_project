@@ -2,12 +2,26 @@ package incoming
 
 import (
 	"context"
+	"errors"
+	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
+	"github.com/google/uuid"
+)
+
+var (
+	InternalError = errors.New("unexpected error")
 )
 
 type IncomingRequestHandler interface {
-	CheckUser(ctx context.Context, email, password string) (*models.User, error)
+	Login(ctx context.Context, email, password string) (*models.LoginResponseData, error)
+	Logout(ctx context.Context, userID uuid.UUID) error
+	Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error)
+
+	CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error)
+	GetUsers(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) (users []*models.User, next time.Time, err error)
+	UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error
 
 	// GetUserByUsername(ctx context.Context, username string) (*models.User, error)
 	// StoreNewUser(ctx context.Context, username, password string, groupID, NewUserID uuid.UUID) (*models.User, error)

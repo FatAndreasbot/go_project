@@ -1,4 +1,4 @@
-package incoming
+package outgoing
 
 import (
 	"context"
@@ -9,5 +9,5 @@ import (
 type SessionStateHandler interface {
 	AddSession(ctx context.Context, userID uuid.UUID) error
 	RevokeSession(ctx context.Context, userID uuid.UUID) error
-	UpdateSession(ctx context.Context, userID string)
+	UpdateSession(ctx context.Context, userID uuid.UUID) error
 }

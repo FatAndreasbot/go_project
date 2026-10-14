@@ -18,7 +18,6 @@ service UserService {
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
-  rpc GetPrivateUserData(GetUserRequest) returns (GetPrivateUserDataResponse);
   rpc UpdateUser(UpdateUserDataRequest) returns (google.protobuf.Empty);
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 
@@ -99,11 +98,16 @@ message RefreshResponse {
 // ----------------- User CRUD -----------------------------------------
 
 message CreateUserRequest{
-  string username = 1[
-    (buf.validate.field).string.min_len = 1
+  string email = 1[
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.email = true
   ];
   string password = 2[
-    (buf.validate.field).string.min_len = 8
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
   ];
   string group_id = 3[
     (buf.validate.field).string = {
@@ -118,7 +122,7 @@ message CreateUserRequest{
 }
 
 message CreateUserResponse {
-  common.v1.PrivateUserData user = 1;
+  common.v1.UserData user = 1;
 }
 
 message GetUserRequest {
@@ -130,11 +134,7 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
-  common.v1.PublicUserData user = 1;
-}
-
-message GetPrivateUserDataResponse{
-  common.v1.PrivateUserData user = 1;
+  common.v1.UserData user = 1;
 }
 
 message GetUsersRequest{
@@ -143,7 +143,7 @@ message GetUsersRequest{
 }
 
 message GetUsersResponse{
-  repeated common.v1.PublicUserData users  = 1;
+  repeated common.v1.UserData users  = 1;
   google.protobuf.Timestamp         cursor = 2;
 }
 
@@ -153,7 +153,7 @@ message UpdateUserDataRequest{
     uuid: true
     }
   ];
-  common.v1.PublicUserData user_data = 2;
+  common.v1.UserDataForUpdate user_data = 2;
 }
 
 // empty response
