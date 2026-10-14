@@ -19,13 +19,9 @@ func prepareTestData() (*models.User, *handlers.JWTHandler) {
 	}
 
 	user := models.User{
-		ID:    uuid.New(),
-		Email: "test@example.com",
-		Group: &models.Group{
-			ID:          uuid.New(),
-			Name:        "test",
-			Permissions: []*models.Permission{},
-		},
+		ID:      uuid.New(),
+		Email:   "test@example.com",
+		GroupID: uuid.New(),
 	}
 
 	return &user, handlers.NewJWTHandler()

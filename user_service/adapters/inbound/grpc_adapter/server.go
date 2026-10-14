@@ -219,30 +219,35 @@ func (s Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest
 	return &emptypb.Empty{}, nil
 }
 
-func (Server) DeleteUser(context.Context, *proto.DeleteUserRequest) (*emptypb.Empty, error) {
+func (s Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (*emptypb.Empty, error) {
+	// requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
+	// if !ok {
+	// 	return nil, status.Error(codes.Internal, "unexpected error")
+	// }
+
 	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
 }
 
-func (Server) CreateGroup(context.Context, *proto.CreateGroupRequest) (*proto.CreateGroupResponse, error) {
+func (s Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) (*proto.CreateGroupResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CreateGroup not implemented")
 }
 
-func (Server) GetGroup(context.Context, *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
+func (s Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGroup not implemented")
 }
 
-func (Server) GetGroups(context.Context, *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
+func (s Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetGroups not implemented")
 }
 
-func (Server) UpdateGroup(context.Context, *proto.UpdateGroupRequest) (*emptypb.Empty, error) {
+func (s Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateGroup not implemented")
 }
 
-func (Server) DeleteGroup(context.Context, *proto.DeleteGroupRequest) (*emptypb.Empty, error) {
+func (s Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteGroup not implemented")
 }
 
-func (Server) GetPermissions(context.Context, *emptypb.Empty) (*proto.GetPermissionsResponse, error) {
+func (s Server) GetPermissions(ctx context.Context, req *emptypb.Empty) (*proto.GetPermissionsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetPermissions not implemented")
 }
