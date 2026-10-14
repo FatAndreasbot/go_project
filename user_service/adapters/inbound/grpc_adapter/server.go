@@ -19,21 +19,22 @@ import (
 
 type Server struct {
 	proto.UnimplementedUserServiceServer
-	requestHandler incoming.IncomingRequestHandler
+	loginHandler incoming.LoginHandler
+	userHandler  incoming.UserRequestHandler
 	// sessionHandler incoming.SessionStateHandler
 	// jwtHandler     incoming.JWTHandler
 }
 
-func NewServer(handler incoming.IncomingRequestHandler) *Server {
+func NewServer(handler incoming.LoginHandler) *Server {
 	return &Server{
-		requestHandler: handler,
+		loginHandler: handler,
 	}
 }
 
 func (s Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
 	email, password := req.GetEmail(), req.GetPassword()
 
-	repsponseData, err := s.requestHandler.Login(ctx, email, password)
+	repsponseData, err := s.loginHandler.Login(ctx, email, password)
 	if err != nil {
 		if errors.Is(err, dominaerrors.InvalidCredentials) {
 			return nil, status.Error(codes.PermissionDenied, "wromg email or password")
@@ -60,14 +61,14 @@ func (s Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, e
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	s.requestHandler.Logout(ctx, userID)
+	s.loginHandler.Logout(ctx, userID)
 	return &emptypb.Empty{}, nil
 }
 
 func (s Server) Refresh(ctx context.Context, req *proto.RefreshRequest) (*proto.RefreshResponse, error) {
 	refreshToken := req.GetRefreshToken()
 
-	tokens, err := s.requestHandler.Refresh(ctx, refreshToken)
+	tokens, err := s.loginHandler.Refresh(ctx, refreshToken)
 	if err != nil {
 		if errors.Is(err, dominaerrors.InvalidCredentials) {
 			return nil, status.Error(codes.PermissionDenied, "invalid refresh token")
@@ -104,7 +105,7 @@ func (s Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*
 		GroupID:  groupID,
 	}
 
-	user, err := s.requestHandler.CreateUser(ctx, &userdata, requesterID)
+	user, err := s.userHandler.CreateUser(ctx, &userdata, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -135,7 +136,7 @@ func (s Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	user, err := s.requestHandler.GetUserByID(ctx, userID, requesterID)
+	user, err := s.userHandler.GetUserByID(ctx, userID, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -160,7 +161,7 @@ func (s Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*prot
 	}
 	cursor := req.GetCursor().AsTime()
 	count := int(req.Limit)
-	users, next, err := s.requestHandler.GetUsers(ctx, cursor, count, requesterID)
+	users, next, err := s.userHandler.GetUsers(ctx, cursor, count, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -201,7 +202,7 @@ func (s Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
 	}
 
-	err = s.requestHandler.UpdateUser(ctx, &models.UserUpdateRequestData{
+	err = s.userHandler.UpdateUser(ctx, &models.UserUpdateRequestData{
 		UserToChangeID: userToChangeID,
 		NewPassword:    req.GetUserData().GetPassword(),
 		NewEmail:       req.GetUserData().GetEmail(),
@@ -220,12 +221,26 @@ func (s Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest
 }
 
 func (s Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (*emptypb.Empty, error) {
-	// requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	// if !ok {
-	// 	return nil, status.Error(codes.Internal, "unexpected error")
-	// }
+	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
 
-	return nil, status.Error(codes.Unimplemented, "method DeleteUser not implemented")
+	userToDeleteID, err := uuid.Parse(req.GetUserId())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, "expected UUID")
+	}
+
+	err = s.userHandler.DeleteUser(ctx, userToDeleteID, requesterID)
+	if err != nil {
+		if errors.Is(err, dominaerrors.NotEnoughPermission) {
+			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
+		}
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
 func (s Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) (*proto.CreateGroupResponse, error) {
