@@ -7,13 +7,9 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserPersistancePort interface {
-	GetUserByUsername(context.Context, string) (*models.User, error)
+type UserRepository interface {
+	GetUserByEmail(context.Context, string) (*models.User, error)
 	GetUserByID(context.Context, uuid.UUID) (*models.User, error)
-
-	UpdateUser(context.Context, uuid.UUID, *models.User) error
-	CreateUser(context.Context, *models.User) (uuid.UUID, error)
-	DeleteUser(context.Context, uuid.UUID) error
 }
 
 type GroupPersistancePort interface {

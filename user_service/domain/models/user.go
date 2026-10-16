@@ -13,6 +13,10 @@ type User struct {
 }
 
 func (u *User) CheckPassword(password string) error {
+	if u == nil {
+		bcrypt.CompareHashAndPassword([]byte("definetly_a_valid_hash"), []byte(password))
+		return bcrypt.ErrMismatchedHashAndPassword
+	}
 	return bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(password))
 }
 

@@ -7,7 +7,7 @@ import (
 )
 
 type SessionStateHandler interface {
-	AddSession(ctx context.Context, userID uuid.UUID) error
-	RevokeSession(ctx context.Context, userID uuid.UUID) error
-	UpdateSession(ctx context.Context, userID uuid.UUID) error
+	CreateSession(ctx context.Context, userID uuid.UUID) error
+	DeleteSession(ctx context.Context, userID uuid.UUID) error
+	ExtendSession(ctx context.Context, userID uuid.UUID) error
 }
