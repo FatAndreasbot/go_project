@@ -22,7 +22,7 @@ func domainPermossionsToProtoPermissions(domianPermissions []*models.Permission)
 	for _, domianPermission := range domianPermissions {
 		permissions = append(permissions, &v1.UserPermission{
 			PermissionId: domianPermission.ID.String(),
-			Name:         domianPermission.Name,
+			Name:         string(domianPermission.Name),
 		})
 	}
 
@@ -39,7 +39,7 @@ func protoPermissionToDomainPermissions(protoPermissions []*v1.UserPermission) (
 		}
 		permissions = append(permissions, &models.Permission{
 			ID:   permissionID,
-			Name: protoPermission.GetName(),
+			Name: models.PermissionName(protoPermission.GetName()),
 		})
 	}
 
@@ -183,7 +183,7 @@ func (s Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermissi
 
 	permission := models.Permission{
 		ID:   permissionID,
-		Name: req.GetPermission().GetName(),
+		Name: models.PermissionName(req.GetPermission().GetName()),
 	}
 
 	err = s.groupHandler.AddPermission(ctx, groupID, &permission, requesterID)
@@ -216,7 +216,7 @@ func (s Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remove
 
 	permission := models.Permission{
 		ID:   permissionID,
-		Name: req.GetPermission().GetName(),
+		Name: models.PermissionName(req.GetPermission().GetName()),
 	}
 
 	err = s.groupHandler.RemovePermission(ctx, groupID, &permission, requesterID)

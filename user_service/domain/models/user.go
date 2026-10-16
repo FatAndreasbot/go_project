@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -10,6 +12,7 @@ type User struct {
 	Email        string
 	PasswordHash string
 	GroupID      uuid.UUID
+	CreatedAt    time.Time
 }
 
 func (u *User) CheckPassword(password string) error {

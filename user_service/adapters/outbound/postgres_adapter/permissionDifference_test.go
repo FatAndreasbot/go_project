@@ -44,7 +44,7 @@ func TestPermissionDifference1(t *testing.T) {
 			func() []string {
 				var res []string
 				for _, val := range toRemove {
-					res = append(res, val.Name)
+					res = append(res, string(val.Name))
 				}
 				return res
 			}(),
@@ -57,7 +57,7 @@ func TestPermissionDifference1(t *testing.T) {
 			func() []string {
 				var res []string
 				for _, val := range toAdd {
-					res = append(res, val.Name)
+					res = append(res, string(val.Name))
 				}
 				return res
 			}(),
@@ -73,8 +73,8 @@ func TestPermissionDifference2(t *testing.T) {
 	toAdd, toRemove := postgresadapter.PermissionDifference(oldPerms, newPerms)
 
 	slices.SortFunc(toRemove, func(a, b *models.Permission) int {
-		a_number, _ := strconv.Atoi(a.Name)
-		b_number, _ := strconv.Atoi(b.Name)
+		a_number, _ := strconv.Atoi(string(a.Name))
+		b_number, _ := strconv.Atoi(string(b.Name))
 		return a_number - b_number
 	})
 
@@ -84,7 +84,7 @@ func TestPermissionDifference2(t *testing.T) {
 			func() []string {
 				var res []string
 				for _, val := range toRemove {
-					res = append(res, val.Name)
+					res = append(res, string(val.Name))
 				}
 				return res
 			}(),
@@ -97,7 +97,7 @@ func TestPermissionDifference2(t *testing.T) {
 			func() []string {
 				var res []string
 				for _, val := range toAdd {
-					res = append(res, val.Name)
+					res = append(res, string(val.Name))
 				}
 				return res
 			}(),

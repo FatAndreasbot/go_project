@@ -30,16 +30,26 @@ func (s Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
+	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
+
 	userdata := models.UserData{
-		Email:    req.GetEmail(),
-		Password: req.GetPassword(),
-		GroupID:  groupID,
+		Email:          req.GetEmail(),
+		Password:       req.GetPassword(),
+		GroupID:        groupID,
+		IdempotencyKey: idempotencyKey,
 	}
 
 	user, err := s.userHandler.CreateUser(ctx, &userdata, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
+		}
+		if errors.Is(err, dominaerrors.IdempotencyFail) {
+			return nil, status.Error(codes.AlreadyExists, "user creation request was already sent")
 		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")

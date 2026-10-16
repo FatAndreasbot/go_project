@@ -1,4 +1,4 @@
-package handlers
+package requests
 
 import (
 	"context"
@@ -7,24 +7,30 @@ import (
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
+	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
-	"github.com/google/uuid"
-)
 
-var (
-	DBError      = errors.New("DB query error")
-	JWTError     = errors.New("token encoding/decoding error")
-	SessionError = errors.New("session error")
+	"github.com/google/uuid"
 )
 
 // implements ports/incoming/request.go LoginHandler
 type LoginRequestsHandler struct {
 	userRepository outgoing.UserRepository
-	jwtHandler     outgoing.JWTHandler
+	jwtHandler     application.JWTHandler
 	sessionHandler outgoing.SessionStateHandler
 }
 
-func NewRequestHandler() *LoginRequestsHandler
+func NewRequestHandler(
+	userRepository outgoing.UserRepository,
+	jwtHandler application.JWTHandler,
+	sessionHandler outgoing.SessionStateHandler,
+) *LoginRequestsHandler {
+	return &LoginRequestsHandler{
+		userRepository: userRepository,
+		jwtHandler:     jwtHandler,
+		sessionHandler: sessionHandler,
+	}
+}
 
 func (h *LoginRequestsHandler) Login(ctx context.Context, email, password string) (*models.LoginResponseData, error) {
 	user, err := h.userRepository.GetUserByEmail(ctx, email)

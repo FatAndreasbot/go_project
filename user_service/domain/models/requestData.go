@@ -16,6 +16,8 @@ type UserData struct {
 	Email    string
 	Password string
 	GroupID  uuid.UUID
+
+	IdempotencyKey uuid.UUID
 }
 
 type UserUpdateRequestData struct {
