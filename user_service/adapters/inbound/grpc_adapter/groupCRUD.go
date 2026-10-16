@@ -59,7 +59,13 @@ func (s Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) 
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissions, requesterID)
+	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
+
+	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissions, idempotencyKey, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

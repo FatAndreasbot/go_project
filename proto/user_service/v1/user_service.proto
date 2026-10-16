@@ -141,7 +141,7 @@ message GetUserResponse {
 
 message GetUsersRequest{
   optional google.protobuf.Timestamp cursor = 1;
-  int32                     limit  = 2;
+  int32                              limit  = 2;
 }
 
 message GetUsersResponse{
@@ -179,7 +179,11 @@ message CreateGroupRequest {
     (buf.validate.field).string.min_len = 6,
     (buf.validate.field).string.max_len = 64
   ];
-  repeated common.v1.UserPermission permissions = 2;
+  repeated common.v1.UserPermission permissions     = 2;
+  string idempotency_key = 3[
+    (buf.validate.field).string = {
+    uuid: true
+  }];
 }
 
 message CreateGroupResponse {
@@ -205,7 +209,7 @@ message GetGroupsRequest {
 
 message GetGroupsResponse {
   repeated common.v1.UserGroupMainData groups = 1;
-  optional google.protobuf.Timestamp cursor = 2;
+  optional google.protobuf.Timestamp   cursor = 2;
 }
 
 message UpdateGroupRequest {

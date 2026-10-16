@@ -28,7 +28,7 @@ type UserRequestHandler interface {
 }
 
 type GroupRequestHandler interface {
-	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, requesterID uuid.UUID) (*models.Group, error)
+	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error)
 	GetGroupByID(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) (*models.Group, error)
 	GetGroups(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) (groups []*models.Group, next time.Time, err error)
 	UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, reqesterID uuid.UUID) error
