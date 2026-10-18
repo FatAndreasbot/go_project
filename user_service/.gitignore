@@ -1,3 +1,5 @@
 .env
 go.work.sum
 go.sum
+
+infra/postgresql/sqlc_gen
