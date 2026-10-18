@@ -54,7 +54,7 @@ func (h UserRequestsHandler) GetUsers(ctx context.Context, cursor time.Time, cou
 		return nil, time.Time{}, domainerrors.NotEnoughPermission
 	}
 
-	users, err := h.userRepository.FetchUsersCreatedAfter(
+	users, err := h.userRepository.GetUsers(
 		ctx,
 		cursor,
 		count,

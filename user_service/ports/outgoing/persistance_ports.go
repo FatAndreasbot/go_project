@@ -11,19 +11,27 @@ import (
 type UserRepository interface {
 	GetUserByEmail(context.Context, string) (*models.User, error)
 	GetUserByID(context.Context, uuid.UUID) (*models.User, error)
-	FetchUsersCreatedAfter(context.Context, time.Time, int) ([]*models.User, error)
+	GetUsers(context.Context, time.Time, int) ([]*models.User, error)
 	CreateUser(context.Context, *models.UserData) (*models.User, error)
 	UpdateUser(context.Context, *models.UserUpdateRequestData) error
 	CheckIdempotencyKey(context.Context, uuid.UUID) error
 	DeleteUser(context.Context, uuid.UUID) error
 }
 
-type GroupPersistancePort interface {
+type GroupRepository interface {
+	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error)
 	GetGroupByID(context.Context, uuid.UUID) (*models.Group, error)
-
-	GetGroupList(ctx context.Context, limit int, name string) ([]*models.Group, error)
-
-	UpdateGroup(context.Context, uuid.UUID, *models.Group) error
-	CreateGroup(context.Context, *models.Group) (uuid.UUID, error)
+	GetGroups(context.Context, time.Time, int) ([]*models.Group, error)
+	UpdateGroup(context.Context, *models.Group) error
 	DeleteGroup(context.Context, uuid.UUID) error
+
+	CheckIdempotencyKey(context.Context, uuid.UUID) error
+}
+
+type PermissionRepository interface {
+	GetPermissionByID(context.Context, uuid.UUID) (*models.Permission, error)
+	GetPermissions(context.Context) ([]*models.Permission, error)
+	CreatePermission(context.Context, string) (*models.Permission, error)
+	UpdatePermission(context.Context, *models.Permission) error
+	DeletePermission(context.Context, uuid.UUID) error
 }
