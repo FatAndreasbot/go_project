@@ -47,3 +47,7 @@ returning id, created_at;
 
 -- name: DeleteGroup :exec
 delete from groups where id = $1;
+
+-- name: CheckGroupWasCreated :one
+select (count(*)!=0) as was_created from groups g 
+where g.idempotency_key = $1;

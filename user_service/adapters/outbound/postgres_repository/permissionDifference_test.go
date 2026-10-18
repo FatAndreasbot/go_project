@@ -1,11 +1,11 @@
-package postgresadapter_test
+package postgresrepository_test
 
 import (
 	"slices"
 	"strconv"
 	"testing"
 
-	postgresadapter "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/postgres_adapter"
+	postgresRepository "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/postgres_repository"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
 )
@@ -36,7 +36,7 @@ func getMockData() (oldPerms, newPerms, allPerms []*models.Permission) {
 
 func TestPermissionDifference1(t *testing.T) {
 	oldPerms, newPerms, _ := getMockData()
-	toAdd, toRemove := postgresadapter.PermissionDifference(oldPerms, newPerms)
+	toAdd, toRemove := postgresRepository.PermissionDifference(oldPerms, newPerms)
 
 	if !slices.Equal(toRemove, []*models.Permission{oldPerms[0]}) {
 		t.Error(
@@ -70,7 +70,7 @@ func TestPermissionDifference2(t *testing.T) {
 
 	newPerms := []*models.Permission{}
 
-	toAdd, toRemove := postgresadapter.PermissionDifference(oldPerms, newPerms)
+	toAdd, toRemove := postgresRepository.PermissionDifference(oldPerms, newPerms)
 
 	slices.SortFunc(toRemove, func(a, b *models.Permission) int {
 		a_number, _ := strconv.Atoi(string(a.Name))
