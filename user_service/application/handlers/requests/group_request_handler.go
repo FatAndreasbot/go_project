@@ -49,17 +49,27 @@ func (h GroupRequestHandler) GetGroupByID(ctx context.Context, groupID uuid.UUID
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupRead) {
 		return nil, domainerrors.NotEnoughPermission
 	}
-	group, err := h.groupRepository.GetGroupByID(ctx, groupID)
-
+	groupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, DBError
 	}
 
-	return group, nil
+	permissions, err := h.groupRepository.GetGroupPermissions(ctx, groupID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, DBError
+	}
+
+	group := models.Group{
+		MainGroupData: *groupData,
+		Permissions:   permissions,
+	}
+
+	return &group, nil
 }
 
-func (h GroupRequestHandler) GetGroups(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) ([]*models.Group, time.Time, error) {
+func (h GroupRequestHandler) GetGroups(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) ([]*models.MainGroupData, time.Time, error) {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupRead) {
 		return nil, time.Time{}, domainerrors.NotEnoughPermission
 	}
@@ -99,21 +109,19 @@ func (h GroupRequestHandler) AddPermission(ctx context.Context, groupID uuid.UUI
 		return domainerrors.NotEnoughPermission
 	}
 
-	groupToEdit, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	groupPermissions, err := h.groupRepository.GetGroupPermissions(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return DBError
 	}
 
-	if slices.ContainsFunc(groupToEdit.Permissions, func(p *models.Permission) bool {
+	if slices.ContainsFunc(groupPermissions, func(p *models.Permission) bool {
 		return *p == *permission
 	}) {
 		return GroupHasPermission
 	}
 
-	groupToEdit.Permissions = append(groupToEdit.Permissions, permission)
-
-	if err := h.groupRepository.UpdateGroup(ctx, groupToEdit); err != nil {
+	if err := h.groupRepository.AddPermission(ctx, groupID, permission.ID); err != nil {
 		log.Default().Println(err.Error())
 		return err
 	}
@@ -126,22 +134,20 @@ func (h GroupRequestHandler) RemovePermission(ctx context.Context, groupID uuid.
 		return domainerrors.NotEnoughPermission
 	}
 
-	groupToEdit, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	groupPermissions, err := h.groupRepository.GetGroupPermissions(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return DBError
 	}
+
 	cmpFunc := func(p *models.Permission) bool {
 		return *p == *permission
 	}
-
-	if !slices.ContainsFunc(groupToEdit.Permissions, cmpFunc) {
+	if !slices.ContainsFunc(groupPermissions, cmpFunc) {
 		return GroupLacksPermission
 	}
 
-	groupToEdit.Permissions = slices.DeleteFunc(groupToEdit.Permissions, cmpFunc)
-
-	if err := h.groupRepository.UpdateGroup(ctx, groupToEdit); err != nil {
+	if err := h.groupRepository.RemovePermission(ctx, groupID, permission.ID); err != nil {
 		log.Default().Println(err.Error())
 		return DBError
 	}

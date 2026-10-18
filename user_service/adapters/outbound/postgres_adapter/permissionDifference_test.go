@@ -66,9 +66,9 @@ func TestPermissionDifference1(t *testing.T) {
 }
 
 func TestPermissionDifference2(t *testing.T) {
-	oldPerms, newPerms, _ := getMockData()
+	oldPerms, _, _ := getMockData()
 
-	newPerms = []*models.Permission{}
+	newPerms := []*models.Permission{}
 
 	toAdd, toRemove := postgresadapter.PermissionDifference(oldPerms, newPerms)
 

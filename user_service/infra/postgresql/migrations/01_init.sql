@@ -8,7 +8,7 @@ CREATE TABLE public.group_permissions (
 
 CREATE TABLE public.groups (
     name character varying NOT NULL,
-    created_at timestamp DEFAULT now(),
+    created_at timestamp DEFAULT now() NOT NULL,
     idempotency_key uuid NOT NULL,
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY
 );
@@ -22,7 +22,7 @@ CREATE TABLE public.users (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     email character varying NOT NULL UNIQUE,
     password_hash character varying(128) NOT NULL,
-    created_at timestamp DEFAULT now(),
+    created_at timestamp DEFAULT now() NOT NULL,
     idempotency_key uuid NOT NULL UNIQUE,
     group_id uuid NOT NULL
 );

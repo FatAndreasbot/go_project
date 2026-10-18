@@ -6,10 +6,15 @@ import (
 	"github.com/google/uuid"
 )
 
-type Group struct {
-	ID          uuid.UUID
-	Name        string
-	Permissions []*Permission
+type MainGroupData struct {
+	ID   uuid.UUID
+	Name string
 
 	CreatedAt time.Time
+}
+
+type Group struct {
+	MainGroupData
+
+	Permissions []*Permission
 }

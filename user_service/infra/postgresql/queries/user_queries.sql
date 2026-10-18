@@ -9,8 +9,7 @@ select
 from
     users u
 where
-	u.email = $1
-order by u.created_at;
+	u.email = $1;
 
 -- name: GetUserDataByID :one
 select
@@ -23,8 +22,7 @@ select
 from
     users u
 where
-	u.id = $1
-order by u.created_at;
+	u.id = $1;
 
 -- name: GetUserList :many
 select

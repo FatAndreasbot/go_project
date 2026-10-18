@@ -20,10 +20,13 @@ type UserRepository interface {
 
 type GroupRepository interface {
 	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error)
-	GetGroupByID(context.Context, uuid.UUID) (*models.Group, error)
-	GetGroups(context.Context, time.Time, int) ([]*models.Group, error)
-	UpdateGroup(context.Context, *models.Group) error
+	GetGroupByID(context.Context, uuid.UUID) (*models.MainGroupData, error)
+	GetGroups(context.Context, time.Time, int) ([]*models.MainGroupData, error)
+	UpdateGroup(context.Context, *models.MainGroupData) error
 	DeleteGroup(context.Context, uuid.UUID) error
+	GetGroupPermissions(context.Context, uuid.UUID) ([]*models.Permission, error)
+	AddPermission(ctx context.Context, groupID, permissionID uuid.UUID) error
+	RemovePermission(ctx context.Context, groupID, permissionID uuid.UUID) error
 
 	CheckIdempotencyKey(context.Context, uuid.UUID) error
 }
