@@ -9,6 +9,17 @@ from
 where
     g.id = $1;
 
+-- name: GetGroupDataByName :one
+select
+    g.name,
+    g.id as "id",
+    g.created_at
+from
+    groups g
+where
+    g.name = $1;
+
+
 -- name: GetGroupList :many
 select
     g.name,

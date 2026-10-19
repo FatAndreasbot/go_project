@@ -108,6 +108,7 @@ func (h *GroupRequestHandler) GetGroups(ctx context.Context, cursor time.Time, c
 	return groups, next, nil
 }
 
+// TODO forbid editing admin group
 func (h *GroupRequestHandler) UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
@@ -128,6 +129,7 @@ func (h *GroupRequestHandler) UpdateGroup(ctx context.Context, groupID uuid.UUID
 	return nil
 }
 
+// TODO forbid editing admin group
 func (h *GroupRequestHandler) AddPermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
@@ -153,6 +155,7 @@ func (h *GroupRequestHandler) AddPermission(ctx context.Context, groupID uuid.UU
 	return nil
 }
 
+// TODO forbid editing admin group
 func (h *GroupRequestHandler) RemovePermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
@@ -179,6 +182,7 @@ func (h *GroupRequestHandler) RemovePermission(ctx context.Context, groupID uuid
 	return nil
 }
 
+// TODO forbid deleting admin group
 func (h *GroupRequestHandler) DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupDelete) {
 		return domainerrors.NotEnoughPermission

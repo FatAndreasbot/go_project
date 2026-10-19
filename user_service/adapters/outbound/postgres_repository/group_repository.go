@@ -74,6 +74,19 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 	return &newGroup, tx.Commit()
 }
 
+func (adp *GroupPersistanceAdapter) GetGroupByName(ctx context.Context, groupName string) (*models.MainGroupData, error) {
+	groupData, err := adp.q.GetGroupDataByName(ctx, groupName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.MainGroupData{
+		ID:        groupData.ID,
+		Name:      groupData.Name,
+		CreatedAt: groupData.CreatedAt,
+	}, nil
+}
+
 func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, groupID uuid.UUID) (*models.MainGroupData, error) {
 	groupData, err := adp.q.GetGroupDataByID(ctx, groupID)
 	if err != nil {

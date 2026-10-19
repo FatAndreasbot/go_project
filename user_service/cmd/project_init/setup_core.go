@@ -16,7 +16,7 @@ func SetupApplictaion() error {
 		log.Default().Println(err)
 	}
 
-	userRepo, groupRepo, permissionRepo, session, err := setupOutgoingAdapters()
+	userRepo, groupRepo, permissionRepo, session, err := SetupOutgoingAdapters()
 	if err != nil {
 		return err
 	}

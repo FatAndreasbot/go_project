@@ -20,6 +20,7 @@ type UserRepository interface {
 
 type GroupRepository interface {
 	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error)
+	GetGroupByName(context.Context, string) (*models.MainGroupData, error)
 	GetGroupByID(context.Context, uuid.UUID) (*models.MainGroupData, error)
 	GetGroups(context.Context, time.Time, int) ([]*models.MainGroupData, error)
 	UpdateGroup(context.Context, *models.MainGroupData) error
