@@ -17,13 +17,13 @@ import (
 type LoginRequestsHandler struct {
 	userRepository outgoing.UserRepository
 	jwtHandler     application.JWTHandler
-	sessionHandler outgoing.SessionStateHandler
+	sessionHandler outgoing.SessionHandler
 }
 
 func NewRequestHandler(
 	userRepository outgoing.UserRepository,
 	jwtHandler application.JWTHandler,
-	sessionHandler outgoing.SessionStateHandler,
+	sessionHandler outgoing.SessionHandler,
 ) *LoginRequestsHandler {
 	return &LoginRequestsHandler{
 		userRepository: userRepository,

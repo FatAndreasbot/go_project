@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type SessionStateHandler interface {
+type SessionHandler interface {
 	CreateSession(ctx context.Context, userID uuid.UUID) error
 	DeleteSession(ctx context.Context, userID uuid.UUID) error
 	ExtendSession(ctx context.Context, userID uuid.UUID) error
