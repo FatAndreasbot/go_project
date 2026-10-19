@@ -19,7 +19,7 @@ func NewJWTHandler() *JWTHandler {
 	return &JWTHandler{}
 }
 
-func (JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, error) {
+func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
@@ -51,7 +51,7 @@ func (JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (strin
 	return signedToken, nil
 }
 
-func (JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, error) {
+func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.RefreshJWTExpiration)
@@ -83,7 +83,7 @@ func (JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (stri
 	return signedToken, nil
 }
 
-func (JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error) {
+func (h *JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error) {
 	secret, err := config.GetConfig(config.HS256_SECRET)
 	if err != nil {
 		return uuid.Nil, err

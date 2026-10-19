@@ -39,7 +39,7 @@ func (adp *UserPersistanceAdapter) GetUserByEmail(ctx context.Context, email str
 	}, nil
 }
 
-func (adp UserPersistanceAdapter) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
+func (adp *UserPersistanceAdapter) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	userData, err := adp.q.GetUserDataByID(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (adp UserPersistanceAdapter) GetUserByID(ctx context.Context, userID uuid.U
 	}, nil
 }
 
-func (adp UserPersistanceAdapter) GetUsers(ctx context.Context, createdAt time.Time, count int) ([]*models.User, error) {
+func (adp *UserPersistanceAdapter) GetUsers(ctx context.Context, createdAt time.Time, count int) ([]*models.User, error) {
 	userData, err := adp.q.GetUserList(ctx, sqlc_gen.GetUserListParams{
 		CreatedAt: createdAt,
 		Limit:     int32(count),
@@ -78,7 +78,7 @@ func (adp UserPersistanceAdapter) GetUsers(ctx context.Context, createdAt time.T
 	return userList, nil
 }
 
-func (adp UserPersistanceAdapter) CreateUser(ctx context.Context, userData *models.UserData) (*models.User, error) {
+func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *models.UserData) (*models.User, error) {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 
 	if err != nil {
@@ -113,7 +113,7 @@ func (adp UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mode
 	return &user, nil
 }
 
-func (adp UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *models.UserUpdateRequestData) error {
+func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *models.UserUpdateRequestData) error {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -144,7 +144,7 @@ func (adp UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mode
 	return tx.Commit()
 }
 
-func (adp UserPersistanceAdapter) CheckIdempotencyKey(ctx context.Context, key uuid.UUID) error {
+func (adp *UserPersistanceAdapter) CheckIdempotencyKey(ctx context.Context, key uuid.UUID) error {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -165,7 +165,7 @@ func (adp UserPersistanceAdapter) CheckIdempotencyKey(ctx context.Context, key u
 	return nil
 }
 
-func (adp UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.UUID) error {
+func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.UUID) error {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
