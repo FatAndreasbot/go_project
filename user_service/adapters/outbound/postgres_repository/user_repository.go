@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// implements
 type UserPersistanceAdapter struct {
 	conn *sql.DB
 	q    *sqlc_gen.Queries

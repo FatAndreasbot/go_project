@@ -34,7 +34,9 @@ type GroupRepository interface {
 type PermissionRepository interface {
 	GetPermissionByID(context.Context, uuid.UUID) (*models.Permission, error)
 	GetPermissions(context.Context) ([]*models.Permission, error)
-	CreatePermission(context.Context, string) (*models.Permission, error)
-	UpdatePermission(context.Context, *models.Permission) error
-	DeletePermission(context.Context, uuid.UUID) error
+
+	// no need for these methods
+	// CreatePermission(context.Context, string) (*models.Permission, error)
+	// UpdatePermission(context.Context, *models.Permission) error
+	// DeletePermission(context.Context, uuid.UUID) error
 }
