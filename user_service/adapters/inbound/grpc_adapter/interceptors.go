@@ -11,7 +11,7 @@ import (
 )
 
 var publicMethods map[string]struct{} = map[string]struct{}{
-	"/proto.user_service.UserService/LogIn": {},
+	"/user_service.v1.UserService/LogIn": {},
 }
 
 // points to userID: uuid.UUID

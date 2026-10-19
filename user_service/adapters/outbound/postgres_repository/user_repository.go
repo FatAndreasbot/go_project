@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
 	"github.com/google/uuid"
@@ -26,6 +27,9 @@ func NewUserPersistanceAdapter(conn *sql.DB) *UserPersistanceAdapter {
 func (adp *UserPersistanceAdapter) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	userData, err := adp.q.GetUserDataByEmail(ctx, email)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domainerrors.NotFound
+		}
 		return nil, err
 	}
 
