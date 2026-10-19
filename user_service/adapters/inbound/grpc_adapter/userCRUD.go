@@ -16,7 +16,13 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (s Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -64,7 +70,13 @@ func (s Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*
 	}, nil
 }
 
-func (s Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.GetUserResponse, error) {
+func (s *Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.GetUserResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -95,7 +107,13 @@ func (s Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto.
 	}, nil
 }
 
-func (s Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*proto.GetUsersResponse, error) {
+func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*proto.GetUsersResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -127,7 +145,13 @@ func (s Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*prot
 	return &resp, nil
 }
 
-func (s Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest) (*emptypb.Empty, error) {
+func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -161,7 +185,13 @@ func (s Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataRequest
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (*emptypb.Empty, error) {
+func (s *Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")

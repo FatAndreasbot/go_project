@@ -14,7 +14,13 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
+func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	email, password := req.GetEmail(), req.GetPassword()
 
 	repsponseData, err := s.loginHandler.Login(ctx, email, password)
@@ -32,7 +38,13 @@ func (s Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogI
 	}, nil
 }
 
-func (s Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (s *Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	rawUserID := ctx.Value(userdataKey)
 	if rawUserID == nil {
 		log.Default().Println("attempted to log out without an access token")
@@ -48,7 +60,13 @@ func (s Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, e
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) Refresh(ctx context.Context, req *proto.RefreshRequest) (*proto.RefreshResponse, error) {
+func (s *Server) Refresh(ctx context.Context, req *proto.RefreshRequest) (*proto.RefreshResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	refreshToken := req.GetRefreshToken()
 
 	tokens, err := s.loginHandler.Refresh(ctx, refreshToken)

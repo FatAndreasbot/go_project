@@ -46,7 +46,13 @@ func protoPermissionToDomainPermissions(protoPermissions []*v1.UserPermission) (
 	return permissions, nil
 }
 
-func (s Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) (*proto.CreateGroupResponse, error) {
+func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) (*proto.CreateGroupResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -85,7 +91,13 @@ func (s Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest) 
 	return &response, status.Error(codes.Unimplemented, "method CreateGroup not implemented")
 }
 
-func (s Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
+func (s *Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -116,7 +128,13 @@ func (s Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*prot
 	return &response, nil
 }
 
-func (s Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
+func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*proto.GetGroupsResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -148,7 +166,13 @@ func (s Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*pr
 	return &resp, nil
 }
 
-func (s Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest) (*emptypb.Empty, error) {
+func (s *Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -171,7 +195,13 @@ func (s Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest) 
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermissionToGroupRequest) (*emptypb.Empty, error) {
+func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermissionToGroupRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -204,7 +234,13 @@ func (s Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermissi
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) RemovePermissionFromGroup(ctx context.Context, req *proto.RemovePermissionFromGroupRequest) (*emptypb.Empty, error) {
+func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.RemovePermissionFromGroupRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -237,7 +273,13 @@ func (s Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remove
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest) (*emptypb.Empty, error) {
+func (s *Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest) (*emptypb.Empty, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
@@ -260,7 +302,13 @@ func (s Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest) 
 	return &emptypb.Empty{}, nil
 }
 
-func (s Server) GetAllPermissions(ctx context.Context, req *emptypb.Empty) (*proto.GetPermissionsResponse, error) {
+func (s *Server) GetAllPermissions(ctx context.Context, req *emptypb.Empty) (*proto.GetPermissionsResponse, error) {
+	if !s.listening.Load() {
+		return nil, status.Error(codes.Unavailable, "server is shutting down")
+	}
+	s.requestsInProgressCounter.Add(1)
+	defer s.requestsInProgressCounter.Add(-1)
+
 	permissions, err := s.groupHandler.GetAllPermissions(ctx)
 	if err != nil {
 		log.Default().Println(err.Error())
