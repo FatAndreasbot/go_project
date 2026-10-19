@@ -15,9 +15,24 @@ import (
 )
 
 type GroupRequestHandler struct {
-	permissionHandler    application.PermissionHandler
 	groupRepository      outgoing.GroupRepository
 	permissionRepository outgoing.PermissionRepository
+
+	permissionHandler application.PermissionHandler
+}
+
+func NewGroupRequestHandler(
+	groupRepository outgoing.GroupRepository,
+	permissionRepository outgoing.PermissionRepository,
+
+	permissionHandler application.PermissionHandler,
+) *GroupRequestHandler {
+	return &GroupRequestHandler{
+		groupRepository:      groupRepository,
+		permissionRepository: permissionRepository,
+
+		permissionHandler: permissionHandler,
+	}
 }
 
 func (h *GroupRequestHandler) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error) {

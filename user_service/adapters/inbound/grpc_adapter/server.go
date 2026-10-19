@@ -10,7 +10,7 @@ import (
 
 type Server struct {
 	proto.UnimplementedUserServiceServer
-	loginHandler incoming.LoginHandler
+	loginHandler incoming.LoginRequestHandler
 	userHandler  incoming.UserRequestHandler
 	groupHandler incoming.GroupRequestHandler
 
@@ -18,12 +18,19 @@ type Server struct {
 	listening                 atomic.Bool
 }
 
-func NewServer(handler incoming.LoginHandler) *Server {
+func NewServer(
+	groupHandler incoming.GroupRequestHandler,
+	userHandler incoming.UserRequestHandler,
+	loginHandler incoming.LoginRequestHandler,
+) *Server {
 	s := Server{
-		loginHandler: handler,
+		loginHandler: loginHandler,
+		userHandler:  userHandler,
+		groupHandler: groupHandler,
 	}
 
 	s.listening.Store(true)
+	s.requestsInProgressCounter.Store(0)
 
 	return &s
 }

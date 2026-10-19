@@ -16,19 +16,22 @@ import (
 // implements ports/incoming/request.go LoginHandler
 type LoginRequestsHandler struct {
 	userRepository outgoing.UserRepository
-	jwtHandler     application.JWTHandler
 	sessionHandler outgoing.SessionHandler
+
+	jwtHandler application.JWTHandler
 }
 
-func NewRequestHandler(
+func NewLoginRequestHandler(
 	userRepository outgoing.UserRepository,
-	jwtHandler application.JWTHandler,
 	sessionHandler outgoing.SessionHandler,
+
+	jwtHandler application.JWTHandler,
 ) *LoginRequestsHandler {
 	return &LoginRequestsHandler{
 		userRepository: userRepository,
-		jwtHandler:     jwtHandler,
 		sessionHandler: sessionHandler,
+
+		jwtHandler: jwtHandler,
 	}
 }
 

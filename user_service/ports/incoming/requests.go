@@ -13,7 +13,7 @@ var (
 	InternalError = errors.New("unexpected error")
 )
 
-type LoginHandler interface {
+type LoginRequestHandler interface {
 	Login(ctx context.Context, email, password string) (*models.LoginResponseData, error)
 	Logout(ctx context.Context, userID uuid.UUID) error
 	Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error)

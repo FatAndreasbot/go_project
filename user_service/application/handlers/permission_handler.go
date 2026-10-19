@@ -14,6 +14,16 @@ type PermissionHandler struct {
 	groupRepository outgoing.GroupRepository
 }
 
+func NewPermissionHander(
+	userRepository outgoing.UserRepository,
+	groupRepository outgoing.GroupRepository,
+) *PermissionHandler {
+	return &PermissionHandler{
+		userRepository:  userRepository,
+		groupRepository: groupRepository,
+	}
+}
+
 func (h *PermissionHandler) HasPermission(userID uuid.UUID, permission models.PermissionName) bool {
 	ctx := context.Background()
 

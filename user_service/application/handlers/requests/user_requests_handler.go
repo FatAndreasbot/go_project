@@ -17,6 +17,16 @@ type UserRequestsHandler struct {
 	permissionHandler application.PermissionHandler
 }
 
+func NewUserRequestHandler(
+	userRepository outgoing.UserRepository,
+	permissionHandler application.PermissionHandler,
+) *UserRequestsHandler {
+	return &UserRequestsHandler{
+		userRepository:    userRepository,
+		permissionHandler: permissionHandler,
+	}
+}
+
 func (h *UserRequestsHandler) CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error) {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
 		return nil, domainerrors.NotEnoughPermission
