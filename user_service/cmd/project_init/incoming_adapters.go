@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func SetupIncomingAdapters(
+func setupIncomingAdapters(
 	groupHandler incoming.GroupRequestHandler,
 	userHandler incoming.UserRequestHandler,
 	loginHandler incoming.LoginRequestHandler,
@@ -27,6 +27,9 @@ func SetupIncomingAdapters(
 		return err
 	}
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		return err
+	}
 
 	interceptor := grpcadapter.NewAuthInterceptor(
 		jwtHandler,
@@ -42,5 +45,12 @@ func SetupIncomingAdapters(
 
 	proto.RegisterUserServiceServer(grpcServer, serverAdapter)
 
+	setupTerminationCallback(func() {
+		grpcServer.GracefulStop()
+		// serverAdapter.Shutdown()
+		listener.Close()
+	})
+
+	fmt.Printf("starting server at localhost:%s\n", port)
 	return grpcServer.Serve(listener)
 }

@@ -7,16 +7,19 @@ import (
 	"syscall"
 )
 
-func SetupTerminationCallback(callback func()) {
+func setupTerminationCallback(callback func()) {
 	sigCh := make(chan os.Signal, 1)
 
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-	<-sigCh
+	go func() {
 
-	fmt.Println("shutting down server...")
-	callback()
-	fmt.Println("server shut down")
+		<-sigCh
 
-	signal.Stop(sigCh)
+		fmt.Println("shutting down server...")
+		callback()
+		fmt.Println("server shut down")
+
+		signal.Stop(sigCh)
+	}()
 }

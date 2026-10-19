@@ -51,7 +51,7 @@ func GetConfig(option ConfigOption) (string, error) {
 
 func LoadConfig(envFileLocation ...string) error {
 	if err := godotenv.Load(envFileLocation...); err != nil {
-		return errors.New("could not load .env file")
+		return err
 	}
 
 	return nil

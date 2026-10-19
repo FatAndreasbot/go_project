@@ -15,6 +15,13 @@ type PermissionPersistanceAdapter struct {
 	q    *sqlc_gen.Queries
 }
 
+func NewPermissionPersistanceAdapter(conn *sql.DB) *PermissionPersistanceAdapter {
+	return &PermissionPersistanceAdapter{
+		conn: conn,
+		q:    sqlc_gen.New(conn),
+	}
+}
+
 func (adp *PermissionPersistanceAdapter) GetPermissionByID(ctx context.Context, permissionID uuid.UUID) (*models.Permission, error) {
 	permissionData, err := adp.q.GetPermissionByID(ctx, permissionID)
 	if err != nil {

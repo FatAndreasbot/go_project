@@ -1,5 +1,5 @@
 
-.PHONY: migrations
+.PHONY: migrations build
 
 migrations:
 	goose -dir \
@@ -16,3 +16,7 @@ generate_queries:
 
 clear_queries:
 	rm -rf infra/postgresql/sqlc_gen/*
+
+build:
+	mkdir -p build
+	go build -o build/user_service cmd/main.go

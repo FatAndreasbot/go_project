@@ -3,7 +3,6 @@ package grpcadapter
 import (
 	proto "proto/user_service/v1"
 	"sync/atomic"
-	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 )
@@ -35,10 +34,11 @@ func NewServer(
 	return &s
 }
 
-func (s *Server) Shutdown() {
-	s.listening.Store(false)
+// ill leave it commnented out just in case ill actually need it
+// func (s *Server) Shutdown() {
+// 	s.listening.Store(false)
 
-	for s.requestsInProgressCounter.Load() > 0 {
-		time.Sleep(time.Millisecond * 200)
-	}
-}
+// 	for s.requestsInProgressCounter.Load() > 0 {
+// 		time.Sleep(time.Millisecond * 200)
+// 	}
+// }

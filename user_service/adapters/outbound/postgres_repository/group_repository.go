@@ -44,6 +44,13 @@ type GroupPersistanceAdapter struct {
 	q    *sqlc_gen.Queries
 }
 
+func NewGroupPersistanceAdapter(conn *sql.DB) *GroupPersistanceAdapter {
+	return &GroupPersistanceAdapter{
+		conn: conn,
+		q:    sqlc_gen.New(conn),
+	}
+}
+
 func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error) {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
