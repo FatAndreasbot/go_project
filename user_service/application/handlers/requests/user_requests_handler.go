@@ -65,7 +65,15 @@ func (h UserRequestsHandler) GetUsers(ctx context.Context, cursor time.Time, cou
 		return nil, time.Time{}, DBError
 	}
 
-	next := users[len(users)-1].CreatedAt
+	var next time.Time
+	next = users[0].CreatedAt
+
+	// if for some accursed reason the list is not sorted by CreatedAt
+	for _, group := range users {
+		if group.CreatedAt.After(next) {
+			next = group.CreatedAt
+		}
+	}
 
 	return users, next, nil
 }

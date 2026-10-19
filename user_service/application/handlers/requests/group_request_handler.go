@@ -79,7 +79,16 @@ func (h GroupRequestHandler) GetGroups(ctx context.Context, cursor time.Time, co
 		return nil, time.Time{}, DBError
 	}
 
-	next := groups[len(groups)-1].CreatedAt
+	// next := groups[len(groups)-1].CreatedAt
+	var next time.Time
+	next = groups[0].CreatedAt
+
+	// if for some accursed reason the list is not sorted by CreatedAt
+	for _, group := range groups {
+		if group.CreatedAt.After(next) {
+			next = group.CreatedAt
+		}
+	}
 
 	return groups, next, nil
 }
