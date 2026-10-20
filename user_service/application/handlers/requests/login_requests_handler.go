@@ -14,20 +14,20 @@ import (
 )
 
 // implements ports/incoming/request.go LoginHandler
-type LoginRequestsHandler struct {
+type LoginRequestsHandlerImpl struct {
 	userRepository outgoing.UserRepository
 	sessionHandler outgoing.SessionHandler
 
-	jwtHandler application.JWTHandler
+	jwtHandler application.JWTHandlerPort
 }
 
 func NewLoginRequestHandler(
 	userRepository outgoing.UserRepository,
 	sessionHandler outgoing.SessionHandler,
 
-	jwtHandler application.JWTHandler,
-) *LoginRequestsHandler {
-	return &LoginRequestsHandler{
+	jwtHandler application.JWTHandlerPort,
+) *LoginRequestsHandlerImpl {
+	return &LoginRequestsHandlerImpl{
 		userRepository: userRepository,
 		sessionHandler: sessionHandler,
 
@@ -35,7 +35,7 @@ func NewLoginRequestHandler(
 	}
 }
 
-func (h *LoginRequestsHandler) Login(ctx context.Context, email, password string) (*models.LoginResponseData, error) {
+func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password string) (*models.LoginResponseData, error) {
 	user, err := h.userRepository.GetUserByEmail(ctx, email)
 	if err != nil {
 		user.CheckPassword(password)
@@ -78,11 +78,11 @@ func (h *LoginRequestsHandler) Login(ctx context.Context, email, password string
 	}, nil
 }
 
-func (h *LoginRequestsHandler) Logout(ctx context.Context, userID uuid.UUID) error {
+func (h *LoginRequestsHandlerImpl) Logout(ctx context.Context, userID uuid.UUID) error {
 	return h.sessionHandler.DeleteSession(ctx, userID)
 }
 
-func (h *LoginRequestsHandler) Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error) {
+func (h *LoginRequestsHandlerImpl) Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error) {
 	userID, err := h.jwtHandler.DecodeJWT(ctx, RefreshToken)
 	if err != nil {
 		log.Default().Println(err.Error())

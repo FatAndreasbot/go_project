@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type JWTHandler interface {
+type JWTHandlerPort interface {
 	EncodeAccessJWT(ctx context.Context, user *models.User) (string, error)
 	EncodeRefreshJWT(ctx context.Context, user *models.User) (string, error)
 	DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error)

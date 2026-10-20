@@ -12,22 +12,22 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRequestsHandler struct {
+type UserRequestsHandlerImpl struct {
 	userRepository    outgoing.UserRepository
-	permissionHandler application.PermissionHandler
+	permissionHandler application.PermissionHandlerPort
 }
 
 func NewUserRequestHandler(
 	userRepository outgoing.UserRepository,
-	permissionHandler application.PermissionHandler,
-) *UserRequestsHandler {
-	return &UserRequestsHandler{
+	permissionHandler application.PermissionHandlerPort,
+) *UserRequestsHandlerImpl {
+	return &UserRequestsHandlerImpl{
 		userRepository:    userRepository,
 		permissionHandler: permissionHandler,
 	}
 }
 
-func (h *UserRequestsHandler) CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error) {
+func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error) {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
 		return nil, domainerrors.NotEnoughPermission
 	}
@@ -47,7 +47,7 @@ func (h *UserRequestsHandler) CreateUser(ctx context.Context, userdata *models.U
 	return user, nil
 }
 
-func (h *UserRequestsHandler) GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error) {
+func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error) {
 	if userID != requesterID && !h.permissionHandler.HasPermission(requesterID, models.UserRead) {
 		return nil, domainerrors.NotEnoughPermission
 	}
@@ -59,7 +59,7 @@ func (h *UserRequestsHandler) GetUserByID(ctx context.Context, userID uuid.UUID,
 	return user, nil
 }
 
-func (h *UserRequestsHandler) GetUsers(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) ([]*models.User, time.Time, error) {
+func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) ([]*models.User, time.Time, error) {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
 		return nil, time.Time{}, domainerrors.NotEnoughPermission
 	}
@@ -88,7 +88,7 @@ func (h *UserRequestsHandler) GetUsers(ctx context.Context, cursor time.Time, co
 	return users, next, nil
 }
 
-func (h *UserRequestsHandler) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error {
+func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
@@ -101,7 +101,7 @@ func (h *UserRequestsHandler) UpdateUser(ctx context.Context, data *models.UserU
 	return nil
 }
 
-func (h *UserRequestsHandler) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error {
+func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserDelete) {
 		return domainerrors.NotEnoughPermission
 	}
