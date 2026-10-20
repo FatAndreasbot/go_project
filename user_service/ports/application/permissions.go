@@ -5,7 +5,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type PermissionHandler interface {
+type PermissionHandlerPort interface {
 	// True if has permission
 	HasPermission(userID uuid.UUID, permission models.PermissionName) bool
 }

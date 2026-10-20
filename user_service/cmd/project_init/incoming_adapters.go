@@ -20,7 +20,7 @@ func setupIncomingAdapters(
 
 	sessionHandler outgoing.SessionHandler,
 
-	jwtHandler application.JWTHandler,
+	jwtHandler application.JWTHandlerPort,
 ) error {
 	port, err := config.GetConfig(config.NetworkPort)
 	if err != nil {

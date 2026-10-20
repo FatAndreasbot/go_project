@@ -12,8 +12,8 @@ func setupBaseHandlers(
 	userRepository outgoing.UserRepository,
 	groupRepository outgoing.GroupRepository,
 ) (
-	jwtHandler application.JWTHandler,
-	permissionHandler application.PermissionHandler,
+	jwtHandler application.JWTHandlerPort,
+	permissionHandler application.PermissionHandlerPort,
 ) {
 	jwt := handlers.NewJWTHandler()
 	permissions := handlers.NewPermissionHander(
@@ -30,8 +30,8 @@ func setupHandlers(
 	groupRepository outgoing.GroupRepository,
 	permissionRepository outgoing.PermissionRepository,
 
-	jwtHandler application.JWTHandler,
-	permissionHandler application.PermissionHandler,
+	jwtHandler application.JWTHandlerPort,
+	permissionHandler application.PermissionHandlerPort,
 ) (
 	incoming.GroupRequestHandler,
 	incoming.UserRequestHandler,
