@@ -97,6 +97,7 @@ func (h *JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UU
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)
 	if err != nil {
+		log.Default().Println(err)
 		return uuid.Nil, err
 	}
 

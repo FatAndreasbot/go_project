@@ -27,6 +27,8 @@ func NewMapSessionStorate() *MapSessionStorage {
 	}
 }
 
+// in the future it would be better to use redis or something like that, but for now this will do
+
 func (s *MapSessionStorage) CreateSession(ctx context.Context, userID uuid.UUID) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -74,10 +76,6 @@ func (s *MapSessionStorage) ExtendSession(ctx context.Context, userID uuid.UUID)
 	if !ok {
 		return DoesNotExists
 	}
-	if data.expiresAt.After(time.Now()) {
-		delete(s.store, userID)
-		return Expired
-	}
 
 	defer s.mu.Unlock()
 	sessionCreatedAt := time.Now()
@@ -106,7 +104,7 @@ func (s *MapSessionStorage) CheckSession(ctx context.Context, userID uuid.UUID) 
 	if !ok {
 		return DoesNotExists
 	}
-	if data.expiresAt.After(time.Now()) {
+	if !data.expiresAt.After(time.Now()) {
 		delete(s.store, userID)
 		return Expired
 	}

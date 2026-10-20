@@ -8,9 +8,9 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 )
 
-func SetupApplictaion() error {
+func SetupApplictaion(options *LaunchOptions) error {
 
-	err := config.LoadConfig("../.env")
+	err := config.LoadConfig(options.EnvPath)
 	if err != nil {
 		fmt.Println(os.Getwd())
 		log.Default().Println(err)

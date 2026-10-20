@@ -3,6 +3,7 @@ package grpcadapter
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
@@ -11,7 +12,8 @@ import (
 )
 
 var publicMethods map[string]struct{} = map[string]struct{}{
-	"/user_service.v1.UserService/LogIn": {},
+	"/user_service.v1.UserService/LogIn":   {},
+	"/user_service.v1.UserService/Refresh": {},
 }
 
 // points to userID: uuid.UUID
@@ -50,6 +52,7 @@ func (factory *AuthInterceptor) UnaryServerInterceptor() grpc.UnaryServerInterce
 
 			userID, err := jwtHandler.DecodeJWT(ctx, token)
 			if err != nil {
+				log.Default().Println(err)
 				return ctx, errors.New("error when reading parsing userID")
 			}
 

@@ -2,22 +2,25 @@ package commands
 
 import (
 	"fmt"
-	"log"
 	"os"
 
-	"github.com/FatAndreasbot/go_project/user_service/infra/config"
+	"github.com/FatAndreasbot/go_project/user_service/cmd/project_init"
 )
 
-func Dispatch(args ...string) {
-	err := config.LoadConfig("../.env")
-	if err != nil {
-		fmt.Println(os.Getwd())
-		log.Default().Println(err)
+func Dispatch(command *project_init.LaunchOptions) {
+	if command.IsDebug {
+		fmt.Printf("PID: %d\n ", os.Getpid())
 	}
 
-	if args[0] == "createsuperuser" {
+	switch command.AppCommand {
+	case "createsuperuser":
 		createsuperuser()
-	} else {
+	case "serve":
+		err := project_init.SetupApplictaion(command)
+		if err != nil {
+			fmt.Println(err)
+		}
+	default:
 		fmt.Println("unknown command")
 	}
 }
