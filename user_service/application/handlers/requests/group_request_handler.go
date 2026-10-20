@@ -108,9 +108,17 @@ func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor time.Tim
 	return groups, next, nil
 }
 
-// TODO forbid editing admin group
 func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+		return domainerrors.NotEnoughPermission
+	}
+
+	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return DBError
+	}
+	if oldGroupData.Name == "admin" {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -129,9 +137,17 @@ func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.
 	return nil
 }
 
-// TODO forbid editing admin group
 func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+		return domainerrors.NotEnoughPermission
+	}
+
+	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return DBError
+	}
+	if oldGroupData.Name == "admin" {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -155,9 +171,17 @@ func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uui
 	return nil
 }
 
-// TODO forbid editing admin group
 func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+		return domainerrors.NotEnoughPermission
+	}
+
+	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return DBError
+	}
+	if oldGroupData.Name == "admin" {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -182,9 +206,17 @@ func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID 
 	return nil
 }
 
-// TODO forbid deleting admin group
 func (h *GroupRequestHandlerImpl) DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupDelete) {
+		return domainerrors.NotEnoughPermission
+	}
+
+	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return DBError
+	}
+	if oldGroupData.Name == "admin" {
 		return domainerrors.NotEnoughPermission
 	}
 
