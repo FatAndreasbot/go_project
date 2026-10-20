@@ -1,96 +1,60 @@
--- name: GetUserByUsername :one
+-- name: GetUserDataByEmail :one
 select
-    u.username,
+    u.id,
+    u.email,
     u.password_hash,
-    u."id",
-    g."name" as group_name,
-    g."id" as group_uuid,
-    JSON_AGG(
-        JSON_BUILD_OBJECT(
-            'ID', p.id,
-            'Name', p.name
-        ) order by p.id
-    ) as permissions
+    u.group_id,
+    u.created_at,
+    u.idempotency_key
 from
     users u
-    left join "groups" g on g.id = u.group_id
-    left join group_permissions gp on g.id = gp.group_id
-    left join permissions p on p.id = gp.permission_id
 where
-	u.username = $1
-group by
-    u.username,
-    u.password_hash,
-    u."id",
-    g."name",
-    g."id";
+	u.email = $1;
 
--- name: GetUserByID :one
+-- name: GetUserDataByID :one
 select
-    u.username,
+    u.id,
+    u.email,
     u.password_hash,
-    u."id",
-    g."name" as group_name,
-    g."id" as group_uuid,
-    JSON_AGG(
-        JSON_BUILD_OBJECT(
-            'ID', p.id,
-            'Name', p.name
-        ) order by p.id
-    ) as permissions
+    u.group_id,
+    u.created_at,
+    u.idempotency_key
 from
     users u
-    left join "groups" g on g.id = u.group_id
-    left join group_permissions gp on g.id = gp.group_id
-    left join permissions p on p.id = gp.permission_id
 where
-	u."id" = $1
-group by
-    u.username,
-    u.password_hash,
-    u."id",
-    g."name",
-    g."id";
+	u.id = $1;
 
 -- name: GetUserList :many
 select
-    u.username,
+    u.id,
+    u.email,
     u.password_hash,
-    u."id",
-    g."name" as group_name,
-    g."id" as group_uuid,
-	JSON_AGG(
-        JSON_BUILD_OBJECT(
-            'ID', p.id,
-            'Name', p.name
-        ) order by p.id
-    ) as permissions
+    u.group_id,
+    u.created_at,
+    u.idempotency_key
 from
     users u
-    left join "groups" g on g.id = u.group_id
-    left join group_permissions gp on g.id = gp.group_id
-    left join permissions p on p.id = gp.permission_id
-group by
-	u.id,
-    u.username,
-    u.password_hash,
-    u."id",
-    g."name",
-    g."id"
-order by u.id
-limit $1 offset $2;
+WHERE
+    u.created_at > $1
+order by u.created_at
+limit $2;
 
--- name: UpdateUser :exec
+-- name: UpdateUser :one
 update Users u set
-    "username" = $1,
-    "password_hash" = $2,
+    email = $1,
+    password_hash = $2,
     group_id = $3
 where
-    u.id = $4;
+    u.id = $4
+RETURNING u.created_at;
 
 -- name: CreateUser :one
-insert into Users (id, username, password_hash, group_id) values ($1, $2, $3, $4)
-returning id;
+insert into Users (email, password_hash, group_id, idempotency_key) values ($1, $2, $3, $4)
+returning id, created_at;
 
 -- name: DeleteUser :exec
 delete from users u where u.id = $1;
+
+-- name: CheckUserWasCreated :one
+select (count(*)!=0) as was_created from users u 
+where u.idempotency_key = $1;

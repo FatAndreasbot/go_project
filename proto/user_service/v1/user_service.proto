@@ -4,7 +4,8 @@ package user_service.v1;
 
 import "common/v1/user.proto";
 import "google/protobuf/empty.proto";
-import "validate.proto";
+import "google/protobuf/timestamp.proto";
+import "pb/validate.proto";
 
 option go_package = "proto/user_service";
 
@@ -12,33 +13,62 @@ service UserService {
   rpc LogIn(LogInRequest) returns (LogInResponse);
   rpc LogOut(google.protobuf.Empty) returns (google.protobuf.Empty);
   rpc Refresh(RefreshRequest) returns (RefreshResponse);
+
+  // User CRUD
   rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
-  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
   rpc GetUser(GetUserRequest) returns (GetUserResponse);
-  rpc GetPermissions(GetPermissionsRequest) returns (GetPermissionsResponse);
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
+  rpc UpdateUser(UpdateUserDataRequest) returns (google.protobuf.Empty);
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+
+  // Group CRUD
+  rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse);
+  rpc GetGroup(GetGroupRequest) returns (GetGroupResponse);
+  rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
+  rpc UpdateGroup(UpdateGroupRequest) returns (google.protobuf.Empty);
+  rpc AddPermissionToGroup(AddPermissionToGroupRequest) returns (google.protobuf.Empty);
+  rpc RemovePermissionFromGroup(RemovePermissionFromGroupRequest) returns (google.protobuf.Empty);
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty);
+
+  // Permissions
+  rpc GetAllPermissions(google.protobuf.Empty) returns (GetPermissionsResponse);
 }
+
+// ----------------- Login logout --------------------------------------
 
 message LogInRequest {
   string email = 1[
-    (buf.validate.field).string.email = true
+    (buf.validate.field).string = {
+    email: true,
+    max_len: 128,
+    min_len: 1
+    }
   ];
   string password = 2[
-    (buf.validate.field).string.min_len = 8,
-    (buf.validate.field).string.max_len = 32
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
   ];
 }
 
 message LogInResponse {
   string access_token = 1[
     (buf.validate.field).string = {
-      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
-      max_len: 4096
+    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    max_len: 4096
     }
   ];
   string refresh_token = 2[
     (buf.validate.field).string = {
-      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
-      max_len: 4096
+    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    max_len: 4096
+    }
+  ];
+  string user_id = 3[
+    (buf.validate.field).string = {
+    uuid: true
     }
   ];
 }
@@ -46,33 +76,40 @@ message LogInResponse {
 message RefreshRequest {
   string refresh_token = 1[
     (buf.validate.field).string = {
-      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
-      max_len: 4096
+    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    max_len: 4096
     }
-  ];;
+  ];
 }
 
 message RefreshResponse {
   string new_access_token = 1[
     (buf.validate.field).string = {
-      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
-      max_len: 4096
+    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    max_len: 4096
     }
-  ];;
+  ];
   string new_refresh_token = 2[
     (buf.validate.field).string = {
-      pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
-      max_len: 4096
+    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    max_len: 4096
     }
-  ];;
+  ];
 }
 
+// ----------------- User CRUD -----------------------------------------
+
 message CreateUserRequest{
-  string username = 1[
-    (buf.validate.field).string.min_len = 1
+  string email = 1[
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.email = true
   ];
   string password = 2[
-    (buf.validate.field).string.min_len = 8
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
   ];
   string group_id = 3[
     (buf.validate.field).string = {
@@ -87,17 +124,7 @@ message CreateUserRequest{
 }
 
 message CreateUserResponse {
-  common.v1.User user = 1;
-}
-
-message GetGroupsRequest {
-  string last_group_name = 1;
-  int32 limit  = 2;
-}
-
-message GetGroupsResponse {
-  repeated common.v1.UserGroup groups = 1;
-  int32                        next   = 2;
+  common.v1.UserData user = 1;
 }
 
 message GetUserRequest {
@@ -109,10 +136,32 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
-  common.v1.User user = 1;
+  common.v1.UserData user = 1;
 }
 
-message GetPermissionsRequest {
+message GetUsersRequest{
+  optional google.protobuf.Timestamp cursor = 1;
+  int32                              limit  = 2;
+}
+
+message GetUsersResponse{
+  repeated common.v1.UserData users  = 1;
+  google.protobuf.Timestamp   cursor = 2;
+}
+
+message UpdateUserDataRequest{
+  string user_id = 1 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  common.v1.UserDataForUpdate user_data = 2;
+}
+
+// empty response
+// message UpdateUserDataResponse{}
+
+message DeleteUserRequest{
   string user_id = 1[
     (buf.validate.field).string = {
     uuid: true
@@ -120,6 +169,80 @@ message GetPermissionsRequest {
   ];
 }
 
+// empty response
+// message DeleteUserResponse{}
+
+// ----------------- Group CRUD ----------------------------------------
+
+message CreateGroupRequest {
+  string name = 1[
+    (buf.validate.field).string.min_len = 6,
+    (buf.validate.field).string.max_len = 64
+  ];
+  repeated common.v1.UserPermission permissions     = 2;
+  string idempotency_key = 3[
+    (buf.validate.field).string = {
+    uuid: true
+  }];
+}
+
+message CreateGroupResponse {
+  common.v1.UserGroup group = 1;
+}
+
+message GetGroupRequest{
+  string group_id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+}
+
+message GetGroupResponse {
+  common.v1.UserGroup group = 1;
+}
+
+message GetGroupsRequest {
+  google.protobuf.Timestamp cursor = 1; // created_at field
+  int32                     limit  = 2;
+}
+
+message GetGroupsResponse {
+  repeated common.v1.UserGroupMainData groups = 1;
+  optional google.protobuf.Timestamp   cursor = 2;
+}
+
+message UpdateGroupRequest {
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  string new_name = 2[
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message AddPermissionToGroupRequest{
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  common.v1.UserPermission permission = 2;
+}
+
+message RemovePermissionFromGroupRequest{
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  common.v1.UserPermission permission = 2;
+}
+
+message DeleteGroupRequest {
+  string group_id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+// ----------------- Permission list -----------------------------------
+
 message GetPermissionsResponse {
-  repeated common.v1.UserPermission user_permissions = 1;
+  repeated common.v1.UserPermission permissions = 1;
 }

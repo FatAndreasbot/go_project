@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common.v1;
 
-import "validate.proto";
+import "pb/validate.proto";
 
 option go_package = "proto/common/v1";
 
@@ -12,26 +12,67 @@ message UserGroup {
     uuid: true
     }
   ];
-  string                  name       = 2[
+  string name = 2[
     (buf.validate.field).string.min_len = 1
   ];
   repeated UserPermission user_permissions = 3;
 }
 
-message User{
+message UserGroupMainData {
+  string id = 1[
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  string name = 2[
+    (buf.validate.field).string.min_len = 1
+  ];
+}
+
+message UserData{
   string id = 1 [
     (buf.validate.field).string = {
     uuid: true
     }
   ];
-  string name    = 2 [
-    (buf.validate.field).string.min_len = 1
+  string email    = 2 [
+    (buf.validate.field).string = {
+    email: true,
+    max_len: 128,
+    min_len: 1
+    }
   ];
   string group_id = 3 [
     (buf.validate.field).string = {
     uuid: true
     }
   ];
+}
+
+message UserDataForUpdate{
+  string email    = 1 [
+    (buf.validate.field).string = {
+    email: true,
+    max_len: 128,
+    min_len: 1
+    }
+  ];
+  string group_id = 2 [
+    (buf.validate.field).string = {
+    uuid: true
+    }
+  ];
+  string password = 3[
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
+  ];
+}
+
+message PrivateUserData{
+  UserData public_data = 2;
 }
 
 message UserPermission{

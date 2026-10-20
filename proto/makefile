@@ -1,4 +1,4 @@
-PROTO_FILES := $(shell find . shared-proto -name '*.proto')
+PROTO_FILES := $(shell find . -name '*.proto')
 
 .PHONY: proto clean
 
@@ -14,6 +14,7 @@ proto:
 	
 	cd generated && \
 		go mod init proto && \
+		go mod edit -go=1.26.8 && \
 		go mod tidy
 
 clean:

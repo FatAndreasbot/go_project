@@ -2,59 +2,56 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
-	"strconv"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	HS256_SECRET string
-	AccessJWTExpiration time.Duration
+	HS256_SECRET         []byte
+	AccessJWTExpiration  time.Duration
 	RefreshJWTExpiration time.Duration
-	DBConnString string
-	NetworkPort int
+	DBConnString         string
+	NetworkPort          int
 }
 
-var configInstance *Config
+type ConfigOption int
 
-func GetConfig() *Config {
-	return configInstance
+const (
+	HS256_SECRET ConfigOption = iota
+	AccessJWTExpiration
+	RefreshJWTExpiration
+	DBConnString
+	NetworkPort
+)
+
+var configKeys map[ConfigOption]string = map[ConfigOption]string{
+	DBConnString:         "DB_CONN",
+	HS256_SECRET:         "HS256_SECRET",
+	AccessJWTExpiration:  "ACCESS_JWT_EXPIRATION",
+	RefreshJWTExpiration: "REFRESH_JWT_EXPIRATION",
+	NetworkPort:          "PORT",
 }
 
-func LoadConfig() error {
-	secret, ok := os.LookupEnv("HS256_SECRET")
+func GetConfig(option ConfigOption) (string, error) {
+	key, ok := configKeys[option]
 	if !ok {
-		return errors.New("environment variable HS256_SECRET is not set")
+		return "", errors.New("unacceptable option was given")
 	}
-	configInstance.HS256_SECRET = secret
 
-	expString, ok := os.LookupEnv("ACCESS_JWT_EXPIRATION")
-	expSeconds, err := strconv.Atoi(expString)
-	if err != nil {
-		return errors.New("could not parse ACCESS_JWT_EXPIRATION into an integer number")
-	}
-	configInstance.AccessJWTExpiration = time.Second * time.Duration(expSeconds)
-
-	expString, ok = os.LookupEnv("REFRESH_JWT_EXPIRATION")
-	expSeconds, err = strconv.Atoi(expString)
-	if err != nil {
-		return errors.New("could not parse REFRESH_JWT_EXPIRATION into an integer number")
-	}
-	configInstance.RefreshJWTExpiration = time.Second * time.Duration(expSeconds)
-
-
-	configInstance.DBConnString, ok = os.LookupEnv("DB_CONN")
+	value, ok := os.LookupEnv(key)
 	if !ok {
-		return errors.New("environment variable DB_CONN is not set")
+		return "", fmt.Errorf("environment variable %s is not set", key)
 	}
 
-	portString, ok := os.LookupEnv("PORT")
-	if !ok {
-		return errors.New("environment variable PORT is not set")
-	}
-	configInstance.NetworkPort, err = strconv.Atoi(portString)
-	if err != nil {
-		return errors.New("could not parse PORT into an integer numbe")
+	return value, nil
+}
+
+func LoadConfig(envFileLocation ...string) error {
+	if err := godotenv.Load(envFileLocation...); err != nil {
+		return err
 	}
 
 	return nil

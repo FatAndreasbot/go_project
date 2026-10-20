@@ -1,9 +1,20 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
+type MainGroupData struct {
+	ID   uuid.UUID
+	Name string
+
+	CreatedAt time.Time
+}
 
 type Group struct {
-	ID          uuid.UUID
-	Name        string
+	MainGroupData
+
 	Permissions []*Permission
 }
