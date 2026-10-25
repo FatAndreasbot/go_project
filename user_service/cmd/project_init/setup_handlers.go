@@ -3,19 +3,21 @@ package project_init
 import (
 	"github.com/FatAndreasbot/go_project/user_service/application/handlers"
 	"github.com/FatAndreasbot/go_project/user_service/application/handlers/requests"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 )
 
 func setupBaseHandlers(
+	config *models.ConfigOptions,
 	userRepository outgoing.UserRepository,
 	groupRepository outgoing.GroupRepository,
 ) (
 	jwtHandler application.JWTHandlerPort,
 	permissionHandler application.PermissionHandlerPort,
 ) {
-	jwt := handlers.NewJWTHandler()
+	jwt := handlers.NewJWTHandler(config)
 	permissions := handlers.NewPermissionHander(
 		userRepository,
 		groupRepository,

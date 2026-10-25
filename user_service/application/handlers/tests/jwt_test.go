@@ -14,7 +14,8 @@ import (
 )
 
 func prepareTestData() (*models.User, *handlers.JWTHandler) {
-	if err := config.LoadConfig("../../../.env"); err != nil {
+	config, err := config.LoadConfig("../../../.env")
+	if err != nil {
 		log.Default().Println(err.Error())
 	}
 
@@ -24,7 +25,7 @@ func prepareTestData() (*models.User, *handlers.JWTHandler) {
 		GroupID: uuid.New(),
 	}
 
-	return &user, handlers.NewJWTHandler()
+	return &user, handlers.NewJWTHandler(config)
 }
 
 func TestJWTEncoding(t *testing.T) {

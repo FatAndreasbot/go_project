@@ -2,17 +2,17 @@ package sessionstorage
 
 import (
 	"context"
-	"strconv"
 	"sync"
 	"time"
 
-	"github.com/FatAndreasbot/go_project/user_service/infra/config"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
 )
 
 type MapSessionStorage struct {
-	store map[uuid.UUID]storageElement
-	mu    sync.Mutex
+	store  map[uuid.UUID]storageElement
+	mu     sync.Mutex
+	config *models.ConfigOptions
 }
 
 type storageElement struct {
@@ -20,10 +20,11 @@ type storageElement struct {
 	data      map[string]any
 }
 
-func NewMapSessionStorate() *MapSessionStorage {
+func NewMapSessionStorate(config *models.ConfigOptions) *MapSessionStorage {
 	return &MapSessionStorage{
-		store: make(map[uuid.UUID]storageElement),
-		mu:    sync.Mutex{},
+		store:  make(map[uuid.UUID]storageElement),
+		mu:     sync.Mutex{},
+		config: config,
 	}
 }
 
@@ -33,15 +34,7 @@ func (s *MapSessionStorage) CreateSession(ctx context.Context, userID uuid.UUID)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	sessionCreatedAt := time.Now()
-	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
-	if err != nil {
-		return err
-	}
-	expTimeSeconds, err := strconv.Atoi(expTimeString)
-	if err != nil {
-		return err
-	}
-	expTime := time.Second * time.Duration(expTimeSeconds)
+	expTime := s.config.GetAccsessJWTExpiration()
 	expiresAt := sessionCreatedAt.Add(expTime)
 
 	s.store[userID] = storageElement{
@@ -78,15 +71,7 @@ func (s *MapSessionStorage) ExtendSession(ctx context.Context, userID uuid.UUID)
 	}
 
 	sessionCreatedAt := time.Now()
-	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
-	if err != nil {
-		return err
-	}
-	expTimeSeconds, err := strconv.Atoi(expTimeString)
-	if err != nil {
-		return err
-	}
-	expTime := time.Second * time.Duration(expTimeSeconds)
+	expTime := s.config.GetAccsessJWTExpiration()
 	newExpiresAt := sessionCreatedAt.Add(expTime)
 
 	data.expiresAt = newExpiresAt

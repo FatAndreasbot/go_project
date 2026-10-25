@@ -6,7 +6,7 @@ import (
 	proto "proto/user_service/v1"
 
 	grpcadapter "github.com/FatAndreasbot/go_project/user_service/adapters/inbound/grpc_adapter"
-	"github.com/FatAndreasbot/go_project/user_service/infra/config"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
@@ -14,6 +14,8 @@ import (
 )
 
 func setupIncomingAdapters(
+	config *models.ConfigOptions,
+
 	groupHandler incoming.GroupRequestHandler,
 	userHandler incoming.UserRequestHandler,
 	loginHandler incoming.LoginRequestHandler,
@@ -22,11 +24,9 @@ func setupIncomingAdapters(
 
 	jwtHandler application.JWTHandlerPort,
 ) error {
-	port, err := config.GetConfig(config.NetworkPort)
-	if err != nil {
-		return err
-	}
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	port := config.GetPort()
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
@@ -51,6 +51,6 @@ func setupIncomingAdapters(
 		listener.Close()
 	})
 
-	fmt.Printf("starting server at localhost:%s\n", port)
+	fmt.Printf("starting server at localhost:%d\n", port)
 	return grpcServer.Serve(listener)
 }

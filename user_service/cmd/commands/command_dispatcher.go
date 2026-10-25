@@ -14,7 +14,7 @@ func Dispatch(command *project_init.LaunchOptions) {
 
 	switch command.AppCommand {
 	case "createsuperuser":
-		createsuperuser()
+		createsuperuser(command)
 	case "serve":
 		err := project_init.SetupApplictaion(command)
 		if err != nil {

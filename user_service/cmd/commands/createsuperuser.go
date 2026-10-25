@@ -4,14 +4,23 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/FatAndreasbot/go_project/user_service/cmd/project_init"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
+	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/google/uuid"
 )
 
-func createsuperuser() error {
+func createsuperuser(options *project_init.LaunchOptions) error {
+	config, err := config.LoadConfig(options.EnvPath)
+	if err != nil {
+		fmt.Println(os.Getwd())
+		log.Default().Println(err)
+		return err
+	}
+
 	ctx := context.Background()
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -22,7 +31,7 @@ func createsuperuser() error {
 	scanner.Scan()
 	password := scanner.Text()
 
-	userRepo, groupRepo, _, _, err := project_init.SetupOutgoingAdapters()
+	userRepo, groupRepo, _, _, err := project_init.SetupOutgoingAdapters(config)
 	if err != nil {
 		return err
 	}

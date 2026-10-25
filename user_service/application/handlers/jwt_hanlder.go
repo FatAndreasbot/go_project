@@ -4,34 +4,27 @@ import (
 	"context"
 	"errors"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
-	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 )
 
-type JWTHandler struct{}
+type JWTHandler struct {
+	config *models.ConfigOptions
+}
 
-func NewJWTHandler() *JWTHandler {
-	return &JWTHandler{}
+func NewJWTHandler(config *models.ConfigOptions) *JWTHandler {
+	return &JWTHandler{
+		config: config,
+	}
 }
 
 func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
-	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	expTimeSeconds, err := strconv.Atoi(expTimeString)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-	expTime := time.Second * time.Duration(expTimeSeconds)
+	expTime := h.config.GetAccsessJWTExpiration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		Subject:   user.ID.String(),
@@ -39,10 +32,7 @@ func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (st
 		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})
 
-	secret, err := config.GetConfig(config.HS256_SECRET)
-	if err != nil {
-		return "", time.Time{}, err
-	}
+	secret := h.config.GetHS256Secret()
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
@@ -54,16 +44,7 @@ func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (st
 func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
-	expTimeString, err := config.GetConfig(config.RefreshJWTExpiration)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-
-	expTimeSeconds, err := strconv.Atoi(expTimeString)
-	if err != nil {
-		return "", time.Time{}, err
-	}
-	expTime := time.Second * time.Duration(expTimeSeconds)
+	expTime := h.config.GetRefreshJWTExpiration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		Subject:   user.ID.String(),
@@ -71,10 +52,7 @@ func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (s
 		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})
 
-	secret, err := config.GetConfig(config.HS256_SECRET)
-	if err != nil {
-		return "", time.Time{}, err
-	}
+	secret := h.config.GetHS256Secret()
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
@@ -84,10 +62,7 @@ func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (s
 }
 
 func (h *JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error) {
-	secret, err := config.GetConfig(config.HS256_SECRET)
-	if err != nil {
-		return uuid.Nil, err
-	}
+	secret := h.config.GetHS256Secret()
 
 	decoded, err := jwt.Parse(
 		signedToken,

@@ -10,18 +10,19 @@ import (
 
 func SetupApplictaion(options *LaunchOptions) error {
 
-	err := config.LoadConfig(options.EnvPath)
+	config, err := config.LoadConfig(options.EnvPath)
 	if err != nil {
 		fmt.Println(os.Getwd())
 		log.Default().Println(err)
 	}
 
-	userRepo, groupRepo, permissionRepo, session, err := SetupOutgoingAdapters()
+	userRepo, groupRepo, permissionRepo, session, err := SetupOutgoingAdapters(config)
 	if err != nil {
 		return err
 	}
 
 	jwtHandler, permissionHandler := setupBaseHandlers(
+		config,
 		userRepo,
 		groupRepo,
 	)
@@ -32,6 +33,7 @@ func SetupApplictaion(options *LaunchOptions) error {
 	)
 
 	return setupIncomingAdapters(
+		config,
 		groupRequests, userRequests, loginRequests,
 		session, jwtHandler,
 	)

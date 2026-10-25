@@ -7,13 +7,13 @@ import (
 
 	postgresrepository "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/postgres_repository"
 	sessionstorage "github.com/FatAndreasbot/go_project/user_service/adapters/outbound/session_storage"
-	"github.com/FatAndreasbot/go_project/user_service/infra/config"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-func SetupOutgoingAdapters() (
+func SetupOutgoingAdapters(config *models.ConfigOptions) (
 	outgoing.UserRepository,
 	outgoing.GroupRepository,
 	outgoing.PermissionRepository,
@@ -22,10 +22,8 @@ func SetupOutgoingAdapters() (
 
 	error,
 ) {
-	connString, err := config.GetConfig(config.DBConnString)
-	if err != nil {
-		return nil, nil, nil, nil, err
-	}
+	connString := config.GetDBConnString()
+
 	conn, err := sql.Open("pgx", connString)
 	if err != nil {
 		return nil, nil, nil, nil, err
@@ -44,7 +42,7 @@ func SetupOutgoingAdapters() (
 	gpa := postgresrepository.NewGroupPersistanceAdapter(conn)
 	ppa := postgresrepository.NewPermissionPersistanceAdapter(conn)
 
-	sessionHandler := sessionstorage.NewMapSessionStorate()
+	sessionHandler := sessionstorage.NewMapSessionStorate(config)
 
 	return upa, gpa, ppa, sessionHandler, nil
 }
