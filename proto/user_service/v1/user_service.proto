@@ -3,6 +3,7 @@ syntax = "proto3";
 package user_service.v1;
 
 import "common/v1/user.proto";
+import "common/v1/pagination_cursor.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "pb/validate.proto";
@@ -71,6 +72,8 @@ message LogInResponse {
     uuid: true
     }
   ];
+  google.protobuf.Timestamp access_expires_at  = 4;
+  google.protobuf.Timestamp refresh_expires_at = 5;
 }
 
 message RefreshRequest {
@@ -95,6 +98,8 @@ message RefreshResponse {
     max_len: 4096
     }
   ];
+  google.protobuf.Timestamp access_expires_at  = 4;
+  google.protobuf.Timestamp refresh_expires_at = 5;
 }
 
 // ----------------- User CRUD -----------------------------------------
@@ -140,13 +145,16 @@ message GetUserResponse {
 }
 
 message GetUsersRequest{
-  optional google.protobuf.Timestamp cursor = 1;
-  int32                              limit  = 2;
+  optional common.v1.PaginationCursor cursor = 1;
+  int32                               limit  = 2[
+    (buf.validate.field).int32.lte = 100,
+    (buf.validate.field).int32.gte = 1
+  ];
 }
 
 message GetUsersResponse{
   repeated common.v1.UserData users  = 1;
-  google.protobuf.Timestamp   cursor = 2;
+  common.v1.PaginationCursor  cursor = 2;
 }
 
 message UpdateUserDataRequest{
@@ -183,7 +191,7 @@ message CreateGroupRequest {
   string idempotency_key = 3[
     (buf.validate.field).string = {
     uuid: true
-  }];
+    }];
 }
 
 message CreateGroupResponse {
@@ -203,13 +211,16 @@ message GetGroupResponse {
 }
 
 message GetGroupsRequest {
-  google.protobuf.Timestamp cursor = 1; // created_at field
-  int32                     limit  = 2;
+  optional common.v1.PaginationCursor cursor = 1; // created_at field
+  int32                               limit  = 2[
+    (buf.validate.field).int32.lte = 100,
+    (buf.validate.field).int32.gte = 1
+  ];
 }
 
 message GetGroupsResponse {
   repeated common.v1.UserGroupMainData groups = 1;
-  optional google.protobuf.Timestamp   cursor = 2;
+  common.v1.PaginationCursor           cursor = 2;
 }
 
 message UpdateGroupRequest {
@@ -225,14 +236,18 @@ message AddPermissionToGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  common.v1.UserPermission permission = 2;
+  string permission_id = 2[
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 message RemovePermissionFromGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  common.v1.UserPermission permission = 2;
+  string permission_id = 2[
+    (buf.validate.field).string.uuid = true
+  ];
 }
 
 message DeleteGroupRequest {

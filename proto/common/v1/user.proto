@@ -50,19 +50,19 @@ message UserData{
 }
 
 message UserDataForUpdate{
-  string email    = 1 [
+  optional string email    = 1 [
     (buf.validate.field).string = {
     email: true,
     max_len: 128,
     min_len: 1
     }
   ];
-  string group_id = 2 [
+  optional string group_id = 2 [
     (buf.validate.field).string = {
     uuid: true
     }
   ];
-  string password = 3[
+  optional string password = 3[
     (buf.validate.field).string = {
     min_len: 8,
     max_len: 32,
