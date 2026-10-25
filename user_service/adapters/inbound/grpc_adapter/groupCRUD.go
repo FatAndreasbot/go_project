@@ -88,7 +88,7 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 		},
 	}
 
-	return &response, status.Error(codes.Unimplemented, "method CreateGroup not implemented")
+	return &response, nil
 }
 
 func (s *Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*proto.GetGroupResponse, error) {
