@@ -21,13 +21,13 @@ func SetupApplictaion(options *LaunchOptions) error {
 		return err
 	}
 
-	jwtHandler, permissionHandler, passwordEncrypter := setupBaseHandlers(
+	jwtHandler, permissionHandler, passwordEncrypter := SetupBaseHandlers(
 		config,
 		userRepo,
 		groupRepo,
 	)
 
-	groupRequests, userRequests, loginRequests := setupHandlers(
+	groupRequests, userRequests, loginRequests := SetupHandlers(
 		userRepo, session, groupRepo, permissionRepo,
 		jwtHandler, permissionHandler, passwordEncrypter,
 	)

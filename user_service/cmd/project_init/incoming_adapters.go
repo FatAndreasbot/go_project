@@ -6,6 +6,7 @@ import (
 	proto "proto/user_service/v1"
 
 	grpcadapter "github.com/FatAndreasbot/go_project/user_service/adapters/inbound/grpc_adapter"
+	"github.com/FatAndreasbot/go_project/user_service/application/usecases"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
@@ -22,6 +23,7 @@ func setupIncomingAdapters(
 
 	sessionHandler outgoing.SessionHandler,
 
+	permissionHandler application.PermissionHandlerPort,
 	jwtHandler application.JWTHandlerPort,
 ) error {
 	port := config.GetPort()
@@ -30,6 +32,14 @@ func setupIncomingAdapters(
 	if err != nil {
 		return err
 	}
+
+	// TODO finish this shit
+	middlewareGenerator := usecases.NewMiddlewareGenerator(
+		jwtHandler,
+		sessionHandler,
+		permissionHandler,
+		grpcadapter.GetEndpoint,
+	)
 
 	interceptor := grpcadapter.NewAuthInterceptor(
 		jwtHandler,

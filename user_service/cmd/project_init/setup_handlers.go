@@ -9,7 +9,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 )
 
-func setupBaseHandlers(
+func SetupBaseHandlers(
 	config *models.ConfigOptions,
 	userRepository outgoing.UserRepository,
 	groupRepository outgoing.GroupRepository,
@@ -29,7 +29,7 @@ func setupBaseHandlers(
 	return jwt, permissions, passwordEncrypter
 }
 
-func setupHandlers(
+func SetupHandlers(
 	userRepository outgoing.UserRepository,
 	sessionHandler outgoing.SessionHandler,
 	groupRepository outgoing.GroupRepository,
