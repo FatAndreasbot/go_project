@@ -62,7 +62,7 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 	permissions, err := protoPermissionToDomainPermissions(protoPermissions)
 	if err != nil {
 		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+		return nil, status.Error(codes.InvalidArgument, "could not parse a UUID of given permissions")
 	}
 
 	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())

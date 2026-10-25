@@ -246,7 +246,7 @@ func (adp *GroupPersistanceAdapter) CheckIdempotencyKey(ctx context.Context, key
 		return err
 	}
 
-	wasCreated, err := adp.q.WithTx(tx).CheckUserWasCreated(ctx, key)
+	wasCreated, err := adp.q.WithTx(tx).CheckGroupWasCreated(ctx, key)
 	if err != nil {
 		return err
 	}

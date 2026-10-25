@@ -33,11 +33,13 @@ func createsuperuser(options *project_init.LaunchOptions) error {
 
 	userRepo, groupRepo, _, _, err := project_init.SetupOutgoingAdapters(config)
 	if err != nil {
+		log.Default().Println(err)
 		return err
 	}
 
 	adminGroup, err := groupRepo.GetGroupByName(ctx, "admin")
 	if err != nil {
+		log.Default().Println(err)
 		return err
 	}
 

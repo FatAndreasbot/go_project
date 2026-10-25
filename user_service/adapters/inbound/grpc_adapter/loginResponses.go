@@ -27,7 +27,7 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 	repsponseData, err := s.loginHandler.Login(ctx, email, password)
 	if err != nil {
 		if errors.Is(err, dominaerrors.InvalidCredentials) {
-			return nil, status.Error(codes.PermissionDenied, "wromg email or password")
+			return nil, status.Error(codes.Unauthenticated, "wromg email or password")
 		}
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}

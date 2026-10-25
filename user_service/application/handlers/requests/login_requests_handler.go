@@ -98,6 +98,7 @@ func (h *LoginRequestsHandlerImpl) Refresh(ctx context.Context, RefreshToken str
 
 	user, err := h.userRepository.GetUserByID(ctx, userID)
 	if err != nil {
+		log.Default().Println(err.Error())
 		if errors.Is(err, domainerrors.NotFound) {
 			return nil, domainerrors.InvalidCredentials
 		}
