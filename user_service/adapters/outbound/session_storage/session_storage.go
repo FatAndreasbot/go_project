@@ -77,7 +77,6 @@ func (s *MapSessionStorage) ExtendSession(ctx context.Context, userID uuid.UUID)
 		return DoesNotExists
 	}
 
-	defer s.mu.Unlock()
 	sessionCreatedAt := time.Now()
 	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
 	if err != nil {
