@@ -211,18 +211,13 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	permissionID, err := uuid.Parse(req.GetPermission().GetPermissionId())
+	permissionID, err := uuid.Parse(req.GetPermissionId())
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	permission := models.Permission{
-		ID:   permissionID,
-		Name: models.PermissionName(req.GetPermission().GetName()),
-	}
-
-	err = s.groupHandler.AddPermission(ctx, groupID, &permission, requesterID)
+	err = s.groupHandler.AddPermission(ctx, groupID, permissionID, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

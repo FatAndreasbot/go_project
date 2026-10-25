@@ -137,7 +137,7 @@ func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.
 	return nil
 }
 
-func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error {
+func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error {
 	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
@@ -158,12 +158,12 @@ func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uui
 	}
 
 	if slices.ContainsFunc(groupPermissions, func(p *models.Permission) bool {
-		return *p == *permission
+		return p.ID == permissionID
 	}) {
 		return GroupHasPermission
 	}
 
-	if err := h.groupRepository.AddPermission(ctx, groupID, permission.ID); err != nil {
+	if err := h.groupRepository.AddPermission(ctx, groupID, permissionID); err != nil {
 		log.Default().Println(err.Error())
 		return err
 	}
