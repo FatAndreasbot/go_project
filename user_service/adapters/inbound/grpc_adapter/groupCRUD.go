@@ -139,7 +139,17 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	cursor := req.GetCursor().AsTime()
+
+	objectID, err := uuid.Parse(req.GetCursor().GetId())
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
+	}
+
+	cursor := models.Cursor{
+		Timestamp: req.GetCursor().GetCreatedAt().AsTime(),
+		ID:        objectID,
+	}
 	count := int(req.Limit)
 
 	groups, next, err := s.groupHandler.GetGroups(ctx, cursor, count, requesterID)
@@ -147,12 +157,18 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
+		if errors.Is(err, dominaerrors.EmptyList) {
+			return nil, status.Error(codes.OutOfRange, "no more groups in list")
+		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
 	resp := proto.GetGroupsResponse{
-		Cursor: timestamppb.New(next),
+		Cursor: &v1.PaginationCursor{
+			CreatedAt: timestamppb.New(next.Timestamp),
+			Id:        next.ID.String(),
+		},
 		Groups: make([]*v1.UserGroupMainData, 0, count),
 	}
 
@@ -245,18 +261,13 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	permissionID, err := uuid.Parse(req.GetPermission().GetPermissionId())
+	permissionID, err := uuid.Parse(req.GetPermissionId())
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	permission := models.Permission{
-		ID:   permissionID,
-		Name: models.PermissionName(req.GetPermission().GetName()),
-	}
-
-	err = s.groupHandler.RemovePermission(ctx, groupID, &permission, requesterID)
+	err = s.groupHandler.RemovePermission(ctx, groupID, permissionID, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

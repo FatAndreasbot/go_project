@@ -2,7 +2,6 @@ package outgoing
 
 import (
 	"context"
-	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
@@ -22,7 +21,7 @@ type GroupRepository interface {
 	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error)
 	GetGroupByName(context.Context, string) (*models.MainGroupData, error)
 	GetGroupByID(context.Context, uuid.UUID) (*models.MainGroupData, error)
-	GetGroups(context.Context, time.Time, int) ([]*models.MainGroupData, error)
+	GetGroups(context.Context, models.Cursor, int) ([]*models.MainGroupData, error)
 	UpdateGroup(context.Context, *models.MainGroupData) error
 	DeleteGroup(context.Context, uuid.UUID) error
 	GetGroupPermissions(context.Context, uuid.UUID) ([]*models.Permission, error)

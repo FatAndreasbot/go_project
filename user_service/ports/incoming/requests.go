@@ -3,7 +3,6 @@ package incoming
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
@@ -30,10 +29,10 @@ type UserRequestHandler interface {
 type GroupRequestHandler interface {
 	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error)
 	GetGroupByID(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) (*models.Group, error)
-	GetGroups(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) (groups []*models.MainGroupData, next time.Time, err error)
+	GetGroups(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) (groups []*models.MainGroupData, next models.Cursor, err error)
 	UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, reqesterID uuid.UUID) error
 	AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error
-	RemovePermission(ctx context.Context, groupID uuid.UUID, permission *models.Permission, requesterID uuid.UUID) error
+	RemovePermission(ctx context.Context, groupID uuid.UUID, permission uuid.UUID, requesterID uuid.UUID) error
 	DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error
 	GetAllPermissions(ctx context.Context) ([]*models.Permission, error)
 }

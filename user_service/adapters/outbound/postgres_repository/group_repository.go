@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
@@ -100,9 +99,9 @@ func (adp *GroupPersistanceAdapter) GetGroupByID(ctx context.Context, groupID uu
 	}, nil
 }
 
-func (adp *GroupPersistanceAdapter) GetGroups(ctx context.Context, cursor time.Time, count int) ([]*models.MainGroupData, error) {
+func (adp *GroupPersistanceAdapter) GetGroups(ctx context.Context, cursor models.Cursor, count int) ([]*models.MainGroupData, error) {
 	groupData, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
-		CreatedAt: cursor,
+		CreatedAt: cursor.Timestamp,
 		Limit:     int32(count),
 	})
 	if err != nil {
