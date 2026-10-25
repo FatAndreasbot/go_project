@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
@@ -58,7 +59,11 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 
 	groupData, err := adp.q.WithTx(tx).CreateGroup(ctx, groupName)
 	if err != nil {
-		return nil, errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return nil, err
 	}
 
 	for _, permission := range permissions {
@@ -69,7 +74,11 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 			},
 		)
 		if err != nil {
-			return nil, errors.Join(err, tx.Rollback())
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				log.Default().Println(rbErr.Error())
+			}
+			return nil, err
 		}
 	}
 
@@ -144,7 +153,11 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, groupData *
 		ID:   groupData.ID,
 	})
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	return tx.Commit()
@@ -158,7 +171,11 @@ func (adp *GroupPersistanceAdapter) DeleteGroup(ctx context.Context, groupID uui
 
 	err = adp.q.WithTx(tx).DeleteGroup(ctx, groupID)
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	return tx.Commit()
@@ -192,7 +209,11 @@ func (adp *GroupPersistanceAdapter) AddPermission(ctx context.Context, groupID, 
 		PermissionID: permissionID,
 	})
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	return tx.Commit()
@@ -209,7 +230,11 @@ func (adp *GroupPersistanceAdapter) RemovePermission(ctx context.Context, groupI
 		PermissionID: permissionID,
 	})
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	return tx.Commit()

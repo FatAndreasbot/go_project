@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -95,7 +96,11 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 
 	err = user.SetPassword(userData.Password)
 	if err != nil {
-		return nil, errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return nil, err
 	}
 
 	dbData, err := adp.q.WithTx(tx).CreateUser(ctx, sqlc_gen.CreateUserParams{
@@ -104,7 +109,11 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 		GroupID:      user.GroupID,
 	})
 	if err != nil {
-		return nil, errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return nil, err
 	}
 
 	user.CreatedAt = dbData.CreatedAt
@@ -124,7 +133,11 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 
 	oldUserData, err := adp.q.WithTx(tx).GetUserDataByID(ctx, userData.UserToChangeID)
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	var newEmail string
@@ -152,7 +165,11 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 	if userData.NewPassword != nil {
 		err = updatedUser.SetPassword(*userData.NewPassword)
 		if err != nil {
-			return errors.Join(err, tx.Rollback())
+			rbErr := tx.Rollback()
+			if rbErr != nil {
+				log.Default().Println(rbErr.Error())
+			}
+			return err
 		}
 	}
 
@@ -164,7 +181,11 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 	})
 
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 
 	return tx.Commit()
@@ -199,7 +220,11 @@ func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.U
 
 	err = adp.q.WithTx(tx).DeleteUser(ctx, userID)
 	if err != nil {
-		return errors.Join(err, tx.Rollback())
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
 	}
 	return nil
 }
