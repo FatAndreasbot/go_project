@@ -22,7 +22,7 @@ type LoginRequestHandler interface {
 type UserRequestHandler interface {
 	CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error)
 	GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error)
-	GetUsers(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) (users []*models.User, next time.Time, err error)
+	GetUsers(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) (users []*models.User, next models.Cursor, err error)
 	UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error
 	DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error
 }

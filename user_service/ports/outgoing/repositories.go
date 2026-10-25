@@ -11,7 +11,7 @@ import (
 type UserRepository interface {
 	GetUserByEmail(context.Context, string) (*models.User, error)
 	GetUserByID(context.Context, uuid.UUID) (*models.User, error)
-	GetUsers(context.Context, time.Time, int) ([]*models.User, error)
+	GetUsers(context.Context, models.Cursor, int) ([]*models.User, error)
 	CreateUser(context.Context, *models.UserData) (*models.User, error)
 	UpdateUser(context.Context, *models.UserUpdateRequestData) error
 	CheckIdempotencyKey(context.Context, uuid.UUID) error

@@ -35,9 +35,10 @@ select
 from
     users u
 WHERE
-    u.created_at > $1
+    u.created_at >= $1
+    and u.id <> $2
 order by u.created_at
-limit $2;
+limit $3;
 
 -- name: UpdateUser :one
 update Users u set

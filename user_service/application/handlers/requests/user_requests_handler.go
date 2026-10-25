@@ -59,9 +59,9 @@ func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.U
 	return user, nil
 }
 
-func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor time.Time, count int, requesterID uuid.UUID) ([]*models.User, time.Time, error) {
+func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) ([]*models.User, models.Cursor, error) {
 	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
-		return nil, time.Time{}, domainerrors.NotEnoughPermission
+		return nil, models.Cursor{}, domainerrors.NotEnoughPermission
 	}
 
 	users, err := h.userRepository.GetUsers(
@@ -72,20 +72,29 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor time.Time
 
 	if err != nil {
 		log.Default().Println(err.Error())
-		return nil, time.Time{}, DBError
+		return nil, models.Cursor{}, DBError
 	}
 
+	if len(users) == 0 {
+		return nil, models.Cursor{}, domainerrors.InvalidCredentials
+	}
 	var next time.Time
+	var nextID uuid.UUID
 	next = users[0].CreatedAt
+	nextID = users[0].ID
 
 	// if for some accursed reason the list is not sorted by CreatedAt
-	for _, group := range users {
-		if group.CreatedAt.After(next) {
-			next = group.CreatedAt
+	for _, user := range users {
+		if user.CreatedAt.After(next) {
+			next = user.CreatedAt
+			nextID = user.ID
 		}
 	}
 
-	return users, next, nil
+	return users, models.Cursor{
+		Timestamp: next,
+		ID:        nextID,
+	}, nil
 }
 
 func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error {

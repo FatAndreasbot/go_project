@@ -118,20 +118,38 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	if !ok {
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	cursor := req.GetCursor().AsTime()
+
+	objectID, err := uuid.Parse(req.GetCursor().GetId())
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
+	}
+
+	cursor := models.Cursor{
+		Timestamp: req.GetCursor().CreatedAt.AsTime(),
+		ID:        objectID,
+	}
+
 	count := int(req.Limit)
 	users, next, err := s.userHandler.GetUsers(ctx, cursor, count, requesterID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
+		if errors.Is(err, dominaerrors.EmptyList) {
+			return nil, status.Error(codes.OutOfRange, "no more users in list")
+		}
+
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
 	resp := proto.GetUsersResponse{
-		Cursor: timestamppb.New(next),
-		Users:  make([]*v1.UserData, 0, count),
+		Cursor: &v1.PaginationCursor{
+			CreatedAt: timestamppb.New(next.Timestamp),
+			Id:        next.ID.String(),
+		},
+		Users: make([]*v1.UserData, 0, count),
 	}
 
 	for _, user := range users {

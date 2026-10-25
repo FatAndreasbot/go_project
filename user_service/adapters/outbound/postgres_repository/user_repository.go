@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"time"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -57,10 +56,11 @@ func (adp *UserPersistanceAdapter) GetUserByID(ctx context.Context, userID uuid.
 	}, nil
 }
 
-func (adp *UserPersistanceAdapter) GetUsers(ctx context.Context, createdAt time.Time, count int) ([]*models.User, error) {
+func (adp *UserPersistanceAdapter) GetUsers(ctx context.Context, cursor models.Cursor, count int) ([]*models.User, error) {
 	userData, err := adp.q.GetUserList(ctx, sqlc_gen.GetUserListParams{
-		CreatedAt: createdAt,
+		CreatedAt: cursor.Timestamp,
 		Limit:     int32(count),
+		ID:        cursor.ID,
 	})
 	if err != nil {
 		return nil, err
