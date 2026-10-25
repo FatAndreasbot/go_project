@@ -61,6 +61,18 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 		return nil, errors.Join(err, tx.Rollback())
 	}
 
+	for _, permission := range permissions {
+		err = adp.q.WithTx(tx).AddPermissionToGroup(
+			ctx, sqlc_gen.AddPermissionToGroupParams{
+				GroupID:      groupData.ID,
+				PermissionID: permission.ID,
+			},
+		)
+		if err != nil {
+			return nil, errors.Join(err, tx.Rollback())
+		}
+	}
+
 	newGroup := models.Group{
 		MainGroupData: models.MainGroupData{
 			ID:        groupData.ID,
