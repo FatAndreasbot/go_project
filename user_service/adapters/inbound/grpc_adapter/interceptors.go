@@ -16,8 +16,10 @@ var publicMethods map[string]struct{} = map[string]struct{}{
 	"/user_service.v1.UserService/Refresh": {},
 }
 
+type contextValueKey string
+
 // points to userID: uuid.UUID
-const userdataKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
+const userdataKey contextValueKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
 
 type AuthInterceptor struct {
 	jwtHandler    application.JWTHandlerPort
