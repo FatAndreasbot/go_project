@@ -18,7 +18,8 @@ type LoginRequestsHandlerImpl struct {
 	userRepository outgoing.UserRepository
 	sessionHandler outgoing.SessionHandler
 
-	jwtHandler application.JWTHandlerPort
+	jwtHandler        application.JWTHandlerPort
+	passwordEncrypter application.PasswordEncrypter
 }
 
 func NewLoginRequestHandler(
@@ -26,19 +27,22 @@ func NewLoginRequestHandler(
 	sessionHandler outgoing.SessionHandler,
 
 	jwtHandler application.JWTHandlerPort,
+	passwordEncrypter application.PasswordEncrypter,
 ) *LoginRequestsHandlerImpl {
 	return &LoginRequestsHandlerImpl{
 		userRepository: userRepository,
 		sessionHandler: sessionHandler,
 
-		jwtHandler: jwtHandler,
+		jwtHandler:        jwtHandler,
+		passwordEncrypter: passwordEncrypter,
 	}
 }
 
 func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password string) (*models.LoginResponseData, error) {
 	user, err := h.userRepository.GetUserByEmail(ctx, email)
 	if err != nil {
-		user.CheckPassword(password)
+		h.passwordEncrypter.FakeCheckPassword(password)
+
 		log.Default().Println(err.Error())
 		if errors.Is(err, domainerrors.NotFound) {
 			return nil, domainerrors.InvalidCredentials
@@ -46,7 +50,7 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 		return nil, DBError
 	}
 
-	err = user.CheckPassword(password)
+	err = h.passwordEncrypter.CheckPassword(password, user)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, domainerrors.InvalidCredentials

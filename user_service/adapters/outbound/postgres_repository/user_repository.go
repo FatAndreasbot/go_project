@@ -9,12 +9,15 @@ import (
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
+	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/google/uuid"
 )
 
 type UserPersistanceAdapter struct {
 	conn *sql.DB
 	q    *sqlc_gen.Queries
+
+	passwordEncrypter application.PasswordEncrypter
 }
 
 func NewUserPersistanceAdapter(conn *sql.DB) *UserPersistanceAdapter {
@@ -94,7 +97,7 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 		GroupID: userData.GroupID,
 	}
 
-	err = user.SetPassword(userData.Password)
+	passwordHash, err := adp.passwordEncrypter.EncryptPassword(userData.Password)
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -102,6 +105,7 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 		}
 		return nil, err
 	}
+	user.PasswordHash = passwordHash
 
 	dbData, err := adp.q.WithTx(tx).CreateUser(ctx, sqlc_gen.CreateUserParams{
 		Email:        user.Email,
@@ -163,7 +167,7 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 	}
 
 	if userData.NewPassword != nil {
-		err = updatedUser.SetPassword(*userData.NewPassword)
+		passwordHash, err := adp.passwordEncrypter.EncryptPassword(*userData.NewPassword)
 		if err != nil {
 			rbErr := tx.Rollback()
 			if rbErr != nil {
@@ -171,6 +175,7 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 			}
 			return err
 		}
+		updatedUser.PasswordHash = passwordHash
 	}
 
 	updatedUser.CreatedAt, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{

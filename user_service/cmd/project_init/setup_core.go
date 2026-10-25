@@ -21,7 +21,7 @@ func SetupApplictaion(options *LaunchOptions) error {
 		return err
 	}
 
-	jwtHandler, permissionHandler := setupBaseHandlers(
+	jwtHandler, permissionHandler, passwordEncrypter := setupBaseHandlers(
 		config,
 		userRepo,
 		groupRepo,
@@ -29,7 +29,7 @@ func SetupApplictaion(options *LaunchOptions) error {
 
 	groupRequests, userRequests, loginRequests := setupHandlers(
 		userRepo, session, groupRepo, permissionRepo,
-		jwtHandler, permissionHandler,
+		jwtHandler, permissionHandler, passwordEncrypter,
 	)
 
 	return setupIncomingAdapters(

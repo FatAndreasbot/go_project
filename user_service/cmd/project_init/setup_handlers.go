@@ -16,6 +16,7 @@ func setupBaseHandlers(
 ) (
 	jwtHandler application.JWTHandlerPort,
 	permissionHandler application.PermissionHandlerPort,
+	passwordEncryptionHandler application.PasswordEncrypter,
 ) {
 	jwt := handlers.NewJWTHandler(config)
 	permissions := handlers.NewPermissionHander(
@@ -23,7 +24,9 @@ func setupBaseHandlers(
 		groupRepository,
 	)
 
-	return jwt, permissions
+	passwordEncrypter := handlers.BcryptPasswordEncrypter{}
+
+	return jwt, permissions, passwordEncrypter
 }
 
 func setupHandlers(
@@ -34,13 +37,14 @@ func setupHandlers(
 
 	jwtHandler application.JWTHandlerPort,
 	permissionHandler application.PermissionHandlerPort,
+	passwordEncrypter application.PasswordEncrypter,
 ) (
 	incoming.GroupRequestHandler,
 	incoming.UserRequestHandler,
 	incoming.LoginRequestHandler,
 ) {
 	loginHandler := requests.NewLoginRequestHandler(
-		userRepository, sessionHandler, jwtHandler,
+		userRepository, sessionHandler, jwtHandler, passwordEncrypter,
 	)
 	groupHandler := requests.NewGroupRequestHandler(
 		groupRepository, permissionRepository, permissionHandler,
