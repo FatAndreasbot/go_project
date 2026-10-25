@@ -180,15 +180,19 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
 	}
 
-	newGroupID, err := uuid.Parse(req.GetUserData().GetGroupId())
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, "expected UUID")
+	var newGroupID *uuid.UUID = nil
+	if req.GetUserData().GroupId != nil {
+		newGroupIDVal, err := uuid.Parse(req.GetUserData().GetGroupId())
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, "expected UUID")
+		}
+		newGroupID = &newGroupIDVal
 	}
 
 	err = s.userHandler.UpdateUser(ctx, &models.UserUpdateRequestData{
 		UserToChangeID: userToChangeID,
-		NewPassword:    req.GetUserData().GetPassword(),
-		NewEmail:       req.GetUserData().GetEmail(),
+		NewPassword:    req.GetUserData().Password,
+		NewEmail:       req.GetUserData().Email,
 		NewGroupID:     newGroupID,
 	}, requesterID)
 

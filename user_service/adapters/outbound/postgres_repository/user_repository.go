@@ -122,15 +122,38 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 		return err
 	}
 
-	updatedUser := models.User{
-		ID:      userData.UserToChangeID,
-		Email:   userData.NewEmail,
-		GroupID: userData.NewGroupID,
-	}
-
-	err = updatedUser.SetPassword(userData.NewPassword)
+	oldUserData, err := adp.q.WithTx(tx).GetUserDataByID(ctx, userData.UserToChangeID)
 	if err != nil {
 		return errors.Join(err, tx.Rollback())
+	}
+
+	var newEmail string
+	var newGroupID uuid.UUID
+
+	if userData.NewEmail == nil {
+		newEmail = oldUserData.Email
+	} else {
+		newEmail = *userData.NewEmail
+	}
+
+	if userData.NewGroupID == nil {
+		newGroupID = oldUserData.GroupID
+	} else {
+		newGroupID = *userData.NewGroupID
+	}
+
+	updatedUser := models.User{
+		ID:           userData.UserToChangeID,
+		Email:        newEmail,
+		GroupID:      newGroupID,
+		PasswordHash: oldUserData.PasswordHash,
+	}
+
+	if userData.NewPassword != nil {
+		err = updatedUser.SetPassword(*userData.NewPassword)
+		if err != nil {
+			return errors.Join(err, tx.Rollback())
+		}
 	}
 
 	updatedUser.CreatedAt, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{
