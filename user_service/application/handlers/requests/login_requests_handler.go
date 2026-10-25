@@ -52,12 +52,12 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 		return nil, domainerrors.InvalidCredentials
 	}
 
-	accessToken, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
+	accessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
 	}
-	refreshToken, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
+	refreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
@@ -72,8 +72,10 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 	return &models.LoginResponseData{
 		UserID: user.ID,
 		Tokens: models.Tokens{
-			AccessToken:  accessToken,
-			RefreshToken: refreshToken,
+			AccessToken:      accessToken,
+			RefreshToken:     refreshToken,
+			AccesExpiresAt:   accessExpiresAt,
+			RefreshExpiresAt: refreshExpiresAt,
 		},
 	}, nil
 }
@@ -102,19 +104,21 @@ func (h *LoginRequestsHandlerImpl) Refresh(ctx context.Context, RefreshToken str
 		return nil, DBError
 	}
 
-	NewAccessToken, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
+	NewAccessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
 	}
-	newRefreshToken, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
+	newRefreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
 	}
 
 	return &models.Tokens{
-		AccessToken:  NewAccessToken,
-		RefreshToken: newRefreshToken,
+		AccessToken:      NewAccessToken,
+		RefreshToken:     newRefreshToken,
+		AccesExpiresAt:   accessExpiresAt,
+		RefreshExpiresAt: refreshExpiresAt,
 	}, nil
 }

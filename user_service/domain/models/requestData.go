@@ -1,12 +1,16 @@
 package models
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
 type Tokens struct {
-	AccessToken  string
-	RefreshToken string
+	AccessToken      string
+	AccesExpiresAt   time.Time
+	RefreshToken     string
+	RefreshExpiresAt time.Time
 }
 
 type LoginResponseData struct {

@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.LogInResponse, error) {
@@ -32,9 +33,11 @@ func (s *Server) LogIn(ctx context.Context, req *proto.LogInRequest) (*proto.Log
 	}
 
 	return &proto.LogInResponse{
-		AccessToken:  repsponseData.AccessToken,
-		RefreshToken: repsponseData.RefreshToken,
-		UserId:       repsponseData.UserID.String(),
+		AccessToken:      repsponseData.AccessToken,
+		RefreshToken:     repsponseData.RefreshToken,
+		UserId:           repsponseData.UserID.String(),
+		AccessExpiresAt:  timestamppb.New(repsponseData.AccesExpiresAt),
+		RefreshExpiresAt: timestamppb.New(repsponseData.RefreshExpiresAt),
 	}, nil
 }
 

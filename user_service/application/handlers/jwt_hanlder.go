@@ -19,17 +19,17 @@ func NewJWTHandler() *JWTHandler {
 	return &JWTHandler{}
 }
 
-func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, error) {
+func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.AccessJWTExpiration)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	expTimeSeconds, err := strconv.Atoi(expTimeString)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 	expTime := time.Second * time.Duration(expTimeSeconds)
 
@@ -41,27 +41,27 @@ func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (st
 
 	secret, err := config.GetConfig(config.HS256_SECRET)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
-	return signedToken, nil
+	return signedToken, tokenIssuedAt.Add(expTime), nil
 }
 
-func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, error) {
+func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
 	expTimeString, err := config.GetConfig(config.RefreshJWTExpiration)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	expTimeSeconds, err := strconv.Atoi(expTimeString)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 	expTime := time.Second * time.Duration(expTimeSeconds)
 
@@ -73,14 +73,14 @@ func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (s
 
 	secret, err := config.GetConfig(config.HS256_SECRET)
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
 
 	signedToken, err := token.SignedString([]byte(secret))
 	if err != nil {
-		return "", err
+		return "", time.Time{}, err
 	}
-	return signedToken, nil
+	return signedToken, tokenIssuedAt.Add(expTime), nil
 }
 
 func (h *JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UUID, error) {
