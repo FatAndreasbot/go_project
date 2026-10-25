@@ -28,7 +28,7 @@ func NewUserRequestHandler(
 }
 
 func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error) {
-	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserCreate) {
 		return nil, domainerrors.NotEnoughPermission
 	}
 
@@ -48,7 +48,7 @@ func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *mode
 }
 
 func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error) {
-	if userID != requesterID && !h.permissionHandler.HasPermission(requesterID, models.UserRead) {
+	if userID != requesterID && !h.permissionHandler.HasPermission(ctx, requesterID, models.UserRead) {
 		return nil, domainerrors.NotEnoughPermission
 	}
 	user, err := h.userRepository.GetUserByID(ctx, userID)
@@ -60,7 +60,7 @@ func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.U
 }
 
 func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) ([]*models.User, models.Cursor, error) {
-	if !h.permissionHandler.HasPermission(requesterID, models.UserCreate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserRead) {
 		return nil, models.Cursor{}, domainerrors.NotEnoughPermission
 	}
 
@@ -98,7 +98,7 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 }
 
 func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.UserUpdate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -111,7 +111,7 @@ func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.U
 }
 
 func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.UserDelete) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserDelete) {
 		return domainerrors.NotEnoughPermission
 	}
 	if err := h.userRepository.DeleteUser(ctx, userToDeleteID); err != nil {

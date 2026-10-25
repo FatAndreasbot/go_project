@@ -24,9 +24,7 @@ func NewPermissionHander(
 	}
 }
 
-func (h *PermissionHandler) HasPermission(userID uuid.UUID, permission models.PermissionName) bool {
-	ctx := context.Background()
-
+func (h *PermissionHandler) HasPermission(ctx context.Context, userID uuid.UUID, permission models.PermissionName) bool {
 	userData, err := h.userRepository.GetUserByID(ctx, userID)
 	if err != nil {
 		log.Default().Println(err)

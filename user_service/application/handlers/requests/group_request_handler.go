@@ -36,7 +36,7 @@ func NewGroupRequestHandler(
 }
 
 func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error) {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupCreate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupCreate) {
 		return nil, domainerrors.NotEnoughPermission
 	}
 	err := h.groupRepository.CheckIdempotencyKey(ctx, idempotencyKey)
@@ -61,7 +61,7 @@ func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName str
 }
 
 func (h *GroupRequestHandlerImpl) GetGroupByID(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) (*models.Group, error) {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupRead) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupRead) {
 		return nil, domainerrors.NotEnoughPermission
 	}
 	groupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
@@ -85,7 +85,7 @@ func (h *GroupRequestHandlerImpl) GetGroupByID(ctx context.Context, groupID uuid
 }
 
 func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) ([]*models.MainGroupData, models.Cursor, error) {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupRead) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupRead) {
 		return nil, models.Cursor{}, domainerrors.NotEnoughPermission
 	}
 	groups, err := h.groupRepository.GetGroups(ctx, cursor, count)
@@ -118,7 +118,7 @@ func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.C
 }
 
 func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -147,7 +147,7 @@ func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.
 }
 
 func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -181,7 +181,7 @@ func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uui
 }
 
 func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupUpdate) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
 		return domainerrors.NotEnoughPermission
 	}
 
@@ -216,7 +216,7 @@ func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID 
 }
 
 func (h *GroupRequestHandlerImpl) DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(requesterID, models.GroupDelete) {
+	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupDelete) {
 		return domainerrors.NotEnoughPermission
 	}
 
