@@ -12,4 +12,6 @@ var (
 	NotImplemented = errors.New("method was not implemented")
 	NotFound       = errors.New("resource not found")
 	EmptyList      = errors.New("list is empty")
+
+	DeletingNonEmptyGroup = errors.New("deleting non empty group")
 )

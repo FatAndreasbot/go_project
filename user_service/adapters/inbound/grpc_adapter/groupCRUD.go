@@ -8,6 +8,7 @@ import (
 	proto "proto/user_service/v1"
 	"time"
 
+	"github.com/FatAndreasbot/go_project/user_service/application/handlers/requests"
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
@@ -228,6 +229,9 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
+		if errors.Is(err, requests.GroupHasPermission) {
+			return nil, status.Error(codes.AlreadyExists, "group already has given permission")
+		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
@@ -258,6 +262,9 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
+		if errors.Is(err, requests.GroupLacksPermission) {
+			return nil, status.Error(codes.NotFound, "group has not given permission")
+		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
@@ -282,6 +289,9 @@ func (s *Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
+		}
+		if errors.Is(err, dominaerrors.DeletingNonEmptyGroup) {
+			return nil, status.Error(codes.FailedPrecondition, "the group is not empty")
 		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")

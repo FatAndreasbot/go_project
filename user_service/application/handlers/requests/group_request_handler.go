@@ -2,6 +2,7 @@ package requests
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -206,10 +207,13 @@ func (h *GroupRequestHandlerImpl) DeleteGroup(ctx context.Context, groupID uuid.
 
 	if err := h.groupRepository.DeleteGroup(ctx, groupID); err != nil {
 		log.Default().Println(err.Error())
+		if errors.Is(err, domainerrors.DeletingNonEmptyGroup) {
+			return err
+		}
 		return DBError
 	}
 
-	return domainerrors.NotImplemented
+	return nil
 }
 
 func (h *GroupRequestHandlerImpl) GetAllPermissions(ctx context.Context) ([]*models.Permission, error) {
