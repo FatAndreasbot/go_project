@@ -37,18 +37,22 @@ func createsuperuser(options *project_init.LaunchOptions) error {
 		return err
 	}
 
+	_, _, passwordEncrypter := project_init.SetupBaseHandlers(config, userRepo, groupRepo)
+
 	adminGroup, err := groupRepo.GetGroupByName(ctx, "admin")
 	if err != nil {
 		log.Default().Println(err)
 		return err
 	}
 
+	pwordHash, err := passwordEncrypter.EncryptPassword(password)
+
 	userRepo.CreateUser(ctx, &models.UserData{
 		Email:          email,
 		Password:       password,
 		IdempotencyKey: uuid.New(),
 		GroupID:        adminGroup.ID,
-	})
+	}, pwordHash)
 
 	fmt.Println("user was created")
 	return nil

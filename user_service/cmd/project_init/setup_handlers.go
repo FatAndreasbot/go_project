@@ -50,7 +50,7 @@ func SetupHandlers(
 		groupRepository, permissionRepository, permissionHandler,
 	)
 	userHandler := requests.NewUserRequestHandler(
-		userRepository, permissionHandler,
+		userRepository, permissionHandler, passwordEncrypter,
 	)
 
 	return groupHandler, userHandler, loginHandler

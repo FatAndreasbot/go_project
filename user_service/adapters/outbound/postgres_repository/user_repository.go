@@ -9,15 +9,12 @@ import (
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
-	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/google/uuid"
 )
 
 type UserPersistanceAdapter struct {
 	conn *sql.DB
 	q    *sqlc_gen.Queries
-
-	passwordEncrypter application.PasswordEncrypter
 }
 
 func NewUserPersistanceAdapter(conn *sql.DB) *UserPersistanceAdapter {
@@ -85,7 +82,7 @@ func (adp *UserPersistanceAdapter) GetUsers(ctx context.Context, cursor models.C
 	return userList, nil
 }
 
-func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *models.UserData) (*models.User, error) {
+func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *models.UserData, passwordHash string) (*models.User, error) {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 
 	if err != nil {
@@ -97,20 +94,13 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 		GroupID: userData.GroupID,
 	}
 
-	passwordHash, err := adp.passwordEncrypter.EncryptPassword(userData.Password)
-	if err != nil {
-		rbErr := tx.Rollback()
-		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
-		}
-		return nil, err
-	}
 	user.PasswordHash = passwordHash
 
 	dbData, err := adp.q.WithTx(tx).CreateUser(ctx, sqlc_gen.CreateUserParams{
-		Email:        user.Email,
-		PasswordHash: user.PasswordHash,
-		GroupID:      user.GroupID,
+		Email:          user.Email,
+		PasswordHash:   user.PasswordHash,
+		GroupID:        user.GroupID,
+		IdempotencyKey: userData.IdempotencyKey,
 	})
 	if err != nil {
 		rbErr := tx.Rollback()
@@ -166,19 +156,11 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 		PasswordHash: oldUserData.PasswordHash,
 	}
 
-	if userData.NewPassword != nil {
-		passwordHash, err := adp.passwordEncrypter.EncryptPassword(*userData.NewPassword)
-		if err != nil {
-			rbErr := tx.Rollback()
-			if rbErr != nil {
-				log.Default().Println(rbErr.Error())
-			}
-			return err
-		}
-		updatedUser.PasswordHash = passwordHash
+	if userData.NewPasswordHash != nil {
+		updatedUser.PasswordHash = *userData.NewPasswordHash
 	}
 
-	updatedUser.CreatedAt, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{
+	_, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{
 		Email:        updatedUser.Email,
 		PasswordHash: updatedUser.PasswordHash,
 		GroupID:      updatedUser.GroupID,

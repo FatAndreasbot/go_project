@@ -29,7 +29,7 @@ type UserData struct {
 type UserUpdateRequestData struct {
 	UserToChangeID uuid.UUID
 
-	NewPassword *string
-	NewEmail    *string
-	NewGroupID  *uuid.UUID
+	NewPasswordHash *string
+	NewEmail        *string
+	NewGroupID      *uuid.UUID
 }

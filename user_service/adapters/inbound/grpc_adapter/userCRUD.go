@@ -179,10 +179,10 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 	}
 
 	err = s.userHandler.UpdateUser(ctx, &models.UserUpdateRequestData{
-		UserToChangeID: userToChangeID,
-		NewPassword:    req.GetUserData().Password,
-		NewEmail:       req.GetUserData().Email,
-		NewGroupID:     newGroupID,
+		UserToChangeID:  userToChangeID,
+		NewPasswordHash: req.GetUserData().Password,
+		NewEmail:        req.GetUserData().Email,
+		NewGroupID:      newGroupID,
 	})
 
 	if err != nil {

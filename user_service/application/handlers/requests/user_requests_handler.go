@@ -2,6 +2,7 @@ package requests
 
 import (
 	"context"
+	"errors"
 	"log"
 	"time"
 
@@ -13,17 +14,21 @@ import (
 )
 
 type UserRequestsHandlerImpl struct {
-	userRepository    outgoing.UserRepository
+	userRepository outgoing.UserRepository
+
 	permissionHandler application.PermissionHandlerPort
+	encrypter         application.PasswordEncrypter
 }
 
 func NewUserRequestHandler(
 	userRepository outgoing.UserRepository,
 	permissionHandler application.PermissionHandlerPort,
+	encrypter application.PasswordEncrypter,
 ) *UserRequestsHandlerImpl {
 	return &UserRequestsHandlerImpl{
 		userRepository:    userRepository,
 		permissionHandler: permissionHandler,
+		encrypter:         encrypter,
 	}
 }
 
@@ -34,7 +39,19 @@ func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *mode
 		return nil, domainerrors.IdempotencyFail
 	}
 
-	user, err := h.userRepository.CreateUser(ctx, userdata)
+	userdata.Password, err = h.encrypter.EncryptPassword(userdata.Password)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, errors.New("unexpeced error")
+	}
+
+	pwordHash, err := h.encrypter.EncryptPassword(userdata.Password)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, errors.New("unexpeced error")
+	}
+
+	user, err := h.userRepository.CreateUser(ctx, userdata, pwordHash)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, DBError
