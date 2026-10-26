@@ -25,13 +25,13 @@ var PermissionSettings map[string]models.PermissionName = map[string]models.Perm
 	"/user_service.v1.UserService/UpdateUser": models.UserUpdate,
 	"/user_service.v1.UserService/DeleteUser": models.UserDelete,
 	// Group CRUD
-	"/user_service.v1.UserService/CreateGroup":               models.Any,
-	"/user_service.v1.UserService/GetGroup":                  models.Any,
-	"/user_service.v1.UserService/GetGroups":                 models.Any,
-	"/user_service.v1.UserService/UpdateGroup":               models.Any,
-	"/user_service.v1.UserService/AddPermissionToGroup":      models.Any,
-	"/user_service.v1.UserService/RemovePermissionFromGroup": models.Any,
-	"/user_service.v1.UserService/DeleteGroup":               models.Any,
+	"/user_service.v1.UserService/CreateGroup":               models.GroupCreate,
+	"/user_service.v1.UserService/GetGroup":                  models.GroupRead,
+	"/user_service.v1.UserService/GetGroups":                 models.GroupRead,
+	"/user_service.v1.UserService/UpdateGroup":               models.GroupUpdate,
+	"/user_service.v1.UserService/AddPermissionToGroup":      models.GroupUpdate,
+	"/user_service.v1.UserService/RemovePermissionFromGroup": models.GroupUpdate,
+	"/user_service.v1.UserService/DeleteGroup":               models.GroupDelete,
 	// Permissions
 	"/user_service.v1.UserService/GetAllPermissions": models.Any,
 }

@@ -34,7 +34,6 @@ func setupIncomingAdapters(
 		return err
 	}
 
-	// TODO finish this shit
 	middlewareGenerator := usecases.NewMiddlewareGenerator(
 		jwtHandler,
 		sessionHandler,

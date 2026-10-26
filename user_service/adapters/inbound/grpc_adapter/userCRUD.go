@@ -6,6 +6,7 @@ import (
 	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service/v1"
+	"time"
 
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -28,7 +29,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 	groupID, err := uuid.Parse(groupIDString)
 	if err != nil {
 		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+		return nil, status.Error(codes.InvalidArgument, "groupID is not UUID")
 	}
 
 	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
@@ -104,14 +105,25 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	objectID, err := uuid.Parse(req.GetCursor().GetId())
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
+	var objectID uuid.UUID
+	var timestamp time.Time
+	var err error
+
+	if req.Cursor == nil {
+		objectID = uuid.Nil
+		timestamp = time.Time{}
+	} else {
+		objectID, err = uuid.Parse(req.GetCursor().GetId())
+		if err != nil {
+			log.Default().Println(err.Error())
+			return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
+		}
+
+		timestamp = req.GetCursor().CreatedAt.AsTime()
 	}
 
 	cursor := models.Cursor{
-		Timestamp: req.GetCursor().CreatedAt.AsTime(),
+		Timestamp: timestamp,
 		ID:        objectID,
 	}
 

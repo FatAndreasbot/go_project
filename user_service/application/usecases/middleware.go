@@ -87,7 +87,6 @@ func (mg *MiddlewareGenerator) GetPermissionFunction(
 			if slices.Contains(publicMethods, method) {
 				return ctx, nil
 			}
-
 			log.Default().Printf("endoint %s has no associated permission\n", method)
 			return ctx, errors.New("unautorized")
 		}
