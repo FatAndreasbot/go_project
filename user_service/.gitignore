@@ -4,3 +4,5 @@ go.sum
 
 infra/postgresql/sqlc_gen
 build/
+
+__debug_bin*
