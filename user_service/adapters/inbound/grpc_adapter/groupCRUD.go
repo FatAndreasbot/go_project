@@ -53,24 +53,25 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	protoPermissions := req.GetPermissions()
-	permissions, err := protoPermissionToDomainPermissions(protoPermissions)
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, status.Error(codes.InvalidArgument, "could not parse a UUID of given permissions")
+	permissionIDStrings := req.GetPermissionIds()
+	var permissionIDs uuid.UUIDs
+	for _, IDString := range permissionIDStrings {
+		id, err := uuid.Parse(IDString)
+		if err != nil {
+			log.Default().Println(err.Error())
+			return nil, status.Error(codes.InvalidArgument, "could not parse a UUID of given permissions")
+		}
+		permissionIDs = append(permissionIDs, id)
 	}
 
 	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
 	if err != nil {
 		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+		return nil, status.Error(codes.InvalidArgument, "idempotency key is not a UUID")
 	}
 
-	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissions, idempotencyKey)
+	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissionIDs, idempotencyKey)
 	if err != nil {
-		if errors.Is(err, dominaerrors.NotEnoughPermission) {
-			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
-		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
@@ -79,7 +80,7 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 		Group: &v1.UserGroup{
 			Id:              group.ID.String(),
 			Name:            group.Name,
-			UserPermissions: protoPermissions,
+			UserPermissions: domainPermossionsToProtoPermissions(group.Permissions),
 		},
 	}
 

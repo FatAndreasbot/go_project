@@ -53,7 +53,7 @@ from
 where gp.group_id = $1;
 
 -- name: CreateGroup :one
-insert into groups (name) values ($1)
+insert into groups (name, idempotency_key) values ($1, $2)
 returning id, created_at;
 
 -- name: DeleteGroup :exec

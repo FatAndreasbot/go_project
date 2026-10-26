@@ -35,7 +35,7 @@ func NewGroupRequestHandler(
 	}
 }
 
-func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error) {
+func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName string, permissionIDs uuid.UUIDs, idempotencyKey uuid.UUID) (*models.Group, error) {
 	err := h.groupRepository.CheckIdempotencyKey(ctx, idempotencyKey)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -45,7 +45,7 @@ func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName str
 	newGroup, err := h.groupRepository.CreateGroup(
 		ctx,
 		groupName,
-		permissions,
+		permissionIDs,
 		idempotencyKey,
 	)
 

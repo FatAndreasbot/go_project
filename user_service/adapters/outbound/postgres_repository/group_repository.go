@@ -51,13 +51,16 @@ func NewGroupPersistanceAdapter(conn *sql.DB) *GroupPersistanceAdapter {
 	}
 }
 
-func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error) {
+func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName string, permissionIDs uuid.UUIDs, idempotencyKey uuid.UUID) (*models.Group, error) {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	groupData, err := adp.q.WithTx(tx).CreateGroup(ctx, groupName)
+	groupData, err := adp.q.WithTx(tx).CreateGroup(ctx, sqlc_gen.CreateGroupParams{
+		Name:           groupName,
+		IdempotencyKey: idempotencyKey,
+	})
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
@@ -66,11 +69,11 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 		return nil, err
 	}
 
-	for _, permission := range permissions {
+	for _, permissionID := range permissionIDs {
 		err = adp.q.WithTx(tx).AddPermissionToGroup(
 			ctx, sqlc_gen.AddPermissionToGroupParams{
 				GroupID:      groupData.ID,
-				PermissionID: permission.ID,
+				PermissionID: permissionID,
 			},
 		)
 		if err != nil {
