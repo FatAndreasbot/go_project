@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
+	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -48,7 +49,7 @@ func (s *Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, 
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	rawUserID := ctx.Value(userdataKey)
+	rawUserID := ctx.Value(models.UserdataKey)
 	if rawUserID == nil {
 		log.Default().Println("attempted to log out without an access token")
 		return &emptypb.Empty{}, nil

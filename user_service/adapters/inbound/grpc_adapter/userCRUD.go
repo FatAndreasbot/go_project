@@ -23,11 +23,6 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	groupIDString := req.GetGroupId()
 
 	groupID, err := uuid.Parse(groupIDString)
@@ -49,7 +44,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		IdempotencyKey: idempotencyKey,
 	}
 
-	user, err := s.userHandler.CreateUser(ctx, &userdata, requesterID)
+	user, err := s.userHandler.CreateUser(ctx, &userdata)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -77,11 +72,6 @@ func (s *Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	userIDString := req.GetUserId()
 	userID, err := uuid.Parse(userIDString)
 	if err != nil {
@@ -89,7 +79,7 @@ func (s *Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	user, err := s.userHandler.GetUserByID(ctx, userID, requesterID)
+	user, err := s.userHandler.GetUserByID(ctx, userID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -114,11 +104,6 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	objectID, err := uuid.Parse(req.GetCursor().GetId())
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -131,7 +116,7 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	}
 
 	count := int(req.Limit)
-	users, next, err := s.userHandler.GetUsers(ctx, cursor, count, requesterID)
+	users, next, err := s.userHandler.GetUsers(ctx, cursor, count)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -170,11 +155,6 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	userToChangeID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
@@ -194,7 +174,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 		NewPassword:    req.GetUserData().Password,
 		NewEmail:       req.GetUserData().Email,
 		NewGroupID:     newGroupID,
-	}, requesterID)
+	})
 
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
@@ -214,17 +194,12 @@ func (s *Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	userToDeleteID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
 	}
 
-	err = s.userHandler.DeleteUser(ctx, userToDeleteID, requesterID)
+	err = s.userHandler.DeleteUser(ctx, userToDeleteID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

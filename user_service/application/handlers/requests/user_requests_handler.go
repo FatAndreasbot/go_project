@@ -27,11 +27,7 @@ func NewUserRequestHandler(
 	}
 }
 
-func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error) {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserCreate) {
-		return nil, domainerrors.NotEnoughPermission
-	}
-
+func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *models.UserData) (*models.User, error) {
 	err := h.userRepository.CheckIdempotencyKey(ctx, userdata.IdempotencyKey)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -47,10 +43,7 @@ func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *mode
 	return user, nil
 }
 
-func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error) {
-	if userID != requesterID && !h.permissionHandler.HasPermission(ctx, requesterID, models.UserRead) {
-		return nil, domainerrors.NotEnoughPermission
-	}
+func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	user, err := h.userRepository.GetUserByID(ctx, userID)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -59,11 +52,7 @@ func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.U
 	return user, nil
 }
 
-func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) ([]*models.User, models.Cursor, error) {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserRead) {
-		return nil, models.Cursor{}, domainerrors.NotEnoughPermission
-	}
-
+func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cursor, count int) ([]*models.User, models.Cursor, error) {
 	users, err := h.userRepository.GetUsers(
 		ctx,
 		cursor,
@@ -97,11 +86,7 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 	}, nil
 }
 
-func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserUpdate) {
-		return domainerrors.NotEnoughPermission
-	}
-
+func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData) error {
 	if err := h.userRepository.UpdateUser(ctx, data); err != nil {
 		log.Default().Println(err.Error())
 		return DBError
@@ -110,10 +95,7 @@ func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.U
 	return nil
 }
 
-func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.UserDelete) {
-		return domainerrors.NotEnoughPermission
-	}
+func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID) error {
 	if err := h.userRepository.DeleteUser(ctx, userToDeleteID); err != nil {
 		log.Default().Println(err.Error())
 		return DBError

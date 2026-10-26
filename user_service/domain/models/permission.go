@@ -6,6 +6,8 @@ type PermissionName string
 
 // list of all permission names
 const (
+	Any PermissionName = "any"
+
 	UserCreate PermissionName = "user_create"
 	UserRead   PermissionName = "user_read"
 	UserUpdate PermissionName = "user_update"

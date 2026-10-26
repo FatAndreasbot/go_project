@@ -19,20 +19,20 @@ type LoginRequestHandler interface {
 }
 
 type UserRequestHandler interface {
-	CreateUser(ctx context.Context, userdata *models.UserData, requesterID uuid.UUID) (*models.User, error)
-	GetUserByID(ctx context.Context, userID uuid.UUID, requesterID uuid.UUID) (*models.User, error)
-	GetUsers(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) (users []*models.User, next models.Cursor, err error)
-	UpdateUser(ctx context.Context, data *models.UserUpdateRequestData, requesterID uuid.UUID) error
-	DeleteUser(ctx context.Context, userToDeleteID uuid.UUID, requesterID uuid.UUID) error
+	CreateUser(ctx context.Context, userdata *models.UserData) (*models.User, error)
+	GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error)
+	GetUsers(ctx context.Context, cursor models.Cursor, count int) (users []*models.User, next models.Cursor, err error)
+	UpdateUser(ctx context.Context, data *models.UserUpdateRequestData) error
+	DeleteUser(ctx context.Context, userToDeleteID uuid.UUID) error
 }
 
 type GroupRequestHandler interface {
-	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error)
-	GetGroupByID(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) (*models.Group, error)
-	GetGroups(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) (groups []*models.MainGroupData, next models.Cursor, err error)
-	UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, reqesterID uuid.UUID) error
-	AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error
-	RemovePermission(ctx context.Context, groupID uuid.UUID, permission uuid.UUID, requesterID uuid.UUID) error
-	DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error
+	CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error)
+	GetGroupByID(ctx context.Context, groupID uuid.UUID) (*models.Group, error)
+	GetGroups(ctx context.Context, cursor models.Cursor, count int) (groups []*models.MainGroupData, next models.Cursor, err error)
+	UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string) error
+	AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID) error
+	RemovePermission(ctx context.Context, groupID uuid.UUID, permission uuid.UUID) error
+	DeleteGroup(ctx context.Context, groupID uuid.UUID) error
 	GetAllPermissions(ctx context.Context) ([]*models.Permission, error)
 }

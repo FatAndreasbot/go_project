@@ -35,6 +35,6 @@ func SetupApplictaion(options *LaunchOptions) error {
 	return setupIncomingAdapters(
 		config,
 		groupRequests, userRequests, loginRequests,
-		session, jwtHandler,
+		session, permissionHandler, jwtHandler,
 	)
 }

@@ -38,11 +38,6 @@ func NewMiddlewareGenerator(
 	}
 }
 
-type contextValueKey string
-
-// points to userID: uuid.UUID
-const userdataKey contextValueKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
-
 func (mg *MiddlewareGenerator) GetAuthFunction(publicMethods []string) models.Interceptor {
 
 	return func(ctx context.Context) (context.Context, error) {
@@ -73,19 +68,27 @@ func (mg *MiddlewareGenerator) GetAuthFunction(publicMethods []string) models.In
 			return ctx, err
 		}
 
-		ctx = context.WithValue(ctx, userdataKey, userID)
+		ctx = context.WithValue(ctx, models.UserdataKey, userID)
 		return ctx, nil
 	}
 }
 
-func (mg *MiddlewareGenerator) GetPermissionFunction(permissionSettigns map[string]models.PermissionName) models.Interceptor {
+func (mg *MiddlewareGenerator) GetPermissionFunction(
+	permissionSettigns map[string]models.PermissionName,
+	publicMethods []string,
+) models.Interceptor {
 	return func(ctx context.Context) (context.Context, error) {
 		method, err := mg.getEndpoint(ctx)
 		if err != nil {
 			return ctx, err
 		}
-		requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
+		requesterID, ok := ctx.Value(models.UserdataKey).(uuid.UUID)
 		if !ok {
+			if slices.Contains(publicMethods, method) {
+				return ctx, nil
+			}
+
+			log.Default().Printf("endoint %s has no associated permission\n", method)
 			return ctx, errors.New("unautorized")
 		}
 

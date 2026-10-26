@@ -11,6 +11,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/auth"
 	"google.golang.org/grpc"
 )
 
@@ -39,16 +40,29 @@ func setupIncomingAdapters(
 		sessionHandler,
 		permissionHandler,
 		grpcadapter.GetEndpoint,
-	)
-
-	interceptor := grpcadapter.NewAuthInterceptor(
-		jwtHandler,
-		sessionHandler,
+		grpcadapter.GetToken,
 	)
 
 	grpcServer := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptor.UnaryServerInterceptor()),
+		grpc.ChainUnaryInterceptor(
+			auth.UnaryServerInterceptor(
+				auth.AuthFunc(
+					middlewareGenerator.GetAuthFunction(grpcadapter.PublicMethods),
+				),
+			),
+			grpc.UnaryServerInterceptor(
+				auth.UnaryServerInterceptor(
+					auth.AuthFunc(
+						middlewareGenerator.GetPermissionFunction(
+							grpcadapter.PermissionSettings,
+							grpcadapter.PublicMethods,
+						),
+					),
+				),
+			),
+		),
 	)
+
 	serverAdapter := grpcadapter.NewServer(
 		groupHandler, userHandler, loginHandler,
 	)

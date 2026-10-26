@@ -53,11 +53,6 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	protoPermissions := req.GetPermissions()
 	permissions, err := protoPermissionToDomainPermissions(protoPermissions)
 	if err != nil {
@@ -71,7 +66,7 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissions, idempotencyKey, requesterID)
+	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissions, idempotencyKey)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -98,17 +93,13 @@ func (s *Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*pro
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	group, err := s.groupHandler.GetGroupByID(ctx, groupID, requesterID)
+	group, err := s.groupHandler.GetGroupByID(ctx, groupID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -135,11 +126,6 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
-
 	objectID, err := uuid.Parse(req.GetCursor().GetId())
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -152,7 +138,7 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	}
 	count := int(req.Limit)
 
-	groups, next, err := s.groupHandler.GetGroups(ctx, cursor, count, requesterID)
+	groups, next, err := s.groupHandler.GetGroups(ctx, cursor, count)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -189,17 +175,13 @@ func (s *Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest)
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	err = s.groupHandler.UpdateGroup(ctx, groupID, req.GetNewName(), requesterID)
+	err = s.groupHandler.UpdateGroup(ctx, groupID, req.GetNewName())
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -218,10 +200,6 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -233,7 +211,7 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	err = s.groupHandler.AddPermission(ctx, groupID, permissionID, requesterID)
+	err = s.groupHandler.AddPermission(ctx, groupID, permissionID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -252,10 +230,6 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -267,7 +241,7 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	err = s.groupHandler.RemovePermission(ctx, groupID, permissionID, requesterID)
+	err = s.groupHandler.RemovePermission(ctx, groupID, permissionID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -286,17 +260,13 @@ func (s *Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest)
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	requesterID, ok := ctx.Value(userdataKey).(uuid.UUID)
-	if !ok {
-		return nil, status.Error(codes.Internal, "unexpected error")
-	}
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
 	}
 
-	err = s.groupHandler.DeleteGroup(ctx, groupID, requesterID)
+	err = s.groupHandler.DeleteGroup(ctx, groupID)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

@@ -35,10 +35,7 @@ func NewGroupRequestHandler(
 	}
 }
 
-func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey, requesterID uuid.UUID) (*models.Group, error) {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupCreate) {
-		return nil, domainerrors.NotEnoughPermission
-	}
+func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName string, permissions []*models.Permission, idempotencyKey uuid.UUID) (*models.Group, error) {
 	err := h.groupRepository.CheckIdempotencyKey(ctx, idempotencyKey)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -60,10 +57,7 @@ func (h *GroupRequestHandlerImpl) CreateGroup(ctx context.Context, groupName str
 	return newGroup, nil
 }
 
-func (h *GroupRequestHandlerImpl) GetGroupByID(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) (*models.Group, error) {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupRead) {
-		return nil, domainerrors.NotEnoughPermission
-	}
+func (h *GroupRequestHandlerImpl) GetGroupByID(ctx context.Context, groupID uuid.UUID) (*models.Group, error) {
 	groupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -84,10 +78,7 @@ func (h *GroupRequestHandlerImpl) GetGroupByID(ctx context.Context, groupID uuid
 	return &group, nil
 }
 
-func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.Cursor, count int, requesterID uuid.UUID) ([]*models.MainGroupData, models.Cursor, error) {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupRead) {
-		return nil, models.Cursor{}, domainerrors.NotEnoughPermission
-	}
+func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.Cursor, count int) ([]*models.MainGroupData, models.Cursor, error) {
 	groups, err := h.groupRepository.GetGroups(ctx, cursor, count)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -117,11 +108,7 @@ func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.C
 	}, nil
 }
 
-func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
-		return domainerrors.NotEnoughPermission
-	}
-
+func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string) error {
 	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -146,11 +133,7 @@ func (h *GroupRequestHandlerImpl) UpdateGroup(ctx context.Context, groupID uuid.
 	return nil
 }
 
-func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
-		return domainerrors.NotEnoughPermission
-	}
-
+func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID) error {
 	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -180,11 +163,7 @@ func (h *GroupRequestHandlerImpl) AddPermission(ctx context.Context, groupID uui
 	return nil
 }
 
-func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupUpdate) {
-		return domainerrors.NotEnoughPermission
-	}
-
+func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID) error {
 	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -215,11 +194,7 @@ func (h *GroupRequestHandlerImpl) RemovePermission(ctx context.Context, groupID 
 	return nil
 }
 
-func (h *GroupRequestHandlerImpl) DeleteGroup(ctx context.Context, groupID uuid.UUID, requesterID uuid.UUID) error {
-	if !h.permissionHandler.HasPermission(ctx, requesterID, models.GroupDelete) {
-		return domainerrors.NotEnoughPermission
-	}
-
+func (h *GroupRequestHandlerImpl) DeleteGroup(ctx context.Context, groupID uuid.UUID) error {
 	oldGroupData, err := h.groupRepository.GetGroupByID(ctx, groupID)
 	if err != nil {
 		log.Default().Println(err.Error())
