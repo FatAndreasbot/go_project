@@ -213,5 +213,6 @@ func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.U
 		}
 		return err
 	}
-	return nil
+
+	return tx.Commit()
 }
