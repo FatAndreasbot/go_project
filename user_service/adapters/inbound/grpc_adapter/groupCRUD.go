@@ -6,6 +6,7 @@ import (
 	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service/v1"
+	"time"
 
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -127,14 +128,24 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	s.requestsInProgressCounter.Add(1)
 	defer s.requestsInProgressCounter.Add(-1)
 
-	objectID, err := uuid.Parse(req.GetCursor().GetId())
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
-	}
+	var objectID uuid.UUID
+	var timestamp time.Time
+	var err error
 
+	if req.Cursor == nil {
+		objectID = uuid.Nil
+		timestamp = time.Time{}
+	} else {
+		objectID, err = uuid.Parse(req.GetCursor().GetId())
+		if err != nil {
+			log.Default().Println(err.Error())
+			return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
+		}
+
+		timestamp = req.GetCursor().GetCreatedAt().AsTime()
+	}
 	cursor := models.Cursor{
-		Timestamp: req.GetCursor().GetCreatedAt().AsTime(),
+		Timestamp: timestamp,
 		ID:        objectID,
 	}
 	count := int(req.Limit)

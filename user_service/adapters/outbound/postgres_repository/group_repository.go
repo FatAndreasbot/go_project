@@ -127,6 +127,7 @@ func (adp *GroupPersistanceAdapter) GetGroups(ctx context.Context, cursor models
 	groupData, err := adp.q.GetGroupList(ctx, sqlc_gen.GetGroupListParams{
 		CreatedAt: cursor.Timestamp,
 		Limit:     int32(count),
+		ID:        cursor.ID,
 	})
 	if err != nil {
 		return nil, err

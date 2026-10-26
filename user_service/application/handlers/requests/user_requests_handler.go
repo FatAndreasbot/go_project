@@ -65,7 +65,7 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 	}
 
 	if len(users) == 0 {
-		return nil, models.Cursor{}, domainerrors.InvalidCredentials
+		return nil, models.Cursor{}, domainerrors.EmptyList
 	}
 	var next time.Time
 	var nextID uuid.UUID

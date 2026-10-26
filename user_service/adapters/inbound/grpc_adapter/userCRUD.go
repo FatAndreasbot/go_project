@@ -130,9 +130,6 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	count := int(req.Limit)
 	users, next, err := s.userHandler.GetUsers(ctx, cursor, count)
 	if err != nil {
-		if errors.Is(err, dominaerrors.NotEnoughPermission) {
-			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
-		}
 		if errors.Is(err, dominaerrors.EmptyList) {
 			return nil, status.Error(codes.OutOfRange, "no more users in list")
 		}

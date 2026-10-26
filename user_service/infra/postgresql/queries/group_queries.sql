@@ -28,8 +28,9 @@ select
 from
     groups g
 where g.created_at >= $1
+and g.id <> $2
 order by g.created_at
-limit $2;
+limit $3;
 
 
 -- name: UpdateGroupName :exec
