@@ -36,23 +36,6 @@ var PermissionSettings map[string]models.PermissionName = map[string]models.Perm
 	"/user_service.v1.UserService/GetAllPermissions": models.Any,
 }
 
-type contextValueKey string
-
-// points to userID: uuid.UUID
-// const userdataKey contextValueKey = "userdata-e65f9095-b3d6-492f-86f4-7801c78c7732"
-
-// func GetAuthInterceptor(gen *usecases.MiddlewareGenerator) grpc.UnaryServerInterceptor {
-// 	return auth.UnaryServerInterceptor(
-// 		auth.AuthFunc(gen.GetAuthFunction(PublicMethods)),
-// 	)
-// }
-
-// func GetPermissionCheckingInterceptor(gen *usecases.MiddlewareGenerator) grpc.UnaryServerInterceptor {
-// 	return auth.UnaryServerInterceptor(
-// 		auth.AuthFunc(gen.GetPermissionFunction(PermissionSettings)),
-// 	)
-// }
-
 func GetEndpoint(ctx context.Context) (string, error) {
 	method, _ := grpc.Method(ctx)
 	return method, nil
@@ -61,3 +44,13 @@ func GetEndpoint(ctx context.Context) (string, error) {
 func GetToken(ctx context.Context) (string, error) {
 	return auth.AuthFromMD(ctx, "bearer")
 }
+
+// TODO: create some sort of wrapper around application.Middleware to convert
+// from domainerrors into interceptor specific errors
+
+//  implements application.Middleware, by calling the orig functions,
+//  and wrapping returning errors into status.Error(codes._, "error message")
+//
+// type middlewarecinverter struct {
+// 		orig application.Middleware
+// }
