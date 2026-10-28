@@ -55,7 +55,7 @@ func (s *MapSessionStorage) DeleteSession(ctx context.Context, userID uuid.UUID)
 	}
 	delete(s.store, userID)
 	if data.expiresAt.After(time.Now()) {
-		return Expired
+		return DoesNotExists
 	}
 
 	return nil
@@ -90,7 +90,7 @@ func (s *MapSessionStorage) CheckSession(ctx context.Context, userID uuid.UUID) 
 	}
 	if !data.expiresAt.After(time.Now()) {
 		delete(s.store, userID)
-		return Expired
+		return DoesNotExists
 	}
 
 	return nil

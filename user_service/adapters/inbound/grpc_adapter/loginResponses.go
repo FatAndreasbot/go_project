@@ -60,7 +60,10 @@ func (s *Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, 
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
-	s.loginHandler.Logout(ctx, userID)
+	err := s.loginHandler.Logout(ctx, userID)
+	if err != nil {
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
 	return &emptypb.Empty{}, nil
 }
 

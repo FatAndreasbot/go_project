@@ -42,7 +42,7 @@ func SetupOutgoingAdapters(config *models.ConfigOptions) (
 	gpa := postgresrepository.NewGroupPersistanceAdapter(conn)
 	ppa := postgresrepository.NewPermissionPersistanceAdapter(conn)
 
-	sessionHandler := sessionstorage.NewMapSessionStorate(config)
+	sessionHandler := sessionstorage.NewRedisSessionStorage(config)
 
 	return upa, gpa, ppa, sessionHandler, nil
 }
