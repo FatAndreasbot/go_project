@@ -27,6 +27,9 @@ const (
 	RefreshJWTExpiration
 	DBConnString
 	NetworkPort
+	RedisAddress
+	RedisPassword
+	RedisDB
 )
 
 var configKeys map[ConfigOption]string = map[ConfigOption]string{
@@ -35,6 +38,9 @@ var configKeys map[ConfigOption]string = map[ConfigOption]string{
 	AccessJWTExpiration:  "ACCESS_JWT_EXPIRATION",
 	RefreshJWTExpiration: "REFRESH_JWT_EXPIRATION",
 	NetworkPort:          "PORT",
+	RedisAddress:         "REDIS_ADDRESS",
+	RedisPassword:        "REDIS_PASSWORD",
+	RedisDB:              "REDIS_DB",
 }
 
 // Depricated: insert config values at init
@@ -76,6 +82,18 @@ func LoadConfig(envFileLocation ...string) (*models.ConfigOptions, error) {
 	if !ok {
 		return nil, fmt.Errorf("%s was not found", configKeys[NetworkPort])
 	}
+	redisAddress, ok := os.LookupEnv(configKeys[RedisAddress])
+	if !ok {
+		return nil, fmt.Errorf("%s was not found", configKeys[RedisAddress])
+	}
+	redisPassword, ok := os.LookupEnv(configKeys[RedisPassword])
+	if !ok {
+		return nil, fmt.Errorf("%s was not found", configKeys[RedisPassword])
+	}
+	redisDBString, ok := os.LookupEnv(configKeys[RedisDB])
+	if !ok {
+		return nil, fmt.Errorf("%s was not found", configKeys[RedisDB])
+	}
 
 	accsessJWTExpiration, err := strconv.Atoi(accsessJWTExpirationString)
 	if err != nil {
@@ -89,12 +107,16 @@ func LoadConfig(envFileLocation ...string) (*models.ConfigOptions, error) {
 	if err != nil {
 		return nil, err
 	}
+	redisDB, err := strconv.Atoi(redisDBString)
+	if err != nil {
+		return nil, err
+	}
 
 	options := models.NewOptions(
-		dbConnString, hs256Secret,
+		dbConnString, hs256Secret, redisAddress, redisPassword,
 		time.Second*time.Duration(accsessJWTExpiration),
 		time.Second*time.Duration(refreshJWTExpiration),
-		port,
+		port, redisDB,
 	)
 
 	return options, nil

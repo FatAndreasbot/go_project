@@ -34,7 +34,7 @@ func (s *MapSessionStorage) CreateSession(ctx context.Context, userID uuid.UUID)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	sessionCreatedAt := time.Now()
-	expTime := s.config.GetAccsessJWTExpiration()
+	expTime := s.config.GetAccessJWTExpiration()
 	expiresAt := sessionCreatedAt.Add(expTime)
 
 	s.store[userID] = storageElement{
@@ -71,7 +71,7 @@ func (s *MapSessionStorage) ExtendSession(ctx context.Context, userID uuid.UUID)
 	}
 
 	sessionCreatedAt := time.Now()
-	expTime := s.config.GetAccsessJWTExpiration()
+	expTime := s.config.GetAccessJWTExpiration()
 	newExpiresAt := sessionCreatedAt.Add(expTime)
 
 	data.expiresAt = newExpiresAt

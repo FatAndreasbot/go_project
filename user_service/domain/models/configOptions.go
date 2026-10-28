@@ -8,12 +8,15 @@ type ConfigOptions struct {
 	accsessJWTExpiration time.Duration
 	refreshJWTExpiration time.Duration
 	port                 int
+	redisAddress         string
+	redisPassword        string
+	redisDB              int
 }
 
 func NewOptions(
-	dbConnString, hs256Secret string,
+	dbConnString, hs256Secret, redisAddress, redisPassword string,
 	accsessJWTExpiration, refreshJWTExpiration time.Duration,
-	port int,
+	port, redisDB int,
 ) *ConfigOptions {
 	return &ConfigOptions{
 		dbConnString:         dbConnString,
@@ -21,6 +24,9 @@ func NewOptions(
 		accsessJWTExpiration: accsessJWTExpiration,
 		refreshJWTExpiration: refreshJWTExpiration,
 		port:                 port,
+		redisAddress:         redisAddress,
+		redisPassword:        redisPassword,
+		redisDB:              redisDB,
 	}
 }
 
@@ -32,7 +38,7 @@ func (opt *ConfigOptions) GetHS256Secret() string {
 	return opt.hs256Secret
 }
 
-func (opt *ConfigOptions) GetAccsessJWTExpiration() time.Duration {
+func (opt *ConfigOptions) GetAccessJWTExpiration() time.Duration {
 	return opt.accsessJWTExpiration
 }
 
@@ -42,4 +48,16 @@ func (opt *ConfigOptions) GetRefreshJWTExpiration() time.Duration {
 
 func (opt *ConfigOptions) GetPort() int {
 	return opt.port
+}
+
+func (opt *ConfigOptions) GetRedisAddress() string {
+	return opt.redisAddress
+}
+
+func (opt *ConfigOptions) GetRedisPassword() string {
+	return opt.redisPassword
+}
+
+func (opt *ConfigOptions) GetRedisDB() int {
+	return opt.redisDB
 }

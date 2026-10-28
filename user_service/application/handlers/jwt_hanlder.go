@@ -24,7 +24,7 @@ func NewJWTHandler(config *models.ConfigOptions) *JWTHandler {
 func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
-	expTime := h.config.GetAccsessJWTExpiration()
+	expTime := h.config.GetAccessJWTExpiration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
 		Subject:   user.ID.String(),
