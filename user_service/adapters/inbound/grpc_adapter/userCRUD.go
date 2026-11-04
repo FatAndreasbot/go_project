@@ -139,7 +139,7 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	}
 
 	resp := proto.GetUsersResponse{
-		Cursor: &v1.PaginationCursor{
+		NextCursor: &v1.PaginationCursor{
 			CreatedAt: timestamppb.New(next.Timestamp),
 			Id:        next.ID.String(),
 		},

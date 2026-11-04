@@ -164,7 +164,7 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	}
 
 	resp := proto.GetGroupsResponse{
-		Cursor: &v1.PaginationCursor{
+		NextCursor: &v1.PaginationCursor{
 			CreatedAt: timestamppb.New(next.Timestamp),
 			Id:        next.ID.String(),
 		},
