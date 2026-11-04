@@ -100,8 +100,8 @@ message RefreshResponse {
     max_len: 4096
     }
   ];
-  google.protobuf.Timestamp access_expires_at  = 4;
-  google.protobuf.Timestamp refresh_expires_at = 5;
+  google.protobuf.Timestamp access_expires_at  = 3;
+  google.protobuf.Timestamp refresh_expires_at = 4;
 }
 
 // ----------------- User CRUD -----------------------------------------
