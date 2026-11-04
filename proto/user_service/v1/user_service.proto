@@ -59,13 +59,13 @@ message LogInRequest {
 message LogInResponse {
   string access_token = 1[
     (buf.validate.field).string = {
-    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    min_len: 48,
     max_len: 4096
     }
   ];
   string refresh_token = 2[
     (buf.validate.field).string = {
-    pattern: "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$",
+    min_len: 48,
     max_len: 4096
     }
   ];
