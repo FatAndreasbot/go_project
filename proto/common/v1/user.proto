@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common.v1;
 
-import "pb/validate.proto";
+import "pb/validate/validate.proto";
 
 option go_package = "proto/common/v1";
 
@@ -65,7 +65,7 @@ message UserDataForUpdate{
 }
 
 message PrivateUserData{
-  UserData public_data = 2;
+  UserData public_data = 1;
 }
 
 message UserPermission{

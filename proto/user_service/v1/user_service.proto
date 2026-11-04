@@ -6,7 +6,7 @@ import "common/v1/user.proto";
 import "common/v1/pagination_cursor.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "pb/validate.proto";
+import "pb/validate/validate.proto";
 
 option go_package = "proto/user_service";
 
@@ -157,7 +157,7 @@ message GetUsersRequest{
 }
 
 message GetUsersResponse{
-  repeated common.v1.UserData users  = 1;
+  repeated common.v1.UserData users       = 1;
   common.v1.PaginationCursor  next_cursor = 2;
 }
 
@@ -247,7 +247,7 @@ message GetGroupsRequest {
 }
 
 message GetGroupsResponse {
-  repeated common.v1.UserGroupMainData groups = 1;
+  repeated common.v1.UserGroupMainData groups      = 1;
   common.v1.PaginationCursor           next_cursor = 2;
 }
 
@@ -264,7 +264,7 @@ message AddPermissionToGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  repeated string permission_id = 2[
+  repeated string permission_ids = 2[
     (buf.validate.field).string.uuid = true
   ];
 }
@@ -273,7 +273,7 @@ message RemovePermissionFromGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  repeated string permission_id = 2[
+  repeated string permission_ids = 2[
     (buf.validate.field).string.uuid = true
   ];
 }

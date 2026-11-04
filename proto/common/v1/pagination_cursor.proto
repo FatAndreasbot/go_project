@@ -3,7 +3,7 @@ syntax = "proto3";
 package common.v1;
 
 import "google/protobuf/timestamp.proto";
-import "pb/validate.proto";
+import "pb/validate/validate.proto";
 
 option go_package = "proto/common/v1";
 
