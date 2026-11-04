@@ -62,13 +62,6 @@ message UserDataForUpdate{
     uuid: true
     }
   ];
-  optional string password = 3[
-    (buf.validate.field).string = {
-    min_len: 8,
-    max_len: 32,
-    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
-    }
-  ];
 }
 
 message PrivateUserData{

@@ -21,6 +21,8 @@ service UserService {
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse);
   rpc UpdateUser(UpdateUserDataRequest) returns (google.protobuf.Empty);
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+  rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty);
+  rpc GetProfile(google.protobuf.Empty) returns (GetProfileResponse);
 
   // Group CRUD
   rpc CreateGroup(CreateGroupRequest) returns (CreateGroupResponse);
@@ -156,7 +158,7 @@ message GetUsersRequest{
 
 message GetUsersResponse{
   repeated common.v1.UserData users  = 1;
-  common.v1.PaginationCursor  cursor = 2;
+  common.v1.PaginationCursor  next_cursor = 2;
 }
 
 message UpdateUserDataRequest{
@@ -182,6 +184,26 @@ message DeleteUserRequest{
 // empty response
 // message DeleteUserResponse{}
 
+message UpdatePasswordRequest{
+  string old_password = 1[
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
+  ];
+  string new_password = 2[
+    (buf.validate.field).string = {
+    min_len: 8,
+    max_len: 32,
+    pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).*$"
+    }
+  ];
+}
+
+message GetProfileResponse {
+  common.v1.UserData user = 1;
+}
 // ----------------- Group CRUD ----------------------------------------
 
 message CreateGroupRequest {
@@ -226,7 +248,7 @@ message GetGroupsRequest {
 
 message GetGroupsResponse {
   repeated common.v1.UserGroupMainData groups = 1;
-  common.v1.PaginationCursor           cursor = 2;
+  common.v1.PaginationCursor           next_cursor = 2;
 }
 
 message UpdateGroupRequest {
@@ -242,7 +264,7 @@ message AddPermissionToGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  string permission_id = 2[
+  repeated string permission_id = 2[
     (buf.validate.field).string.uuid = true
   ];
 }
@@ -251,7 +273,7 @@ message RemovePermissionFromGroupRequest{
   string group_id = 1[
     (buf.validate.field).string.uuid = true
   ];
-  string permission_id = 2[
+  repeated string permission_id = 2[
     (buf.validate.field).string.uuid = true
   ];
 }
