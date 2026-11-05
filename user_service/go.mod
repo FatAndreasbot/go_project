@@ -8,6 +8,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.3.4
 	github.com/jackc/pgx/v5 v5.11.0
 	github.com/joho/godotenv v1.5.1
+	github.com/lib/pq v1.12.3
 	github.com/redis/go-redis/v9 v9.23.0
 	golang.org/x/crypto v0.56.0
 	google.golang.org/grpc v1.83.2

@@ -24,6 +24,7 @@ type UserRequestHandler interface {
 	GetUsers(ctx context.Context, cursor models.Cursor, count int) (users []*models.User, next models.Cursor, err error)
 	UpdateUser(ctx context.Context, data *models.UserUpdateRequestData) error
 	DeleteUser(ctx context.Context, userToDeleteID uuid.UUID) error
+	UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error
 }
 
 type GroupRequestHandler interface {

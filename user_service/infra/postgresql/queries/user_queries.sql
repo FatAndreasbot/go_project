@@ -43,11 +43,17 @@ limit $3;
 -- name: UpdateUser :one
 update Users u set
     email = $1,
-    password_hash = $2,
-    group_id = $3
+    group_id = $2
 where
-    u.id = $4
+    u.id = $3
 RETURNING u.created_at;
+
+-- name: UpdatePassword :one
+update Users u set
+    password_hash = $1
+where
+    u.id = $2
+returning u.created_at;
 
 -- name: CreateUser :one
 insert into Users (email, password_hash, group_id, idempotency_key) values ($1, $2, $3, $4)

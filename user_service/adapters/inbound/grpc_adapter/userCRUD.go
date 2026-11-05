@@ -8,6 +8,7 @@ import (
 	proto "proto/user_service/v1"
 	"time"
 
+	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
@@ -77,14 +78,11 @@ func (s *Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto
 	userID, err := uuid.Parse(userIDString)
 	if err != nil {
 		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+		return nil, status.Error(codes.InvalidArgument, "error wile parsing userid")
 	}
 
 	user, err := s.userHandler.GetUserByID(ctx, userID)
 	if err != nil {
-		if errors.Is(err, dominaerrors.NotEnoughPermission) {
-			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
-		}
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
@@ -179,10 +177,9 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 	}
 
 	err = s.userHandler.UpdateUser(ctx, &models.UserUpdateRequestData{
-		UserToChangeID:  userToChangeID,
-		NewPasswordHash: req.GetUserData().Password,
-		NewEmail:        req.GetUserData().Email,
-		NewGroupID:      newGroupID,
+		UserToChangeID: userToChangeID,
+		NewEmail:       req.GetUserData().Email,
+		NewGroupID:     newGroupID,
 	})
 
 	if err != nil {
@@ -221,5 +218,42 @@ func (s *Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (
 }
 
 func (s *Server) GetProfile(ctx context.Context, req *emptypb.Empty) (*proto.GetProfileResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
+	userID, ok := ctx.Value(models.UserdataKey).(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	user, err := s.userHandler.GetUserByID(ctx, userID)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
+
+	return &proto.GetProfileResponse{
+		User: &v1.UserData{
+			Id:      user.ID.String(),
+			Email:   user.Email,
+			GroupId: user.GroupID.String(),
+		},
+	}, nil
+}
+
+func (s *Server) UpdatePassword(ctx context.Context, req *proto.UpdatePasswordRequest) (*emptypb.Empty, error) {
+	userID, ok := ctx.Value(models.UserdataKey).(uuid.UUID)
+	if !ok {
+		return nil, status.Error(codes.Unauthenticated, "unauthenticated")
+	}
+
+	oldPassword, newPassword := req.GetOldPassword(), req.GetNewPassword()
+
+	err := s.userHandler.UpdatePassword(ctx, userID, oldPassword, newPassword)
+	if err != nil {
+		if errors.Is(err, domainerrors.InvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "old password is incorrect")
+		}
+
+		log.Default().Println(err.Error())
+		return nil, status.Error(codes.Internal, "unexpected error")
+	}
+	return &emptypb.Empty{}, nil
 }

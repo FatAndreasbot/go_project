@@ -39,12 +39,6 @@ func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *mode
 		return nil, domainerrors.IdempotencyFail
 	}
 
-	userdata.Password, err = h.encrypter.EncryptPassword(userdata.Password)
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, errors.New("unexpeced error")
-	}
-
 	pwordHash, err := h.encrypter.EncryptPassword(userdata.Password)
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -114,6 +108,30 @@ func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.U
 
 func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID) error {
 	if err := h.userRepository.DeleteUser(ctx, userToDeleteID); err != nil {
+		log.Default().Println(err.Error())
+		return DBError
+	}
+
+	return nil
+}
+
+func (h *UserRequestsHandlerImpl) UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error {
+	oldPasswordHash, err := h.encrypter.EncryptPassword(oldPassword)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return errors.New("unexpeced error")
+	}
+	newPasswordHash, err := h.encrypter.EncryptPassword(newPassword)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return errors.New("unexpeced error")
+	}
+
+	err = h.userRepository.UpdatePassword(ctx, userID, oldPasswordHash, newPasswordHash)
+	if err != nil {
+		if errors.Is(err, domainerrors.InvalidCredentials) {
+			return err
+		}
 		log.Default().Println(err.Error())
 		return DBError
 	}

@@ -6,5 +6,5 @@ import (
 
 type Middleware interface {
 	GetAuthFunction([]string) models.Interceptor
-	GetPermissionFunction(map[string]models.PermissionName) models.Interceptor
+	GetPermissionFunction(map[string]models.PermissionName, []string) models.Interceptor
 }

@@ -15,6 +15,7 @@ type UserRepository interface {
 	UpdateUser(context.Context, *models.UserUpdateRequestData) error
 	CheckIdempotencyKey(context.Context, uuid.UUID) error
 	DeleteUser(context.Context, uuid.UUID) error
+	UpdatePassword(ctx context.Context, userID uuid.UUID, oldPasswordHash, newPasswordHash string) error
 }
 
 type GroupRepository interface {

@@ -28,8 +28,6 @@ type UserData struct {
 
 type UserUpdateRequestData struct {
 	UserToChangeID uuid.UUID
-
-	NewPasswordHash *string
-	NewEmail        *string
-	NewGroupID      *uuid.UUID
+	NewEmail       *string
+	NewGroupID     *uuid.UUID
 }

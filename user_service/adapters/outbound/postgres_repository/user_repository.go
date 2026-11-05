@@ -156,15 +156,10 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 		PasswordHash: oldUserData.PasswordHash,
 	}
 
-	if userData.NewPasswordHash != nil {
-		updatedUser.PasswordHash = *userData.NewPasswordHash
-	}
-
 	_, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{
-		Email:        updatedUser.Email,
-		PasswordHash: updatedUser.PasswordHash,
-		GroupID:      updatedUser.GroupID,
-		ID:           updatedUser.ID,
+		Email:   updatedUser.Email,
+		GroupID: updatedUser.GroupID,
+		ID:      updatedUser.ID,
 	})
 
 	if err != nil {
@@ -206,6 +201,34 @@ func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.U
 	}
 
 	err = adp.q.WithTx(tx).DeleteUser(ctx, userID)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
+	}
+
+	return tx.Commit()
+}
+
+func (adp *UserPersistanceAdapter) UpdatePassword(ctx context.Context, userID uuid.UUID, oldPasswordHash, newPasswordHash string) error {
+	tx, err := adp.conn.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	userData, err := adp.q.WithTx(tx).GetUserDataByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if userData.PasswordHash != oldPasswordHash {
+		return domainerrors.InvalidCredentials
+	}
+
+	_, err = adp.q.WithTx(tx).UpdatePassword(ctx, sqlc_gen.UpdatePasswordParams{
+		PasswordHash: newPasswordHash,
+		ID:           userID,
+	})
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
