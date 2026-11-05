@@ -219,3 +219,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *Server) GetProfile(ctx context.Context, req *emptypb.Empty) (*proto.GetProfileResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetProfile not implemented")
+}

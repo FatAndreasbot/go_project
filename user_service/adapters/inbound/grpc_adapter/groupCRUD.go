@@ -218,13 +218,21 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	permissionID, err := uuid.Parse(req.GetPermissionId())
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+
+	permissionIDStringList := req.GetPermissionIds()
+	var permissionIDList uuid.UUIDs = []uuid.UUID{}
+
+	for _, idString := range permissionIDStringList {
+		permissionID, err := uuid.Parse(idString)
+		if err != nil {
+			log.Default().Println(err.Error())
+			return nil, status.Error(codes.InvalidArgument, "could not parse permissionID")
+		}
+		permissionIDList = append(permissionIDList, permissionID)
+
 	}
 
-	err = s.groupHandler.AddPermission(ctx, groupID, permissionID)
+	err = s.groupHandler.AddPermissions(ctx, groupID, permissionIDList)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
@@ -251,13 +259,21 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 		log.Default().Println(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
-	permissionID, err := uuid.Parse(req.GetPermissionId())
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, status.Error(codes.Internal, "unexpected error")
+
+	permissionIDStringList := req.GetPermissionIds()
+	var permissionIDList uuid.UUIDs = []uuid.UUID{}
+
+	for _, idString := range permissionIDStringList {
+		permissionID, err := uuid.Parse(idString)
+		if err != nil {
+			log.Default().Println(err.Error())
+			return nil, status.Error(codes.InvalidArgument, "could not parse permissionID")
+		}
+		permissionIDList = append(permissionIDList, permissionID)
+
 	}
 
-	err = s.groupHandler.RemovePermission(ctx, groupID, permissionID)
+	err = s.groupHandler.RemovePermissions(ctx, groupID, permissionIDList)
 	if err != nil {
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")

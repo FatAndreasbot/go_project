@@ -31,8 +31,8 @@ type GroupRequestHandler interface {
 	GetGroupByID(ctx context.Context, groupID uuid.UUID) (*models.Group, error)
 	GetGroups(ctx context.Context, cursor models.Cursor, count int) (groups []*models.MainGroupData, next models.Cursor, err error)
 	UpdateGroup(ctx context.Context, groupID uuid.UUID, newGroupName string) error
-	AddPermission(ctx context.Context, groupID uuid.UUID, permissionID uuid.UUID) error
-	RemovePermission(ctx context.Context, groupID uuid.UUID, permission uuid.UUID) error
+	AddPermissions(ctx context.Context, groupID uuid.UUID, permissionIDList uuid.UUIDs) error
+	RemovePermissions(ctx context.Context, groupID uuid.UUID, permission uuid.UUIDs) error
 	DeleteGroup(ctx context.Context, groupID uuid.UUID) error
 	GetAllPermissions(ctx context.Context) ([]*models.Permission, error)
 }

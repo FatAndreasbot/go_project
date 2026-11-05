@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"slices"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -71,20 +72,18 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 		return nil, err
 	}
 
-	for _, permissionID := range permissionIDs {
-		err = adp.q.WithTx(tx).AddPermissionToGroup(
-			ctx, sqlc_gen.AddPermissionToGroupParams{
-				GroupID:      groupData.ID,
-				PermissionID: permissionID,
-			},
-		)
-		if err != nil {
-			rbErr := tx.Rollback()
-			if rbErr != nil {
-				log.Default().Println(rbErr.Error())
-			}
-			return nil, err
+	err = adp.q.WithTx(tx).AddPermissionsToGroup(
+		ctx, sqlc_gen.AddPermissionsToGroupParams{
+			GroupID:       groupData.ID,
+			PermissionIds: permissionIDs,
+		},
+	)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
 		}
+		return nil, err
 	}
 
 	newGroup := models.Group{
@@ -213,15 +212,35 @@ func (adp *GroupPersistanceAdapter) GetGroupPermissions(ctx context.Context, gro
 	return permissions, nil
 }
 
-func (adp *GroupPersistanceAdapter) AddPermission(ctx context.Context, groupID, permissionID uuid.UUID) error {
+func (adp *GroupPersistanceAdapter) AddPermissions(ctx context.Context, groupID uuid.UUID, permissionIDs uuid.UUIDs) error {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	err = adp.q.WithTx(tx).AddPermissionToGroup(ctx, sqlc_gen.AddPermissionToGroupParams{
-		GroupID:      groupID,
-		PermissionID: permissionID,
+	oldPermissionlist, err := adp.q.WithTx(tx).GetGroupPermissions(ctx, groupID)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
+	}
+
+	var filteredPermissionList uuid.UUIDs
+	for _, permissionId := range permissionIDs {
+		if slices.ContainsFunc(oldPermissionlist, func(p sqlc_gen.Permissions) bool {
+			return permissionId == p.ID
+		}) {
+			continue
+		}
+
+		filteredPermissionList = append(filteredPermissionList, permissionId)
+	}
+
+	err = adp.q.WithTx(tx).AddPermissionsToGroup(ctx, sqlc_gen.AddPermissionsToGroupParams{
+		GroupID:       groupID,
+		PermissionIds: filteredPermissionList,
 	})
 	if err != nil {
 		rbErr := tx.Rollback()
@@ -234,15 +253,34 @@ func (adp *GroupPersistanceAdapter) AddPermission(ctx context.Context, groupID, 
 	return tx.Commit()
 }
 
-func (adp *GroupPersistanceAdapter) RemovePermission(ctx context.Context, groupID, permissionID uuid.UUID) error {
+func (adp *GroupPersistanceAdapter) RemovePermissions(ctx context.Context, groupID uuid.UUID, permissionIDs uuid.UUIDs) error {
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	err = adp.q.WithTx(tx).RemovePermissionFromGroup(ctx, sqlc_gen.RemovePermissionFromGroupParams{
-		GroupID:      groupID,
-		PermissionID: permissionID,
+	oldPermissionlist, err := adp.q.WithTx(tx).GetGroupPermissions(ctx, groupID)
+	if err != nil {
+		rbErr := tx.Rollback()
+		if rbErr != nil {
+			log.Default().Println(rbErr.Error())
+		}
+		return err
+	}
+
+	var filteredPermissionList uuid.UUIDs
+	for _, permissionId := range permissionIDs {
+		if !slices.ContainsFunc(oldPermissionlist, func(p sqlc_gen.Permissions) bool {
+			return permissionId == p.ID
+		}) {
+			continue
+		}
+		filteredPermissionList = append(filteredPermissionList, permissionId)
+	}
+
+	err = adp.q.WithTx(tx).RemovePermissionsFromGroup(ctx, sqlc_gen.RemovePermissionsFromGroupParams{
+		GroupID:       groupID,
+		PermissionIds: permissionIDs,
 	})
 	if err != nil {
 		rbErr := tx.Rollback()

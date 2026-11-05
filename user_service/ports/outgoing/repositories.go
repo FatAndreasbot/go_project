@@ -25,8 +25,8 @@ type GroupRepository interface {
 	UpdateGroup(context.Context, *models.MainGroupData) error
 	DeleteGroup(context.Context, uuid.UUID) error
 	GetGroupPermissions(context.Context, uuid.UUID) ([]*models.Permission, error)
-	AddPermission(ctx context.Context, groupID, permissionID uuid.UUID) error
-	RemovePermission(ctx context.Context, groupID, permissionID uuid.UUID) error
+	AddPermissions(ctx context.Context, groupID uuid.UUID, permissionIDs uuid.UUIDs) error
+	RemovePermissions(ctx context.Context, groupID uuid.UUID, permissionIDs uuid.UUIDs) error
 
 	CheckIdempotencyKey(context.Context, uuid.UUID) error
 }
