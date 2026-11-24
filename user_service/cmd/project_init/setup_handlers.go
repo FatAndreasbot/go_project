@@ -1,8 +1,8 @@
 package project_init
 
 import (
-	"github.com/FatAndreasbot/go_project/user_service/application/handlers"
 	"github.com/FatAndreasbot/go_project/user_service/application/handlers/requests"
+	"github.com/FatAndreasbot/go_project/user_service/application/usecases"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
@@ -18,13 +18,13 @@ func SetupBaseHandlers(
 	permissionHandler application.PermissionHandlerPort,
 	passwordEncryptionHandler application.PasswordEncrypter,
 ) {
-	jwt := handlers.NewJWTHandler(config)
-	permissions := handlers.NewPermissionHander(
+	jwt := usecases.NewJWTHandler(config)
+	permissions := usecases.NewPermissionHander(
 		userRepository,
 		groupRepository,
 	)
 
-	passwordEncrypter := handlers.BcryptPasswordEncrypter{}
+	passwordEncrypter := usecases.BcryptPasswordEncrypter{}
 
 	return jwt, permissions, passwordEncrypter
 }

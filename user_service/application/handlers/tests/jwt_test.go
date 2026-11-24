@@ -7,13 +7,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/FatAndreasbot/go_project/user_service/application/handlers"
+	"github.com/FatAndreasbot/go_project/user_service/application/usecases"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/google/uuid"
 )
 
-func prepareTestData() (*models.User, *handlers.JWTHandler) {
+func prepareTestData() (*models.User, *usecases.JWTHandler) {
 	config, err := config.LoadConfig("../../../.env")
 	if err != nil {
 		log.Default().Println(err.Error())
@@ -25,7 +25,7 @@ func prepareTestData() (*models.User, *handlers.JWTHandler) {
 		GroupID: uuid.New(),
 	}
 
-	return &user, handlers.NewJWTHandler(config)
+	return &user, usecases.NewJWTHandler(config)
 }
 
 func TestJWTEncoding(t *testing.T) {
