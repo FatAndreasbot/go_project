@@ -78,18 +78,12 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 	if len(users) == 0 {
 		return nil, models.Cursor{}, domainerrors.EmptyList
 	}
+
 	var next time.Time
 	var nextID uuid.UUID
-	next = users[0].CreatedAt
-	nextID = users[0].ID
-
-	// if for some accursed reason the list is not sorted by CreatedAt
-	for _, user := range users {
-		if user.CreatedAt.After(next) {
-			next = user.CreatedAt
-			nextID = user.ID
-		}
-	}
+	// assuming that users is sorted by CreatedAt
+	next = users[len(users)-1].CreatedAt
+	nextID = users[len(users)-1].ID
 
 	return users, models.Cursor{
 		Timestamp: next,

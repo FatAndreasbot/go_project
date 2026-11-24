@@ -87,19 +87,12 @@ func (h *GroupRequestHandlerImpl) GetGroups(ctx context.Context, cursor models.C
 	if len(groups) == 0 {
 		return nil, models.Cursor{}, domainerrors.EmptyList
 	}
-	// next := groups[len(groups)-1].CreatedAt
+
 	var next time.Time
 	var nextID uuid.UUID
-	next = groups[0].CreatedAt
-	nextID = groups[0].ID
-
-	// if for some accursed reason the list is not sorted by CreatedAt
-	for _, group := range groups {
-		if group.CreatedAt.After(next) {
-			next = group.CreatedAt
-			nextID = group.ID
-		}
-	}
+	// assuming that groups is sorted by CreatedAt
+	next = groups[len(groups)-1].CreatedAt
+	nextID = groups[len(groups)-1].ID
 
 	return groups, models.Cursor{
 		Timestamp: next,
