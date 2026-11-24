@@ -35,8 +35,6 @@ service UserService {
 
   // Permissions
   rpc GetAllPermissions(google.protobuf.Empty) returns (GetPermissionsResponse);
-
-  // TODO: endpoints to get the data of logged in user
 }
 
 // ----------------- Login logout --------------------------------------
