@@ -14,4 +14,6 @@ var (
 	EmptyList      = errors.New("list is empty")
 
 	DeletingNonEmptyGroup = errors.New("deleting non empty group")
+
+	CastingError = errors.New("could not cast to required  type")
 )

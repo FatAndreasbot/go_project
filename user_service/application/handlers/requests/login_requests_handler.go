@@ -38,6 +38,8 @@ func NewLoginRequestHandler(
 	}
 }
 
+const userIDSessionKey string = "USER_ID"
+
 func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password string) (*models.LoginResponseData, error) {
 	user, err := h.userRepository.GetUserByEmail(ctx, email)
 	if err != nil {
@@ -56,21 +58,22 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 		return nil, domainerrors.InvalidCredentials
 	}
 
-	accessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, JWTError
-	}
-	refreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
-	if err != nil {
-		log.Default().Println(err.Error())
-		return nil, JWTError
-	}
-
-	err = h.sessionHandler.CreateSession(ctx, user.ID)
+	sessionKey, err := h.sessionHandler.CreateSession(ctx)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, SessionError
+	}
+	h.sessionHandler.SetData(ctx, sessionKey, userIDSessionKey, user.ID)
+
+	accessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, sessionKey)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, JWTError
+	}
+	refreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, sessionKey)
+	if err != nil {
+		log.Default().Println(err.Error())
+		return nil, JWTError
 	}
 
 	return &models.LoginResponseData{
@@ -89,32 +92,23 @@ func (h *LoginRequestsHandlerImpl) Logout(ctx context.Context, userID uuid.UUID)
 }
 
 func (h *LoginRequestsHandlerImpl) Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error) {
-	userID, err := h.jwtHandler.DecodeJWT(ctx, RefreshToken)
+	sessionID, err := h.jwtHandler.DecodeJWT(ctx, RefreshToken)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, err
 	}
-	err = h.sessionHandler.ExtendSession(ctx, userID)
+	err = h.sessionHandler.ExtendSession(ctx, sessionID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, err
 	}
 
-	user, err := h.userRepository.GetUserByID(ctx, userID)
-	if err != nil {
-		log.Default().Println(err.Error())
-		if errors.Is(err, domainerrors.NotFound) {
-			return nil, domainerrors.InvalidCredentials
-		}
-		return nil, DBError
-	}
-
-	NewAccessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, user)
+	NewAccessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, sessionID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
 	}
-	newRefreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, user)
+	newRefreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, sessionID)
 	if err != nil {
 		log.Default().Println(err.Error())
 		return nil, JWTError
