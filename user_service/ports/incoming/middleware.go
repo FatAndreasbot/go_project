@@ -1,4 +1,4 @@
-package application
+package incoming
 
 import (
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"

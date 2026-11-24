@@ -1,4 +1,4 @@
-package usecases
+package middleware
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
+	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 	"github.com/google/uuid"
 )
@@ -28,7 +29,7 @@ func NewMiddlewareGenerator(
 	permissionHandler application.PermissionHandlerPort,
 	getEndpoint func(context.Context) (string, error),
 	getToken func(context.Context) (string, error),
-) *MiddlewareGenerator {
+) incoming.Middleware {
 	return &MiddlewareGenerator{
 		jwtHandler:        jwtHandler,
 		sessionHander:     sessionHander,
