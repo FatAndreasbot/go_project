@@ -44,13 +44,3 @@ func GetEndpoint(ctx context.Context) (string, error) {
 func GetToken(ctx context.Context) (string, error) {
 	return auth.AuthFromMD(ctx, "bearer")
 }
-
-// TODO: create some sort of wrapper around application.Middleware to convert
-// from domainerrors into interceptor specific errors
-
-//  implements application.Middleware, by calling the orig functions,
-//  and wrapping returning errors into status.Error(codes._, "error message")
-//
-// type middlewarecinverter struct {
-// 		orig application.Middleware
-// }
