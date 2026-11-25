@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package spot_instrument_service.v1;
+
+option go_package = "proto/spot_instrument_service";
+
+service SpotInstrumentService {
+  rpc ViewMarkets(ViewMarketsRequest) returns (ViewMarketsResponse);
+
+  // MarketCRUD
+  rpc CreateMarket(CreateMarketRequest) returns (CreateMarketResponse);
+  rpc DeleteMarket(DeleteMarketRequest) returns (DeleteMarketResponse);
+  rpc UpdateMarket(UpdateMarketRequest) returns (UpdateMarketResponse);
+}
+
+message ViewMarketsRequest {}
+
+message ViewMarketsResponse {}
+
+message CreateMarketRequest{}
+
+message DeleteMarketRequest{}
+
+message UpdateMarketRequest{}
+
+message CreateMarketResponse {}
+
+message DeleteMarketResponse {}
+
+message UpdateMarketResponse {}
