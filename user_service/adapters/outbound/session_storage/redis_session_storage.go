@@ -56,15 +56,10 @@ func (s *RedisSessionStorage) CreateSession(ctx context.Context) (uuid.UUID, err
 
 	sessionData = make(redisStorageElement)
 
-	return newSessionID, s.redisClient.Set(ctx, newSessionID.String(), sessionData, expTime).Clone().Err()
+	return newSessionID, s.redisClient.Set(ctx, newSessionID.String(), sessionData, expTime).Err()
 }
 
 func (s *RedisSessionStorage) DeleteSession(ctx context.Context, sessionID uuid.UUID) error {
-	err := s.CheckSession(ctx, sessionID)
-	if err != nil {
-		return err
-	}
-
 	return s.redisClient.Del(ctx, sessionID.String()).Err()
 }
 

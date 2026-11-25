@@ -120,6 +120,7 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 }
 
 func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *models.UserUpdateRequestData) error {
+	// TODO use coalesce in sql query
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
