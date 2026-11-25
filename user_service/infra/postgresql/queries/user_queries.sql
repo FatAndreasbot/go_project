@@ -42,10 +42,10 @@ limit $3;
 
 -- name: UpdateUser :one
 update Users u set
-    email = $1,
-    group_id = $2
+    email = COALESCE(sqlc.narg(email)::text, email),
+    group_id = COALESCE(sqlc.narg(group_id)::uuid, group_id)
 where
-    u.id = $3
+    u.id = sqlc.arg(id)
 RETURNING u.created_at;
 
 -- name: UpdatePassword :one

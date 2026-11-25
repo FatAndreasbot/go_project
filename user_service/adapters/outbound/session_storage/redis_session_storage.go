@@ -43,7 +43,6 @@ func NewRedisSessionStorage(config *models.ConfigOptions) *RedisSessionStorage {
 	}
 }
 
-// TODO CreateSession should return a unique sessionID
 func (s *RedisSessionStorage) CreateSession(ctx context.Context) (uuid.UUID, error) {
 	newSessionID, err := uuid.NewUUID()
 	if err != nil {

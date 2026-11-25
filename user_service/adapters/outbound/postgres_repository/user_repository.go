@@ -120,47 +120,30 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 }
 
 func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *models.UserUpdateRequestData) error {
-	// TODO use coalesce in sql query
 	tx, err := adp.conn.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
 
-	oldUserData, err := adp.q.WithTx(tx).GetUserDataByID(ctx, userData.UserToChangeID)
-	if err != nil {
-		rbErr := tx.Rollback()
-		if rbErr != nil {
-			zap.L().Error(rbErr.Error())
-		}
-		return err
+	newEmail := sql.NullString{
+		Valid: false,
 	}
-
-	var newEmail string
-	var newGroupID uuid.UUID
-
-	if userData.NewEmail == nil {
-		newEmail = oldUserData.Email
-	} else {
-		newEmail = *userData.NewEmail
+	newGroupID := uuid.NullUUID{
+		Valid: false,
 	}
-
+	if userData.NewEmail != nil {
+		newEmail.Valid = true
+		newEmail.String = *userData.NewEmail
+	}
 	if userData.NewGroupID == nil {
-		newGroupID = oldUserData.GroupID
-	} else {
-		newGroupID = *userData.NewGroupID
-	}
-
-	updatedUser := models.User{
-		ID:           userData.UserToChangeID,
-		Email:        newEmail,
-		GroupID:      newGroupID,
-		PasswordHash: oldUserData.PasswordHash,
+		newGroupID.Valid = true
+		newGroupID.UUID = *userData.NewGroupID
 	}
 
 	_, err = adp.q.WithTx(tx).UpdateUser(ctx, sqlc_gen.UpdateUserParams{
-		Email:   updatedUser.Email,
-		GroupID: updatedUser.GroupID,
-		ID:      updatedUser.ID,
+		Email:   newEmail,
+		GroupID: newGroupID,
+		ID:      userData.UserToChangeID,
 	})
 
 	if err != nil {
