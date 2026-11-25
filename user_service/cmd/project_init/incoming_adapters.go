@@ -51,13 +51,11 @@ func setupIncomingAdapters(
 					middlewareGenerator.GetAuthFunction(grpcadapter.PublicMethods),
 				),
 			),
-			grpc.UnaryServerInterceptor(
-				auth.UnaryServerInterceptor(
-					auth.AuthFunc(
-						middlewareGenerator.GetPermissionFunction(
-							grpcadapter.PermissionSettings,
-							grpcadapter.PublicMethods,
-						),
+			auth.UnaryServerInterceptor(
+				auth.AuthFunc(
+					middlewareGenerator.GetPermissionFunction(
+						grpcadapter.PermissionSettings,
+						grpcadapter.PublicMethods,
 					),
 				),
 			),
