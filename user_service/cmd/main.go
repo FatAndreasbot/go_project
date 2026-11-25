@@ -7,5 +7,7 @@ import (
 
 func main() {
 	options := project_init.ParseLaunchFlags()
+	project_init.SetupLogger(options)
+
 	commands.Dispatch(options)
 }

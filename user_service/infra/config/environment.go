@@ -30,6 +30,7 @@ const (
 	RedisAddress
 	RedisPassword
 	RedisDB
+	Debug
 )
 
 var configKeys map[ConfigOption]string = map[ConfigOption]string{
@@ -41,6 +42,7 @@ var configKeys map[ConfigOption]string = map[ConfigOption]string{
 	RedisAddress:         "REDIS_ADDRESS",
 	RedisPassword:        "REDIS_PASSWORD",
 	RedisDB:              "REDIS_DB",
+	Debug:                "DEBUG",
 }
 
 // Depricated: insert config values at init
@@ -94,6 +96,10 @@ func LoadConfig(envFileLocation ...string) (*models.ConfigOptions, error) {
 	if !ok {
 		return nil, fmt.Errorf("%s was not found", configKeys[RedisDB])
 	}
+	isDebugString, ok := os.LookupEnv(configKeys[Debug])
+	if !ok {
+		return nil, fmt.Errorf("%s was not found", configKeys[RedisDB])
+	}
 
 	accsessJWTExpiration, err := strconv.Atoi(accsessJWTExpirationString)
 	if err != nil {
@@ -112,11 +118,14 @@ func LoadConfig(envFileLocation ...string) (*models.ConfigOptions, error) {
 		return nil, err
 	}
 
+	debug := isDebugString == "true"
+
 	options := models.NewOptions(
 		dbConnString, hs256Secret, redisAddress, redisPassword,
 		time.Second*time.Duration(accsessJWTExpiration),
 		time.Second*time.Duration(refreshJWTExpiration),
 		port, redisDB,
+		debug,
 	)
 
 	return options, nil

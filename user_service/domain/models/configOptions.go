@@ -11,12 +11,14 @@ type ConfigOptions struct {
 	redisAddress         string
 	redisPassword        string
 	redisDB              int
+	debug                bool
 }
 
 func NewOptions(
 	dbConnString, hs256Secret, redisAddress, redisPassword string,
 	accsessJWTExpiration, refreshJWTExpiration time.Duration,
 	port, redisDB int,
+	debug bool,
 ) *ConfigOptions {
 	return &ConfigOptions{
 		dbConnString:         dbConnString,
@@ -27,6 +29,7 @@ func NewOptions(
 		redisAddress:         redisAddress,
 		redisPassword:        redisPassword,
 		redisDB:              redisDB,
+		debug:                debug,
 	}
 }
 
@@ -60,4 +63,8 @@ func (opt *ConfigOptions) GetRedisPassword() string {
 
 func (opt *ConfigOptions) GetRedisDB() int {
 	return opt.redisDB
+}
+
+func (opt *ConfigOptions) GetDebug() bool {
+	return opt.debug
 }
