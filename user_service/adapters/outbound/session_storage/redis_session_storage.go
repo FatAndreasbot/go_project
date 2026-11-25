@@ -109,6 +109,25 @@ func (s *RedisSessionStorage) SetData(ctx context.Context, sessionID uuid.UUID, 
 	return s.redisClient.Set(ctx, sessionID.String(), sessionData, expTime).Err()
 }
 
-func (s *RedisSessionStorage) GetData(ctx context.Context, sessionKey uuid.UUID, key string) (any, error) {
-	return nil, domainerrors.NotImplemented
+func (s *RedisSessionStorage) GetData(ctx context.Context, sessionID uuid.UUID, key string) (any, error) {
+	if err := s.CheckSession(ctx, sessionID); err != nil {
+		return nil, err
+	}
+
+	sessionDataString, err := s.redisClient.Get(ctx, sessionID.String()).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	sessionData, err := unmarshalStorageElement(sessionDataString)
+	if err != nil {
+		return nil, err
+	}
+
+	result, ok := (*sessionData)[key]
+	if !ok {
+		return nil, domainerrors.NotFound
+	}
+
+	return result, nil
 }
