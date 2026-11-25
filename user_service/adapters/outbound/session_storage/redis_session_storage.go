@@ -4,12 +4,12 @@ import (
 	"context"
 	"encoding"
 	"encoding/json"
-	"log"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 type RedisSessionStorage struct {
@@ -47,7 +47,7 @@ func NewRedisSessionStorage(config *models.ConfigOptions) *RedisSessionStorage {
 func (s *RedisSessionStorage) CreateSession(ctx context.Context) (uuid.UUID, error) {
 	newSessionID, err := uuid.NewUUID()
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return uuid.Nil, err
 	}
 

@@ -3,7 +3,6 @@ package requests
 import (
 	"context"
 	"errors"
-	"log"
 	"time"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
@@ -11,6 +10,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type UserRequestsHandlerImpl struct {
@@ -35,19 +35,19 @@ func NewUserRequestHandler(
 func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *models.UserData) (*models.User, error) {
 	err := h.userRepository.CheckIdempotencyKey(ctx, userdata.IdempotencyKey)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, domainerrors.IdempotencyFail
 	}
 
 	pwordHash, err := h.encrypter.EncryptPassword(userdata.Password)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, errors.New("unexpeced error")
 	}
 
 	user, err := h.userRepository.CreateUser(ctx, userdata, pwordHash)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, DBError
 	}
 
@@ -57,7 +57,7 @@ func (h *UserRequestsHandlerImpl) CreateUser(ctx context.Context, userdata *mode
 func (h *UserRequestsHandlerImpl) GetUserByID(ctx context.Context, userID uuid.UUID) (*models.User, error) {
 	user, err := h.userRepository.GetUserByID(ctx, userID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, DBError
 	}
 	return user, nil
@@ -71,7 +71,7 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 	)
 
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, models.Cursor{}, DBError
 	}
 
@@ -93,7 +93,7 @@ func (h *UserRequestsHandlerImpl) GetUsers(ctx context.Context, cursor models.Cu
 
 func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.UserUpdateRequestData) error {
 	if err := h.userRepository.UpdateUser(ctx, data); err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return DBError
 	}
 
@@ -102,7 +102,7 @@ func (h *UserRequestsHandlerImpl) UpdateUser(ctx context.Context, data *models.U
 
 func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID uuid.UUID) error {
 	if err := h.userRepository.DeleteUser(ctx, userToDeleteID); err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return DBError
 	}
 
@@ -112,12 +112,12 @@ func (h *UserRequestsHandlerImpl) DeleteUser(ctx context.Context, userToDeleteID
 func (h *UserRequestsHandlerImpl) UpdatePassword(ctx context.Context, userID uuid.UUID, oldPassword, newPassword string) error {
 	oldPasswordHash, err := h.encrypter.EncryptPassword(oldPassword)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return errors.New("unexpeced error")
 	}
 	newPasswordHash, err := h.encrypter.EncryptPassword(newPassword)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return errors.New("unexpeced error")
 	}
 
@@ -126,7 +126,7 @@ func (h *UserRequestsHandlerImpl) UpdatePassword(ctx context.Context, userID uui
 		if errors.Is(err, domainerrors.InvalidCredentials) {
 			return err
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return DBError
 	}
 

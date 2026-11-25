@@ -3,11 +3,11 @@ package postgresrepository
 import (
 	"context"
 	"database/sql"
-	"log"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type PermissionPersistanceAdapter struct {
@@ -25,7 +25,7 @@ func NewPermissionPersistanceAdapter(conn *sql.DB) *PermissionPersistanceAdapter
 func (adp *PermissionPersistanceAdapter) GetPermissionByID(ctx context.Context, permissionID uuid.UUID) (*models.Permission, error) {
 	permissionData, err := adp.q.GetPermissionByID(ctx, permissionID)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return nil, err
 	}
 
@@ -38,7 +38,7 @@ func (adp *PermissionPersistanceAdapter) GetPermissionByID(ctx context.Context, 
 func (adp *PermissionPersistanceAdapter) GetPermissions(ctx context.Context) ([]*models.Permission, error) {
 	permissionData, err := adp.q.GetAllPermissions(ctx)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return nil, err
 	}
 

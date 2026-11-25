@@ -4,12 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type UserPersistanceAdapter struct {
@@ -105,7 +105,7 @@ func (adp *UserPersistanceAdapter) CreateUser(ctx context.Context, userData *mod
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -165,7 +165,7 @@ func (adp *UserPersistanceAdapter) UpdateUser(ctx context.Context, userData *mod
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -204,7 +204,7 @@ func (adp *UserPersistanceAdapter) DeleteUser(ctx context.Context, userID uuid.U
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -232,7 +232,7 @@ func (adp *UserPersistanceAdapter) UpdatePassword(ctx context.Context, userID uu
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}

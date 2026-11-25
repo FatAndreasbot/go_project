@@ -2,7 +2,6 @@ package handlers_test
 
 import (
 	"context"
-	"log"
 	"strconv"
 	"testing"
 	"time"
@@ -11,12 +10,13 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 func prepareTestData() (*models.User, *usecases.JWTHandler) {
 	config, err := config.LoadConfig("../../../.env")
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 	}
 
 	user := models.User{

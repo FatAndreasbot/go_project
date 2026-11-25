@@ -2,10 +2,10 @@ package project_init
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
+	"go.uber.org/zap"
 )
 
 func SetupApplictaion(options *LaunchOptions) error {
@@ -13,7 +13,7 @@ func SetupApplictaion(options *LaunchOptions) error {
 	config, err := config.LoadConfig(options.EnvPath)
 	if err != nil {
 		fmt.Println(os.Getwd())
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 	}
 
 	userRepo, groupRepo, permissionRepo, session, err := SetupOutgoingAdapters(config)

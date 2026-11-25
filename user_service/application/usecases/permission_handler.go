@@ -2,11 +2,11 @@ package usecases
 
 import (
 	"context"
-	"log"
 
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type PermissionHandler struct {
@@ -31,13 +31,13 @@ func (h *PermissionHandler) HasPermission(ctx context.Context, userID uuid.UUID,
 
 	userData, err := h.userRepository.GetUserByID(ctx, userID)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return false
 	}
 
 	groupPermissions, err := h.groupRepository.GetGroupPermissions(ctx, userData.GroupID)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return false
 	}
 

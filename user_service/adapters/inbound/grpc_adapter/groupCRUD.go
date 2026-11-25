@@ -3,7 +3,6 @@ package grpcadapter
 import (
 	"context"
 	"errors"
-	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service/v1"
 	"time"
@@ -12,6 +11,7 @@ import (
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -31,6 +31,7 @@ func domainPermossionsToProtoPermissions(domianPermissions []*models.Permission)
 	return permissions
 }
 
+// im gonna leave it in case ill need that one day
 func protoPermissionToDomainPermissions(protoPermissions []*v1.UserPermission) ([]*models.Permission, error) {
 	permissions := make([]*models.Permission, 0, len(protoPermissions))
 
@@ -60,7 +61,7 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 	for _, IDString := range permissionIDStrings {
 		id, err := uuid.Parse(IDString)
 		if err != nil {
-			log.Default().Println(err.Error())
+			zap.L().Error(err.Error())
 			return nil, status.Error(codes.InvalidArgument, "could not parse a UUID of given permissions")
 		}
 		permissionIDs = append(permissionIDs, id)
@@ -68,13 +69,13 @@ func (s *Server) CreateGroup(ctx context.Context, req *proto.CreateGroupRequest)
 
 	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.InvalidArgument, "idempotency key is not a UUID")
 	}
 
 	group, err := s.groupHandler.CreateGroup(ctx, req.GetName(), permissionIDs, idempotencyKey)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -98,7 +99,7 @@ func (s *Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*pro
 
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -107,7 +108,7 @@ func (s *Server) GetGroup(ctx context.Context, req *proto.GetGroupRequest) (*pro
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -139,7 +140,7 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 	} else {
 		objectID, err = uuid.Parse(req.GetCursor().GetId())
 		if err != nil {
-			log.Default().Println(err.Error())
+			zap.L().Error(err.Error())
 			return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
 		}
 
@@ -159,7 +160,7 @@ func (s *Server) GetGroups(ctx context.Context, req *proto.GetGroupsRequest) (*p
 		if errors.Is(err, dominaerrors.EmptyList) {
 			return nil, status.Error(codes.OutOfRange, "no more groups in list")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -190,7 +191,7 @@ func (s *Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest)
 
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -199,7 +200,7 @@ func (s *Server) UpdateGroup(ctx context.Context, req *proto.UpdateGroupRequest)
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -215,7 +216,7 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -225,7 +226,7 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 	for _, idString := range permissionIDStringList {
 		permissionID, err := uuid.Parse(idString)
 		if err != nil {
-			log.Default().Println(err.Error())
+			zap.L().Error(err.Error())
 			return nil, status.Error(codes.InvalidArgument, "could not parse permissionID")
 		}
 		permissionIDList = append(permissionIDList, permissionID)
@@ -240,7 +241,7 @@ func (s *Server) AddPermissionToGroup(ctx context.Context, req *proto.AddPermiss
 		if errors.Is(err, requests.GroupHasPermission) {
 			return nil, status.Error(codes.AlreadyExists, "group already has given permission")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -256,7 +257,7 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -266,7 +267,7 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 	for _, idString := range permissionIDStringList {
 		permissionID, err := uuid.Parse(idString)
 		if err != nil {
-			log.Default().Println(err.Error())
+			zap.L().Error(err.Error())
 			return nil, status.Error(codes.InvalidArgument, "could not parse permissionID")
 		}
 		permissionIDList = append(permissionIDList, permissionID)
@@ -281,7 +282,7 @@ func (s *Server) RemovePermissionFromGroup(ctx context.Context, req *proto.Remov
 		if errors.Is(err, requests.GroupLacksPermission) {
 			return nil, status.Error(codes.NotFound, "group has not given permission")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -297,7 +298,7 @@ func (s *Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest)
 
 	groupID, err := uuid.Parse(req.GetGroupId())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.InvalidArgument, "expected UUID")
 	}
 
@@ -309,7 +310,7 @@ func (s *Server) DeleteGroup(ctx context.Context, req *proto.DeleteGroupRequest)
 		if errors.Is(err, dominaerrors.DeletingNonEmptyGroup) {
 			return nil, status.Error(codes.FailedPrecondition, "the group is not empty")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -325,7 +326,7 @@ func (s *Server) GetAllPermissions(ctx context.Context, req *emptypb.Empty) (*pr
 
 	permissions, err := s.groupHandler.GetAllPermissions(ctx)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 

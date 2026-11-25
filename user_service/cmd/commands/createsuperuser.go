@@ -4,20 +4,20 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/FatAndreasbot/go_project/user_service/cmd/project_init"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/infra/config"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 func createsuperuser(options *project_init.LaunchOptions) error {
 	config, err := config.LoadConfig(options.EnvPath)
 	if err != nil {
 		fmt.Println(os.Getwd())
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return err
 	}
 
@@ -33,7 +33,7 @@ func createsuperuser(options *project_init.LaunchOptions) error {
 
 	userRepo, groupRepo, _, _, err := project_init.SetupOutgoingAdapters(config)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return err
 	}
 
@@ -41,7 +41,7 @@ func createsuperuser(options *project_init.LaunchOptions) error {
 
 	adminGroup, err := groupRepo.GetGroupByName(ctx, "admin")
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return err
 	}
 

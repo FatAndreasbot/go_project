@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"slices"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
@@ -12,6 +11,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/infra/postgresql/sqlc_gen"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
+	"go.uber.org/zap"
 )
 
 func PermissionDifference(old, new []*models.Permission) (toAdd, toRemove []*models.Permission) {
@@ -67,7 +67,7 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return nil, err
 	}
@@ -81,7 +81,7 @@ func (adp *GroupPersistanceAdapter) CreateGroup(ctx context.Context, groupName s
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (adp *GroupPersistanceAdapter) UpdateGroup(ctx context.Context, groupData *
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -178,7 +178,7 @@ func (adp *GroupPersistanceAdapter) DeleteGroup(ctx context.Context, groupID uui
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 
 		var pgErr *pgconn.PgError
@@ -222,7 +222,7 @@ func (adp *GroupPersistanceAdapter) AddPermissions(ctx context.Context, groupID 
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -245,7 +245,7 @@ func (adp *GroupPersistanceAdapter) AddPermissions(ctx context.Context, groupID 
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -263,7 +263,7 @@ func (adp *GroupPersistanceAdapter) RemovePermissions(ctx context.Context, group
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}
@@ -285,7 +285,7 @@ func (adp *GroupPersistanceAdapter) RemovePermissions(ctx context.Context, group
 	if err != nil {
 		rbErr := tx.Rollback()
 		if rbErr != nil {
-			log.Default().Println(rbErr.Error())
+			zap.L().Error(rbErr.Error())
 		}
 		return err
 	}

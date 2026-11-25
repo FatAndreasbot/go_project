@@ -9,6 +9,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type JWTHandler struct {
@@ -72,7 +73,7 @@ func (h *JWTHandler) DecodeJWT(ctx context.Context, signedToken string) (uuid.UU
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}),
 	)
 	if err != nil {
-		log.Default().Println(err)
+		zap.L().Error(err.Error())
 		return uuid.Nil, err
 	}
 

@@ -3,7 +3,6 @@ package grpcadapter
 import (
 	"context"
 	"errors"
-	"log"
 	v1 "proto/common/v1"
 	proto "proto/user_service/v1"
 	"time"
@@ -12,6 +11,7 @@ import (
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -29,13 +29,13 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 
 	groupID, err := uuid.Parse(groupIDString)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.InvalidArgument, "groupID is not UUID")
 	}
 
 	idempotencyKey, err := uuid.Parse(req.GetIdempotencyKey())
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -54,7 +54,7 @@ func (s *Server) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (
 		if errors.Is(err, dominaerrors.IdempotencyFail) {
 			return nil, status.Error(codes.AlreadyExists, "user creation request was already sent")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -77,13 +77,13 @@ func (s *Server) GetUser(ctx context.Context, req *proto.GetUserRequest) (*proto
 	userIDString := req.GetUserId()
 	userID, err := uuid.Parse(userIDString)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.InvalidArgument, "error wile parsing userid")
 	}
 
 	user, err := s.userHandler.GetUserByID(ctx, userID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -113,7 +113,7 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 	} else {
 		objectID, err = uuid.Parse(req.GetCursor().GetId())
 		if err != nil {
-			log.Default().Println(err.Error())
+			zap.L().Error(err.Error())
 			return nil, status.Error(codes.InvalidArgument, "could not parse uuid")
 		}
 
@@ -132,7 +132,7 @@ func (s *Server) GetUsers(ctx context.Context, req *proto.GetUsersRequest) (*pro
 			return nil, status.Error(codes.OutOfRange, "no more users in list")
 		}
 
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -186,7 +186,7 @@ func (s *Server) UpdateUser(ctx context.Context, req *proto.UpdateUserDataReques
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -210,7 +210,7 @@ func (s *Server) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (
 		if errors.Is(err, dominaerrors.NotEnoughPermission) {
 			return nil, status.Error(codes.PermissionDenied, "user lacks permissions")
 		}
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -225,7 +225,7 @@ func (s *Server) GetProfile(ctx context.Context, req *emptypb.Empty) (*proto.Get
 
 	user, err := s.userHandler.GetUserByID(ctx, userID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
@@ -252,7 +252,7 @@ func (s *Server) UpdatePassword(ctx context.Context, req *proto.UpdatePasswordRe
 			return nil, status.Error(codes.InvalidArgument, "old password is incorrect")
 		}
 
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 	return &emptypb.Empty{}, nil

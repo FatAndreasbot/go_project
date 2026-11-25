@@ -12,6 +12,7 @@ import (
 	"github.com/FatAndreasbot/go_project/user_service/ports/incoming"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
 
 type MiddlewareGenerator struct {
@@ -61,7 +62,7 @@ func (mg *MiddlewareGenerator) GetAuthFunction(publicMethods []string) models.In
 
 		userID, err := jwtHandler.DecodeJWT(ctx, token)
 		if err != nil {
-			log.Default().Println(err)
+			zap.L().Error(err.Error())
 			return ctx, errors.New("error when reading parsing sessionID")
 		}
 

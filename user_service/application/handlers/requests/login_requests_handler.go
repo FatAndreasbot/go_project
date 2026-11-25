@@ -3,12 +3,12 @@ package requests
 import (
 	"context"
 	"errors"
-	"log"
 
 	domainerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
 	"github.com/FatAndreasbot/go_project/user_service/ports/application"
 	"github.com/FatAndreasbot/go_project/user_service/ports/outgoing"
+	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 )
@@ -45,7 +45,7 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 	if err != nil {
 		h.passwordEncrypter.FakeCheckPassword(password)
 
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		if errors.Is(err, domainerrors.NotFound) {
 			return nil, domainerrors.InvalidCredentials
 		}
@@ -54,25 +54,25 @@ func (h *LoginRequestsHandlerImpl) Login(ctx context.Context, email, password st
 
 	err = h.passwordEncrypter.CheckPassword(password, user)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, domainerrors.InvalidCredentials
 	}
 
 	sessionKey, err := h.sessionHandler.CreateSession(ctx)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, SessionError
 	}
 	h.sessionHandler.SetData(ctx, sessionKey, userIDSessionKey, user.ID)
 
 	accessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, sessionKey)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, JWTError
 	}
 	refreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, sessionKey)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, JWTError
 	}
 
@@ -94,23 +94,23 @@ func (h *LoginRequestsHandlerImpl) Logout(ctx context.Context, userID uuid.UUID)
 func (h *LoginRequestsHandlerImpl) Refresh(ctx context.Context, RefreshToken string) (*models.Tokens, error) {
 	sessionID, err := h.jwtHandler.DecodeJWT(ctx, RefreshToken)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, err
 	}
 	err = h.sessionHandler.ExtendSession(ctx, sessionID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, err
 	}
 
 	NewAccessToken, accessExpiresAt, err := h.jwtHandler.EncodeAccessJWT(ctx, sessionID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, JWTError
 	}
 	newRefreshToken, refreshExpiresAt, err := h.jwtHandler.EncodeRefreshJWT(ctx, sessionID)
 	if err != nil {
-		log.Default().Println(err.Error())
+		zap.L().Error(err.Error())
 		return nil, JWTError
 	}
 

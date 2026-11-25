@@ -3,10 +3,10 @@ package grpcadapter
 import (
 	"context"
 	"errors"
-	"log"
 	proto "proto/user_service/v1"
 
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 
 	dominaerrors "github.com/FatAndreasbot/go_project/user_service/domain/errors"
 	"github.com/FatAndreasbot/go_project/user_service/domain/models"
@@ -51,12 +51,12 @@ func (s *Server) LogOut(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, 
 
 	rawUserID := ctx.Value(models.UserdataKey)
 	if rawUserID == nil {
-		log.Default().Println("attempted to log out without an access token")
+		zap.L().Info("attempted to log out without an access token")
 		return &emptypb.Empty{}, nil
 	}
 	userID, ok := rawUserID.(uuid.UUID)
 	if !ok {
-		log.Default().Println("the userID was not a UUID")
+		zap.L().Info("the userID was not a UUID")
 		return nil, status.Error(codes.Internal, "unexpected error")
 	}
 
