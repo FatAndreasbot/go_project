@@ -18,7 +18,7 @@ type LoginRequestsHandlerImpl struct {
 	userRepository outgoing.UserRepository
 	sessionHandler outgoing.SessionHandler
 
-	jwtHandler        application.JWTHandlerPort
+	jwtHandler        application.JWTUsecasePort
 	passwordEncrypter application.PasswordEncrypter
 }
 
@@ -26,7 +26,7 @@ func NewLoginRequestHandler(
 	userRepository outgoing.UserRepository,
 	sessionHandler outgoing.SessionHandler,
 
-	jwtHandler application.JWTHandlerPort,
+	jwtHandler application.JWTUsecasePort,
 	passwordEncrypter application.PasswordEncrypter,
 ) *LoginRequestsHandlerImpl {
 	return &LoginRequestsHandlerImpl{

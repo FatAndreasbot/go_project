@@ -32,7 +32,7 @@ func TestJWTEncoding(t *testing.T) {
 	user, jwtHandler := prepareTestData()
 	ctx := context.Background()
 
-	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user)
+	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user.ID)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -43,7 +43,7 @@ func TestJWTDecoding(t *testing.T) {
 	user, jwtHandler := prepareTestData()
 	ctx := context.Background()
 
-	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user)
+	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user.ID)
 	if err != nil {
 		t.Error(err.Error())
 	}
@@ -62,7 +62,7 @@ func TestJWTTimeout(t *testing.T) {
 	user, jwtHandler := prepareTestData()
 	ctx := context.Background()
 
-	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user)
+	jwt, _, err := jwtHandler.EncodeAccessJWT(ctx, user.ID)
 	if err != nil {
 		t.Error(err.Error())
 	}

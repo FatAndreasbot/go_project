@@ -25,7 +25,7 @@ func setupIncomingAdapters(
 	sessionHandler outgoing.SessionHandler,
 
 	permissionHandler application.PermissionHandlerPort,
-	jwtHandler application.JWTHandlerPort,
+	jwtHandler application.JWTUsecasePort,
 ) error {
 	port := config.GetPort()
 

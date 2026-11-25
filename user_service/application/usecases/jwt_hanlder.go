@@ -21,13 +21,13 @@ func NewJWTHandler(config *models.ConfigOptions) *JWTHandler {
 	}
 }
 
-func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
+func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, sessionID uuid.UUID) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
 	expTime := h.config.GetAccessJWTExpiration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   user.ID.String(),
+		Subject:   sessionID.String(),
 		ExpiresAt: jwt.NewNumericDate(tokenIssuedAt.Add(expTime)),
 		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})
@@ -41,13 +41,13 @@ func (h *JWTHandler) EncodeAccessJWT(ctx context.Context, user *models.User) (st
 	return signedToken, tokenIssuedAt.Add(expTime), nil
 }
 
-func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, user *models.User) (string, time.Time, error) {
+func (h *JWTHandler) EncodeRefreshJWT(ctx context.Context, sessionID uuid.UUID) (string, time.Time, error) {
 	tokenIssuedAt := time.Now()
 
 	expTime := h.config.GetRefreshJWTExpiration()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{
-		Subject:   user.ID.String(),
+		Subject:   sessionID.String(),
 		ExpiresAt: jwt.NewNumericDate(tokenIssuedAt.Add(expTime)),
 		IssuedAt:  jwt.NewNumericDate(tokenIssuedAt),
 	})

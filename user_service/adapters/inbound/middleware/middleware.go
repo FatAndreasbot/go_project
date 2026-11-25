@@ -15,7 +15,7 @@ import (
 )
 
 type MiddlewareGenerator struct {
-	jwtHandler        application.JWTHandlerPort
+	jwtHandler        application.JWTUsecasePort
 	sessionHander     outgoing.SessionHandler
 	permissionHandler application.PermissionHandlerPort
 
@@ -24,7 +24,7 @@ type MiddlewareGenerator struct {
 }
 
 func NewMiddlewareGenerator(
-	jwtHandler application.JWTHandlerPort,
+	jwtHandler application.JWTUsecasePort,
 	sessionHander outgoing.SessionHandler,
 	permissionHandler application.PermissionHandlerPort,
 	getEndpoint func(context.Context) (string, error),
@@ -62,7 +62,7 @@ func (mg *MiddlewareGenerator) GetAuthFunction(publicMethods []string) models.In
 		userID, err := jwtHandler.DecodeJWT(ctx, token)
 		if err != nil {
 			log.Default().Println(err)
-			return ctx, errors.New("error when reading parsing userID")
+			return ctx, errors.New("error when reading parsing sessionID")
 		}
 
 		if err := sessionHandler.CheckSession(ctx, userID); err != nil {

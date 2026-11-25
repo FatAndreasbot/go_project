@@ -14,7 +14,7 @@ func SetupBaseHandlers(
 	userRepository outgoing.UserRepository,
 	groupRepository outgoing.GroupRepository,
 ) (
-	jwtHandler application.JWTHandlerPort,
+	jwtHandler application.JWTUsecasePort,
 	permissionHandler application.PermissionHandlerPort,
 	passwordEncryptionHandler application.PasswordEncrypter,
 ) {
@@ -35,7 +35,7 @@ func SetupHandlers(
 	groupRepository outgoing.GroupRepository,
 	permissionRepository outgoing.PermissionRepository,
 
-	jwtHandler application.JWTHandlerPort,
+	jwtHandler application.JWTUsecasePort,
 	permissionHandler application.PermissionHandlerPort,
 	passwordEncrypter application.PasswordEncrypter,
 ) (
