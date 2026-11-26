@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package user_service.v1;
 
-import "common/v1/user.proto";
 import "common/v1/pagination_cursor.proto";
+import "common/v1/user.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "pb/validate/validate.proto";
@@ -29,8 +29,10 @@ service UserService {
   rpc GetGroup(GetGroupRequest) returns (GetGroupResponse);
   rpc GetGroups(GetGroupsRequest) returns (GetGroupsResponse);
   rpc UpdateGroup(UpdateGroupRequest) returns (google.protobuf.Empty);
-  rpc AddPermissionToGroup(AddPermissionToGroupRequest) returns (google.protobuf.Empty);
-  rpc RemovePermissionFromGroup(RemovePermissionFromGroupRequest) returns (google.protobuf.Empty);
+  rpc AddPermissionToGroup(AddPermissionToGroupRequest)
+    returns (google.protobuf.Empty);
+  rpc RemovePermissionFromGroup(RemovePermissionFromGroupRequest)
+    returns (google.protobuf.Empty);
   rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty);
 
   // Permissions

@@ -7,7 +7,7 @@ CREATE TABLE public.group_permissions (
 );
 
 CREATE TABLE public.groups (
-    name character varying NOT NULL,
+    name character varying NOT NULL UNIQUE,
     created_at timestamp DEFAULT now() NOT NULL,
     idempotency_key uuid NOT NULL UNIQUE,
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY

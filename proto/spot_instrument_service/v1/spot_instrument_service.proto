@@ -2,6 +2,11 @@ syntax = "proto3";
 
 package spot_instrument_service.v1;
 
+import "common/v1/market.proto";
+import "common/v1/pagination_cursor.proto";
+import "common/v1/user.proto";
+import "google/protobuf/empty.proto";
+
 option go_package = "proto/spot_instrument_service";
 
 service SpotInstrumentService {
@@ -9,22 +14,73 @@ service SpotInstrumentService {
 
   // MarketCRUD
   rpc CreateMarket(CreateMarketRequest) returns (CreateMarketResponse);
-  rpc DeleteMarket(DeleteMarketRequest) returns (DeleteMarketResponse);
-  rpc UpdateMarket(UpdateMarketRequest) returns (UpdateMarketResponse);
+  rpc DeleteMarket(DeleteMarketRequest) returns (google.protobuf.Empty);
+  rpc UpdateMarket(UpdateMarketRequest) returns (google.protobuf.Empty);
+  rpc GetAllMarkets(GetAllMarketsRequest) returns (GetAllMarketsResponse);
+  rpc GetMarket(GetMarketRequest) returns (GetMarketResponse);
 }
 
-message ViewMarketsRequest {}
+message ViewMarketsRequest {
+  optional common.v1.PaginationCursor cursor = 1;
+  int32                               limit  = 2[
+    (buf.validate.field).int32.lte = 100,
+    (buf.validate.field).int32.gte = 1
+  ];
+}
 
-message ViewMarketsResponse {}
+message ViewMarketsResponse {
+  repeated common.v1.Market  markets = 1;
+  common.v1.PaginationCursor cursor  = 2;
+}
 
-message CreateMarketRequest{}
+message CreateMarketRequest{
+  string name = 1[
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  common.v1.UserPermission permission = 2;
+}
 
-message DeleteMarketRequest{}
+message DeleteMarketRequest{
+  string id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+}
 
-message UpdateMarketRequest{}
+message UpdateMarketRequest{
+  string id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+  optional string new_name = 2[
+    (buf.validate.field).string.min_len = 1,
+    (buf.validate.field).string.max_len = 255
+  ];
+  optional bool enabled = 3;
+}
 
-message CreateMarketResponse {}
+message CreateMarketResponse {
+  common.v1.Market market = 1;
+}
 
-message DeleteMarketResponse {}
+message GetAllMarketsRequest{
+  optional common.v1.PaginationCursor cursor = 1;
+  int32                               limit  = 2[
+    (buf.validate.field).int32.lte = 100,
+    (buf.validate.field).int32.gte = 1
+  ];
+}
 
-message UpdateMarketResponse {}
+message GetAllMarketsResponse {
+  repeated common.v1.Market  markets = 1;
+  common.v1.PaginationCursor cursor  = 2;
+}
+
+message GetMarketRequest {  
+  string id = 1[
+    (buf.validate.field).string.uuid = true
+  ];
+}
+
+message GetMarketResponse {
+  common.v1.Market  markets = 1;
+}
